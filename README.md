@@ -1,3 +1,3 @@
-# RoseGB - Another Game Boy Emulator
+# RoseGB - Yet Another Game Boy Emulator
 
 Currently WIP - come back another time!
