@@ -26,7 +26,7 @@ project(
   "RoseGB"
   VERSION 1.0
   DESCRIPTION "Game Boy Emulator"
-  LANGUAGES CXX
+  LANGUAGES CXX C
 )
 
 # https://github.com/libsdl-org/SDL/blob/main/docs/INTRO-cmake.md
