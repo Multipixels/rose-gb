@@ -23,7 +23,6 @@ add_executable("RoseGB"
 
 
 set_property(TARGET "RoseGB" PROPERTY CXX_STANDARD 23)
-set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT "RoseGB")
 target_link_libraries(RoseGB PRIVATE vendor glad)
 
 target_include_directories(RoseGB PUBLIC 

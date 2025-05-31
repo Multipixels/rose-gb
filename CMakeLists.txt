@@ -4,9 +4,6 @@ cmake_minimum_required(VERSION 3.15)
 set(CMAKE_CXX_STANDARD 23)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-
-
-
 if(${CMAKE_BUILD_TYPE} MATCHES Debug)
     set(RELEASE_BUILD OFF)
 else()
@@ -18,9 +15,6 @@ if(RELEASE_BUILD)
 else()
     set(CMAKE_INTERPROCEDURAL_OPTIMIZATION FALSE)
 endif()
-
-
-
 
 project(
   "RoseGB"
@@ -35,9 +29,8 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIGURATION>")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIGURATION>")
 
 add_subdirectory(vendor EXCLUDE_FROM_ALL)
-add_subdirectory(src EXCLUDE_FROM_ALL)
-
-
+add_subdirectory(src)
+set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT RoseGB)
 
 
 
