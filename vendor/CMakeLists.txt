@@ -4,3 +4,6 @@ add_subdirectory(SDL EXCLUDE_FROM_ALL)
 
 add_library(vendor INTERFACE EXCLUDE_FROM_ALL)
 target_link_libraries(vendor INTERFACE SDL3::SDL3)
+
+add_library(glad INTERFACE EXCLUDE_FROM_ALL glad/gl.c)
+target_include_directories(glad INTERFACE glad)
