@@ -2,6 +2,9 @@
 
 #include "glad.h"
 #include "SDL3/SDL.h"
+#include "imgui.h"
+#include "backends/imgui_impl_sdl3.h"
+#include "backends/imgui_impl_opengl3.h"
 
 int main() {
 	SDL_Init(SDL_INIT_VIDEO);
@@ -26,6 +29,18 @@ int main() {
 
 	SDL_GL_SetSwapInterval(1);
 
+	// Setup Dear ImGui context
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO();
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // IF using Docking Branch
+
+	// Setup Platform/Renderer backends
+	ImGui_ImplSDL3_InitForOpenGL(window, glContext);
+	ImGui_ImplOpenGL3_Init();
+
 	bool running = true;
 	SDL_Event event;
 
@@ -34,14 +49,34 @@ int main() {
 			if (event.type == SDL_EVENT_QUIT) {
 				running = false;
 			}
+			else
+			{
+				ImGui_ImplSDL3_ProcessEvent(&event); // Forward your event to backend
+			}
 		}
+
+		// Start the Dear ImGui frame
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplSDL3_NewFrame();
+		ImGui::NewFrame();
+		ImGui::ShowDemoWindow(); // Show demo window! :)
 
 		// Rendering commands
 		glClearColor(0.1f, 0.1f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
+		
+		// Rendering
+		// (Your code clears your framebuffer, renders your other stuff etc.)
+		ImGui::Render();
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+		// (Your code calls SDL_GL_SwapWindow() etc.)
 
 		SDL_GL_SwapWindow(window);
 	}
+	
+	ImGui_ImplOpenGL3_Shutdown();
+	ImGui_ImplSDL3_Shutdown();
+	ImGui::DestroyContext();
 
 	SDL_GL_DestroyContext(glContext);
 	SDL_DestroyWindow(window);

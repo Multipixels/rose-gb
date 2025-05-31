@@ -1,11 +1,33 @@
+set(ImGuiSource ../vendor/ImGui/imgui.cpp 
+                ../vendor/ImGui/imgui.h 
+                ../vendor/ImGui/imgui_demo.cpp 
+                ../vendor/ImGui/imgui_draw.cpp 
+                ../vendor/ImGui/imgui_internal.h
+                ../vendor/ImGui/imgui_tables.cpp 
+                ../vendor/ImGui/imgui_widgets.cpp 
+                ../vendor/ImGui/imstb_rectpack.h 
+                ../vendor/ImGui/imstb_textedit.h
+                ../vendor/ImGui/imstb_truetype.h
+                ../vendor/ImGui/backends/imgui_impl_sdl3.cpp
+                ../vendor/ImGui/backends/imgui_impl_sdl3.h
+                ../vendor/ImGui/backends/imgui_impl_opengl3.cpp
+                ../vendor/ImGui/backends/imgui_impl_opengl3.h
+                ../vendor/ImGui/misc/cpp/imgui_stdlib.cpp
+                ../vendor/ImGui/misc/cpp/imgui_stdlib.h
+)
+
 add_executable("RoseGB" 
     "main.cpp"
+    ${ImGuiSource}
 )
+
+
 set_property(TARGET "RoseGB" PROPERTY CXX_STANDARD 23)
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT "RoseGB")
 target_link_libraries(RoseGB PRIVATE vendor glad)
 
 target_include_directories(RoseGB PUBLIC 
+    "../vendor/ImGui"
     # "src/ast"
 )
 
