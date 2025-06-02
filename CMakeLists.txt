@@ -23,6 +23,8 @@ project(
   LANGUAGES CXX C
 )
 
+FILE(COPY "tests" DESTINATION "${CMAKE_BINARY_DIR}")
+
 # https://github.com/libsdl-org/SDL/blob/main/docs/INTRO-cmake.md
 # Ensures DLLs go into build directory correctly
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIGURATION>")

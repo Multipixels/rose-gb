@@ -19,8 +19,15 @@ set(ImGuiSource ../vendor/ImGui/imgui.cpp
 add_executable("RoseGB" 
     "main.cpp"
     ${ImGuiSource}
-)
-
+    "cpu/cpu.cpp"
+    "cpu/cpu.h"
+    "mmu/mmu.cpp"
+    "mmu/mmu.h"
+    "rose.cpp" 
+    "rose.h"
+    "cartridge/cartridge.cpp" 
+    "cartridge/cartridge.h" 
+    "utility/definitions.h")
 
 set_property(TARGET "RoseGB" PROPERTY CXX_STANDARD 23)
 target_link_libraries(RoseGB PRIVATE vendor glad)
