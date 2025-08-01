@@ -7,8 +7,9 @@ namespace cartridge
 		memory = std::vector<u8>(65536, 0);
 	}
 
-	void Cartridge::loadIntoCartridge(std::filebuf* cartData)
+	int Cartridge::loadIntoCartridge(std::filebuf* cartData)
 	{
 		cartData->sgetn((char*)&memory[0], memory.size() * sizeof(memory[0]));
+		return 0;
 	}
 }

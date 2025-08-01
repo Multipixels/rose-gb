@@ -12,7 +12,7 @@ namespace cartridge
 	public:
 		Cartridge();
 
-		void loadIntoCartridge(std::filebuf* cartData);
+		int loadIntoCartridge(std::filebuf* cartData);
 		std::vector<u8> memory;
 	private:
 	};

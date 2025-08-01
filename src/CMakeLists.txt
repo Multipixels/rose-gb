@@ -34,7 +34,6 @@ target_link_libraries(RoseGB PRIVATE vendor glad)
 
 target_include_directories(RoseGB PUBLIC 
     "../vendor/ImGui"
-    # "src/ast"
 )
 
 

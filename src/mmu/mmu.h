@@ -1,5 +1,6 @@
 #pragma once
 
+#include <fstream>
 #include <vector>
 
 #include "../utility/definitions.h"
@@ -9,8 +10,12 @@ namespace mmu
 	class MMU 
 	{
 	public:
+		MMU();
+
+		int loadCartridgeData(std::filebuf* cartData);
 	private:
-		std::vector<u16> memory;
+		std::vector<u16> memory; // 0-65535
+		
 		/*u16* bankZero = &memory;
 		u16* bankOne = &memory[16384];
 		u16* vRAM = &memory[32768];
