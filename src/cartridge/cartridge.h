@@ -1,5 +1,8 @@
 #pragma once
 
+#include <fstream>
+#include <vector>
+
 #include "../utility/definitions.h"
 
 namespace cartridge
@@ -7,6 +10,10 @@ namespace cartridge
 	class Cartridge
 	{
 	public:
-		u16 memory[32768];
+		Cartridge();
+
+		void loadIntoCartridge(std::filebuf* cartData);
+		std::vector<u8> memory;
+	private:
 	};
 }

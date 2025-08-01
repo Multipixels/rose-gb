@@ -9,8 +9,8 @@ namespace mmu
 	class MMU 
 	{
 	public:
-		u16 memory[65536];
 	private:
+		std::vector<u16> memory;
 		/*u16* bankZero = &memory;
 		u16* bankOne = &memory[16384];
 		u16* vRAM = &memory[32768];
