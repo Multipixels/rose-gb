@@ -6,10 +6,10 @@
 namespace rose
 {
 	Rose::Rose() 
+		: cart(cartridge::Cartridge())
+		, mmu(mmu::MMU())
+		, cpu(cpu::CPU(&mmu))
 	{
-		cart = cartridge::Cartridge();
-		cpu = cpu::CPU();
-		mmu = mmu::MMU();
 	}
 
 	// Loads the cartridge and boots up the Game Boy

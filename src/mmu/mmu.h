@@ -13,6 +13,11 @@ namespace mmu
 		MMU();
 
 		int loadCartridgeData(std::filebuf* cartData);
+
+		u16 getU16(int address);
+		int setU16(int address, u16 value);
+		int setU8(int address, u8 value);
+
 	private:
 		std::vector<u16> memory; // 0-65535
 		

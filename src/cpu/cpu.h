@@ -1,31 +1,191 @@
 #pragma once
 #include "../utility/definitions.h"
+#include "../mmu/mmu.h"
 
 namespace cpu
 {
 	class CPU
 	{
 	public:
-		void interpretInstruction();
+		CPU(mmu::MMU* mmu);
+
+		void executeInstruction(u8 instr);
+		u16 getBytePair();
 	private:
+		// Reference to MMU
+		mmu::MMU* mmu;
+
+		// Typedefs and Enums
+		typedef u16 Register16;
+		typedef u8 Register8;
+
 		// Registers
-		// Each 16 bits. BC, DE, FE can act as two 8-bit registers.
-		// First 8 bits of accumulatorFlags is register A, last 8 bits are flags.
+			// Each 16 bits. BC, DE, FE can act as two 8-bit registers.
+			// First 8 bits of accumulatorFlags is register A, last 8 bits are flags.
 
 		// Flags
-		// bit 7 "z": zero flag. used for conditional jumps, set if result of operation is 0
-		// bit 6 "n": subtraction flag
-		// bit 5 "h": half carry flag
-		// bit 4 "c": carry flag
-		u16 accumulatorFlags;
-		u16 bc; 
-		u16 de;
-		u16 hl;
-		u16 stackPointer;
-		u16 programCounter;
+			// bit 7 "z": zero flag. used for conditional jumps, set if result of operation is 0
+			// bit 6 "n": subtraction flag
+			// bit 5 "h": half carry flag
+			// bit 4 "c": carry flag
+		Register16 accumulatorFlags = 0;
+		Register16 bc = 0;
+		Register16 de = 0;
+		Register16 hl = 0;
+		Register16 stackPointer = 0;
+		Register16 programCounter = 0;
 
-		// CPU Instructions
-		// 8 bit opcodes
+		// Getters, Setters, Incrementers
+		Register8 getRegisterA();
+		Register8 getRegisterF();
+		Register8 getRegisterB();
+		Register8 getRegisterC();
+		Register8 getRegisterD();
+		Register8 getRegisterE();
+		Register8 getRegisterH();
+		Register8 getRegisterL();
+
+		void setRegisterA(u8 value);
+		void setRegisterF(u8 value);
+		void setRegisterB(u8 value);
+		void setRegisterC(u8 value);
+		void setRegisterD(u8 value);
+		void setRegisterE(u8 value);
+		void setRegisterH(u8 value);
+		void setRegisterL(u8 value);
+
+		// CPU Instruction Set: https://rgbds.gbdev.io/docs/v0.9.4/gbz80.7
+			// Loads
+		void LD_R8_R8(Register8* ra, Register8* rb);
+		void LD_R8_N8(Register8* r, u8 n);
+		void LD_R16_N16(Register16* r, u16 n);
+		void LD_HL_R8(Register8* r);
+		void LD_HL_N8(u8 n);
+		void LD_R8_HL(Register8* r);
+		void LD_R16_A(Register16* r);
+		void LD_N16_A(u16 n);
+		void LDH_N16_A(u16 n);
+		void LDH_C_A(int c);
+		void LD_A_R16(Register16* r);
+		void LD_A_N16(u16 n);
+		void LDH_A_N16(u16 n);
+		void LDH_A_C(int c);
+		void LD_HLI_A();
+		void LD_HLD_A();
+		void LD_A_HLI();
+		void LD_A_HLD();
+
+			// 8-bit Arithmetic
+		void ADC_A_R8();
+		void ADC_A_HL();
+		void ADC_A_N8();
+		void ADD_A_R8();
+		void ADD_A_HL();
+		void ADD_A_n8();
+		void CP_A_R8();
+		void CP_A_HL();
+		void CP_A_N8();
+		void DEC_R8();
+		void DEC_HL();
+		void INC_R8();
+		void INC_HL();
+		void SBC_A_R8();
+		void SBC_A_HL();
+		void SBC_A_N8();
+		void SUB_A_R8();
+		void SUB_A_HL();
+		void SUB_A_N8();
+
+			// 16-bit Arithmetic
+		void ADD_HL_R16();
+		void DEC_R16();
+		void INC_R16();
+
+			// Bitwise Logic
+		void AND_A_R8();
+		void AND_A_HL();
+		void AND_A_N8();
+		void CPL();
+		void OR_A_R8();
+		void OR_A_HL();
+		void OR_A_N8();
+		void XOR_A_R8();
+		void XOR_A_HL();
+		void XOR_A_N8();
+
+			// Bit Flags
+		void BIT_U3_R8();
+		void BIT_U3_HL();
+		void RES_U3_R8();
+		void RES_U3_HL();
+		void SET_U3_R8();
+		void SET_U3_HL();
+
+			// Bit Shifts
+		void RL_R8();
+		void RL_HL();
+		void RL_A();
+		void RL_C_R8();
+		void RL_C_HL();
+		void RL_C_A();
+		void RR_R8();
+		void RR_HL();
+		void RR_A();
+		void RR_C_R8();
+		void RR_C_HL();
+		void RR_C_A();
+		void SL_A_R8();
+		void SL_A_HL();
+		void SR_A_R8();
+		void SR_A_HL();
+		void SR_L_R8();
+		void SRL_HL();
+		void SWAP_R8();
+		void SWAP_HL();
+
+			// Jumps and Subroutines
+		void CALL_N16();
+		void CALL_CC_N16();
+		void JP_HL();
+		void JP_N16();
+		void JP_CC_N16();
+		void JR_N16();
+		void JR_CC_N16();
+		void RET_CC();
+		void RET();
+		void RETI();
+		void RST_VEC();
+
+			// Carry Flag
+		void CCF();
+		void SCF();
+
+			// Stack Manipulation
+		void ADD_HL_SP();
+		void ADD_SP_E8();
+		void DEC_SP();
+		void INC_SP();
+		void LD_SP_N16();
+		void LD_N16_SP();
+		void LD_HL_SP_E8();
+		void LD_SP_HL();
+		void POP_AF();
+		void POP_R16();
+		void PUSH_AF();
+		void PUSH_R16();
+
+			// Interrupt Related
+		void DI();
+		void EI();
+		void HALT();
+
+			// Miscellaneous
+		void DAA();
+		void NOP();
+		void STOP();
+
+		// OP Codes
+			// 8 bit opcodes
 		void op_00(); void op_01(); void op_02(); void op_03(); void op_04(); void op_05(); void op_06(); void op_07(); void op_08(); void op_09(); void op_0A(); void op_0B(); void op_0C(); void op_0D(); void op_0E(); void op_0F();
 		void op_10(); void op_11(); void op_12(); void op_13(); void op_14(); void op_15(); void op_16(); void op_17(); void op_18(); void op_19(); void op_1A(); void op_1B(); void op_1C(); void op_1D(); void op_1E(); void op_1F();
 		void op_20(); void op_21(); void op_22(); void op_23(); void op_24(); void op_25(); void op_26(); void op_27(); void op_28(); void op_29(); void op_2A(); void op_2B(); void op_2C(); void op_2D(); void op_2E(); void op_2F();
@@ -43,7 +203,7 @@ namespace cpu
 		void op_E0(); void op_E1(); void op_E2(); void op_E3(); void op_E4(); void op_E5(); void op_E6(); void op_E7(); void op_E8(); void op_E9(); void op_EA(); void op_EB(); void op_EC(); void op_ED(); void op_EE(); void op_EF();
 		void op_F0(); void op_F1(); void op_F2(); void op_F3(); void op_F4(); void op_F5(); void op_F6(); void op_F7(); void op_F8(); void op_F9(); void op_FA(); void op_FB(); void op_FC(); void op_FD(); void op_FE(); void op_FF();
 		
-		// 16 bit opcodes starting with CB
+			// 16 bit opcodes starting with CB
 		void op_cb00(); void op_cb01(); void op_cb02(); void op_cb03(); void op_cb04(); void op_cb05(); void op_cb06(); void op_cb07(); void op_cb08(); void op_cb09(); void op_cb0A(); void op_cb0B(); void op_cb0C(); void op_cb0D(); void op_cb0E(); void op_cb0F();
 		void op_cb10(); void op_cb11(); void op_cb12(); void op_cb13(); void op_cb14(); void op_cb15(); void op_cb16(); void op_cb17(); void op_cb18(); void op_cb19(); void op_cb1A(); void op_cb1B(); void op_cb1C(); void op_cb1D(); void op_cb1E(); void op_cb1F();
 		void op_cb20(); void op_cb21(); void op_cb22(); void op_cb23(); void op_cb24(); void op_cb25(); void op_cb26(); void op_cb27(); void op_cb28(); void op_cb29(); void op_cb2A(); void op_cb2B(); void op_cb2C(); void op_cb2D(); void op_cb2E(); void op_cb2F();
