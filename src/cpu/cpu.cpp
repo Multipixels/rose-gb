@@ -93,10 +93,28 @@ namespace cpu {
 		}
 	}
 
+	u8 CPU::getByte()
+	{
+		u8 returnValue = mmu->getU8(programCounter);
+		programCounter++;
+		return returnValue;
+	}
+
 	u16 CPU::getBytePair()
 	{
-		return mmu->getU16(programCounter);
+		u8 returnValue = mmu->getU16(programCounter);
+		programCounter++;
+		return returnValue;
 	}
+
+	CPU::Register8* CPU::getRegisterALoc() { return (Register8*) &accumulatorFlags; }
+	CPU::Register8* CPU::getRegisterFLoc() { return ((Register8*)&accumulatorFlags) + 1; }
+	CPU::Register8* CPU::getRegisterBLoc() { return (Register8*) &bc; }
+	CPU::Register8* CPU::getRegisterCLoc() { return ((Register8*)&bc) + 1; }
+	CPU::Register8* CPU::getRegisterDLoc() { return (Register8*) &de; }
+	CPU::Register8* CPU::getRegisterELoc() { return ((Register8*)&de) + 1; }
+	CPU::Register8* CPU::getRegisterHLoc() { return (Register8*) &hl; }
+	CPU::Register8* CPU::getRegisterLLoc() { return ((Register8*)&hl) + 1; }
 
 	CPU::Register8 CPU::getRegisterA() { return (accumulatorFlags >> 8) & 0xFF; }
 	CPU::Register8 CPU::getRegisterF() { return accumulatorFlags & 0xFF; }
@@ -156,9 +174,9 @@ namespace cpu {
 	void CPU::ADD_A_R8(CPU::Register8* r) { setRegisterA(getRegisterA() + *r); }
 	void CPU::ADD_A_HL() { setRegisterA(getRegisterA() + mmu->getU8(hl)); }
 	void CPU::ADD_A_N8(u8 n) { setRegisterA(getRegisterA() + n); }
-	void CPU::CP_A_R8() { /* TODO */ }
+	void CPU::CP_A_R8(CPU::Register8* r) { /* TODO */ }
 	void CPU::CP_A_HL() { /* TODO */ }
-	void CPU::CP_A_N8() { /* TODO */ }
+	void CPU::CP_A_N8(u8 n) { /* TODO */ }
 	void CPU::DEC_R8(CPU::Register8* r) { (*r)--; }
 	void CPU::DEC_HL() { mmu->setU8(hl, mmu->getU8(hl) - 1); }
 	void CPU::INC_R8(CPU::Register8* r) { (*r)++; }
@@ -264,208 +282,208 @@ namespace cpu {
 
 	// Operator Codes
 	void CPU::op_00() { /* does nothing */ }
-	void CPU::op_01() { /* TODO */; }
-	void CPU::op_02() { /* TODO */; }
-	void CPU::op_03() { /* TODO */; }
-	void CPU::op_04() { /* TODO */; }
-	void CPU::op_05() { /* TODO */; }
-	void CPU::op_06() { /* TODO */; }
-	void CPU::op_07() { /* TODO */; }
+	void CPU::op_01() { LD_R16_N16(&bc, getBytePair()); }
+	void CPU::op_02() { LD_R16_A(&bc); }
+	void CPU::op_03() { INC_R16(&bc); }
+	void CPU::op_04() { INC_R8(getRegisterBLoc()); }
+	void CPU::op_05() { DEC_R8(getRegisterBLoc()); }
+	void CPU::op_06() { LD_R8_N8(getRegisterBLoc(), getByte()); }
+	void CPU::op_07() { RL_C_A(); }
 	void CPU::op_08() { /* TODO */; }
-	void CPU::op_09() { /* TODO */; }
-	void CPU::op_0A() { /* TODO */; }
-	void CPU::op_0B() { /* TODO */; }
-	void CPU::op_0C() { /* TODO */; }
-	void CPU::op_0D() { /* TODO */; }
-	void CPU::op_0E() { /* TODO */; }
-	void CPU::op_0F() { /* TODO */; }
+	void CPU::op_09() { ADD_HL_R16(&bc); }
+	void CPU::op_0A() { LD_A_R16(&bc); }
+	void CPU::op_0B() { DEC_R16(&bc); }
+	void CPU::op_0C() { INC_R8(getRegisterCLoc()); }
+	void CPU::op_0D() { DEC_R8(getRegisterCLoc()); }
+	void CPU::op_0E() { LD_R8_N8(getRegisterCLoc(), getByte()); }
+	void CPU::op_0F() { RR_C_A(); }
 
-	void CPU::op_10() { /* TODO */; }
-	void CPU::op_11() { /* TODO */; }
-	void CPU::op_12() { /* TODO */; }
-	void CPU::op_13() { /* TODO */; }
-	void CPU::op_14() { /* TODO */; }
-	void CPU::op_15() { /* TODO */; }
-	void CPU::op_16() { /* TODO */; }
-	void CPU::op_17() { /* TODO */; }
-	void CPU::op_18() { /* TODO */; }
-	void CPU::op_19() { /* TODO */; }
-	void CPU::op_1A() { /* TODO */; }
-	void CPU::op_1B() { /* TODO */; }
-	void CPU::op_1C() { /* TODO */; }
-	void CPU::op_1D() { /* TODO */; }
-	void CPU::op_1E() { /* TODO */; }
-	void CPU::op_1F() { /* TODO */; }
+	void CPU::op_10() { STOP(); }
+	void CPU::op_11() { LD_R16_N16(&de, getBytePair());; }
+	void CPU::op_12() { LD_R16_A(&de); }
+	void CPU::op_13() { INC_R16(&de); }
+	void CPU::op_14() { INC_R8(getRegisterDLoc()); }
+	void CPU::op_15() { DEC_R8(getRegisterDLoc()); }
+	void CPU::op_16() { LD_R8_N8(getRegisterDLoc(), getByte()); }
+	void CPU::op_17() { RL_A(); }
+	void CPU::op_18() { /* TODO */; } // Clarify whether 8 bit or 16 bit
+	void CPU::op_19() { ADD_HL_R16(&de); }
+	void CPU::op_1A() { LD_A_R16(&de); }
+	void CPU::op_1B() { DEC_R16(&de); }
+	void CPU::op_1C() { INC_R8(getRegisterELoc()); }
+	void CPU::op_1D() { DEC_R8(getRegisterELoc()); }
+	void CPU::op_1E() { LD_R8_N8(getRegisterELoc(), getByte()); }
+	void CPU::op_1F() { RR_A(); }
 
 	void CPU::op_20() { /* TODO */; }
-	void CPU::op_21() { /* TODO */; }
-	void CPU::op_22() { /* TODO */; }
-	void CPU::op_23() { /* TODO */; }
-	void CPU::op_24() { /* TODO */; }
-	void CPU::op_25() { /* TODO */; }
-	void CPU::op_26() { /* TODO */; }
-	void CPU::op_27() { /* TODO */; }
-	void CPU::op_28() { /* TODO */; }
-	void CPU::op_29() { /* TODO */; }
-	void CPU::op_2A() { /* TODO */; }
-	void CPU::op_2B() { /* TODO */; }
-	void CPU::op_2C() { /* TODO */; }
-	void CPU::op_2D() { /* TODO */; }
-	void CPU::op_2E() { /* TODO */; }
-	void CPU::op_2F() { /* TODO */; }
+	void CPU::op_21() { LD_R16_N16(&hl, getBytePair());; }
+	void CPU::op_22() { LD_HLI_A(); }
+	void CPU::op_23() { INC_R16(&hl); }
+	void CPU::op_24() { INC_R8(getRegisterHLoc()); }
+	void CPU::op_25() { DEC_R8(getRegisterHLoc()); }
+	void CPU::op_26() { LD_R8_N8(getRegisterHLoc(), getByte()); }
+	void CPU::op_27() { DAA(); }
+	void CPU::op_28() { /* TODO */; } // Clarify whether 8 bit or 16 bit
+	void CPU::op_29() { ADD_HL_R16(&hl); }
+	void CPU::op_2A() { LD_A_HLI(); }
+	void CPU::op_2B() { DEC_R16(&hl);; }
+	void CPU::op_2C() { INC_R8(getRegisterLLoc()); }
+	void CPU::op_2D() { DEC_R8(getRegisterLLoc()); }
+	void CPU::op_2E() { LD_R8_N8(getRegisterLLoc(), getByte()); }
+	void CPU::op_2F() { CPL(); }
 
 	void CPU::op_30() { /* TODO */; }
-	void CPU::op_31() { /* TODO */; }
-	void CPU::op_32() { /* TODO */; }
-	void CPU::op_33() { /* TODO */; }
-	void CPU::op_34() { /* TODO */; }
-	void CPU::op_35() { /* TODO */; }
-	void CPU::op_36() { /* TODO */; }
-	void CPU::op_37() { /* TODO */; }
-	void CPU::op_38() { /* TODO */; }
-	void CPU::op_39() { /* TODO */; }
-	void CPU::op_3A() { /* TODO */; }
-	void CPU::op_3B() { /* TODO */; }
-	void CPU::op_3C() { /* TODO */; }
-	void CPU::op_3D() { /* TODO */; }
-	void CPU::op_3E() { /* TODO */; }
-	void CPU::op_3F() { /* TODO */; }
+	void CPU::op_31() { LD_R16_N16(&stackPointer, getBytePair());; }
+	void CPU::op_32() { LD_HLD_A(); }
+	void CPU::op_33() { INC_R16(&stackPointer); }
+	void CPU::op_34() { INC_HL(); }
+	void CPU::op_35() { DEC_HL(); }
+	void CPU::op_36() { LD_HL_N8(getByte()); }
+	void CPU::op_37() { SCF(); }
+	void CPU::op_38() { /* TODO */; } // Clarify whether 8 bit or 16 bit
+	void CPU::op_39() { ADD_HL_R16(&stackPointer); }
+	void CPU::op_3A() { LD_A_HLD(); }
+	void CPU::op_3B() { DEC_R16(&stackPointer);; }
+	void CPU::op_3C() { INC_R8(getRegisterALoc()); }
+	void CPU::op_3D() { DEC_R8(getRegisterALoc()); }
+	void CPU::op_3E() { LD_R8_N8(getRegisterALoc(), getByte()); }
+	void CPU::op_3F() { CCF(); }
 
-	void CPU::op_40() { /* TODO */; }
-	void CPU::op_41() { /* TODO */; }
-	void CPU::op_42() { /* TODO */; }
-	void CPU::op_43() { /* TODO */; }
-	void CPU::op_44() { /* TODO */; }
-	void CPU::op_45() { /* TODO */; }
-	void CPU::op_46() { /* TODO */; }
-	void CPU::op_47() { /* TODO */; }
-	void CPU::op_48() { /* TODO */; }
-	void CPU::op_49() { /* TODO */; }
-	void CPU::op_4A() { /* TODO */; }
-	void CPU::op_4B() { /* TODO */; }
-	void CPU::op_4C() { /* TODO */; }
-	void CPU::op_4D() { /* TODO */; }
-	void CPU::op_4E() { /* TODO */; }
-	void CPU::op_4F() { /* TODO */; }
+	void CPU::op_40() { LD_R8_R8(getRegisterBLoc(), getRegisterBLoc()); }
+	void CPU::op_41() { LD_R8_R8(getRegisterBLoc(), getRegisterCLoc()); }
+	void CPU::op_42() { LD_R8_R8(getRegisterBLoc(), getRegisterDLoc()); }
+	void CPU::op_43() { LD_R8_R8(getRegisterBLoc(), getRegisterELoc()); }
+	void CPU::op_44() { LD_R8_R8(getRegisterBLoc(), getRegisterHLoc()); }
+	void CPU::op_45() { LD_R8_R8(getRegisterBLoc(), getRegisterLLoc()); }
+	void CPU::op_46() { LD_R8_HL(getRegisterBLoc()); }
+	void CPU::op_47() { LD_R8_R8(getRegisterBLoc(), getRegisterALoc()); }
+	void CPU::op_48() { LD_R8_R8(getRegisterCLoc(), getRegisterBLoc()); }
+	void CPU::op_49() { LD_R8_R8(getRegisterCLoc(), getRegisterCLoc()); }
+	void CPU::op_4A() { LD_R8_R8(getRegisterCLoc(), getRegisterDLoc()); }
+	void CPU::op_4B() { LD_R8_R8(getRegisterCLoc(), getRegisterELoc()); }
+	void CPU::op_4C() { LD_R8_R8(getRegisterCLoc(), getRegisterHLoc()); }
+	void CPU::op_4D() { LD_R8_R8(getRegisterCLoc(), getRegisterLLoc()); }
+	void CPU::op_4E() { LD_R8_HL(getRegisterCLoc()); }
+	void CPU::op_4F() { LD_R8_R8(getRegisterCLoc(), getRegisterALoc()); }
 
-	void CPU::op_50() { /* TODO */; }
-	void CPU::op_51() { /* TODO */; }
-	void CPU::op_52() { /* TODO */; }
-	void CPU::op_53() { /* TODO */; }
-	void CPU::op_54() { /* TODO */; }
-	void CPU::op_55() { /* TODO */; }
-	void CPU::op_56() { /* TODO */; }
-	void CPU::op_57() { /* TODO */; }
-	void CPU::op_58() { /* TODO */; }
-	void CPU::op_59() { /* TODO */; }
-	void CPU::op_5A() { /* TODO */; }
-	void CPU::op_5B() { /* TODO */; }
-	void CPU::op_5C() { /* TODO */; }
-	void CPU::op_5D() { /* TODO */; }
-	void CPU::op_5E() { /* TODO */; }
-	void CPU::op_5F() { /* TODO */; }
+	void CPU::op_50() { LD_R8_R8(getRegisterDLoc(), getRegisterBLoc()); }
+	void CPU::op_51() { LD_R8_R8(getRegisterDLoc(), getRegisterCLoc()); }
+	void CPU::op_52() { LD_R8_R8(getRegisterDLoc(), getRegisterDLoc()); }
+	void CPU::op_53() { LD_R8_R8(getRegisterDLoc(), getRegisterELoc()); }
+	void CPU::op_54() { LD_R8_R8(getRegisterDLoc(), getRegisterHLoc()); }
+	void CPU::op_55() { LD_R8_R8(getRegisterDLoc(), getRegisterLLoc()); }
+	void CPU::op_56() { LD_R8_HL(getRegisterDLoc()); }
+	void CPU::op_57() { LD_R8_R8(getRegisterDLoc(), getRegisterALoc()); }
+	void CPU::op_58() { LD_R8_R8(getRegisterELoc(), getRegisterBLoc()); }
+	void CPU::op_59() { LD_R8_R8(getRegisterELoc(), getRegisterCLoc()); }
+	void CPU::op_5A() { LD_R8_R8(getRegisterELoc(), getRegisterDLoc()); }
+	void CPU::op_5B() { LD_R8_R8(getRegisterELoc(), getRegisterELoc()); }
+	void CPU::op_5C() { LD_R8_R8(getRegisterELoc(), getRegisterHLoc()); }
+	void CPU::op_5D() { LD_R8_R8(getRegisterELoc(), getRegisterLLoc()); }
+	void CPU::op_5E() { LD_R8_HL(getRegisterELoc()); }
+	void CPU::op_5F() { LD_R8_R8(getRegisterELoc(), getRegisterALoc()); }
 
-	void CPU::op_60() { /* TODO */; }
-	void CPU::op_61() { /* TODO */; }
-	void CPU::op_62() { /* TODO */; }
-	void CPU::op_63() { /* TODO */; }
-	void CPU::op_64() { /* TODO */; }
-	void CPU::op_65() { /* TODO */; }
-	void CPU::op_66() { /* TODO */; }
-	void CPU::op_67() { /* TODO */; }
-	void CPU::op_68() { /* TODO */; }
-	void CPU::op_69() { /* TODO */; }
-	void CPU::op_6A() { /* TODO */; }
-	void CPU::op_6B() { /* TODO */; }
-	void CPU::op_6C() { /* TODO */; }
-	void CPU::op_6D() { /* TODO */; }
-	void CPU::op_6E() { /* TODO */; }
-	void CPU::op_6F() { /* TODO */; }
+	void CPU::op_60() { LD_R8_R8(getRegisterHLoc(), getRegisterBLoc()); }
+	void CPU::op_61() { LD_R8_R8(getRegisterHLoc(), getRegisterCLoc()); }
+	void CPU::op_62() { LD_R8_R8(getRegisterHLoc(), getRegisterDLoc()); }
+	void CPU::op_63() { LD_R8_R8(getRegisterHLoc(), getRegisterELoc()); }
+	void CPU::op_64() { LD_R8_R8(getRegisterHLoc(), getRegisterHLoc()); }
+	void CPU::op_65() { LD_R8_R8(getRegisterHLoc(), getRegisterLLoc()); }
+	void CPU::op_66() { LD_R8_HL(getRegisterHLoc()); }
+	void CPU::op_67() { LD_R8_R8(getRegisterHLoc(), getRegisterALoc()); }
+	void CPU::op_68() { LD_R8_R8(getRegisterLLoc(), getRegisterBLoc()); }
+	void CPU::op_69() { LD_R8_R8(getRegisterLLoc(), getRegisterCLoc()); }
+	void CPU::op_6A() { LD_R8_R8(getRegisterLLoc(), getRegisterDLoc()); }
+	void CPU::op_6B() { LD_R8_R8(getRegisterLLoc(), getRegisterELoc()); }
+	void CPU::op_6C() { LD_R8_R8(getRegisterLLoc(), getRegisterHLoc()); }
+	void CPU::op_6D() { LD_R8_R8(getRegisterLLoc(), getRegisterLLoc()); }
+	void CPU::op_6E() { LD_R8_HL(getRegisterLLoc()); }
+	void CPU::op_6F() { LD_R8_R8(getRegisterLLoc(), getRegisterALoc()); }
 
-	void CPU::op_70() { /* TODO */; }
-	void CPU::op_71() { /* TODO */; }
-	void CPU::op_72() { /* TODO */; }
-	void CPU::op_73() { /* TODO */; }
-	void CPU::op_74() { /* TODO */; }
-	void CPU::op_75() { /* TODO */; }
-	void CPU::op_76() { /* TODO */; }
-	void CPU::op_77() { /* TODO */; }
-	void CPU::op_78() { /* TODO */; }
-	void CPU::op_79() { /* TODO */; }
-	void CPU::op_7A() { /* TODO */; }
-	void CPU::op_7B() { /* TODO */; }
-	void CPU::op_7C() { /* TODO */; }
-	void CPU::op_7D() { /* TODO */; }
-	void CPU::op_7E() { /* TODO */; }
-	void CPU::op_7F() { /* TODO */; }
+	void CPU::op_70() { LD_HL_R8(getRegisterBLoc()); }
+	void CPU::op_71() { LD_HL_R8(getRegisterCLoc()); }
+	void CPU::op_72() { LD_HL_R8(getRegisterDLoc()); }
+	void CPU::op_73() { LD_HL_R8(getRegisterELoc()); }
+	void CPU::op_74() { LD_HL_R8(getRegisterHLoc()); }
+	void CPU::op_75() { LD_HL_R8(getRegisterLLoc()); }
+	void CPU::op_76() { HALT(); }
+	void CPU::op_77() { LD_HL_R8(getRegisterALoc()); }
+	void CPU::op_78() { LD_R8_R8(getRegisterALoc(), getRegisterBLoc()); }
+	void CPU::op_79() { LD_R8_R8(getRegisterALoc(), getRegisterCLoc()); }
+	void CPU::op_7A() { LD_R8_R8(getRegisterALoc(), getRegisterDLoc()); }
+	void CPU::op_7B() { LD_R8_R8(getRegisterALoc(), getRegisterELoc()); }
+	void CPU::op_7C() { LD_R8_R8(getRegisterALoc(), getRegisterHLoc()); }
+	void CPU::op_7D() { LD_R8_R8(getRegisterALoc(), getRegisterLLoc()); }
+	void CPU::op_7E() { LD_R8_HL(getRegisterALoc()); }
+	void CPU::op_7F() { LD_R8_R8(getRegisterALoc(), getRegisterALoc()); }
 
-	void CPU::op_80() { /* TODO */; }
-	void CPU::op_81() { /* TODO */; }
-	void CPU::op_82() { /* TODO */; }
-	void CPU::op_83() { /* TODO */; }
-	void CPU::op_84() { /* TODO */; }
-	void CPU::op_85() { /* TODO */; }
-	void CPU::op_86() { /* TODO */; }
-	void CPU::op_87() { /* TODO */; }
-	void CPU::op_88() { /* TODO */; }
-	void CPU::op_89() { /* TODO */; }
-	void CPU::op_8A() { /* TODO */; }
-	void CPU::op_8B() { /* TODO */; }
-	void CPU::op_8C() { /* TODO */; }
-	void CPU::op_8D() { /* TODO */; }
-	void CPU::op_8E() { /* TODO */; }
-	void CPU::op_8F() { /* TODO */; }
+	void CPU::op_80() { ADD_A_R8(getRegisterBLoc()); }
+	void CPU::op_81() { ADD_A_R8(getRegisterCLoc()); }
+	void CPU::op_82() { ADD_A_R8(getRegisterDLoc()); }
+	void CPU::op_83() { ADD_A_R8(getRegisterELoc()); }
+	void CPU::op_84() { ADD_A_R8(getRegisterHLoc()); }
+	void CPU::op_85() { ADD_A_R8(getRegisterLLoc()); }
+	void CPU::op_86() { ADD_A_HL(); }
+	void CPU::op_87() { ADD_A_R8(getRegisterALoc()); }
+	void CPU::op_88() { ADC_A_R8(getRegisterBLoc()); }
+	void CPU::op_89() { ADC_A_R8(getRegisterCLoc()); }
+	void CPU::op_8A() { ADC_A_R8(getRegisterDLoc()); }
+	void CPU::op_8B() { ADC_A_R8(getRegisterELoc()); }
+	void CPU::op_8C() { ADC_A_R8(getRegisterHLoc()); }
+	void CPU::op_8D() { ADC_A_R8(getRegisterLLoc()); }
+	void CPU::op_8E() { ADC_A_HL(); }
+	void CPU::op_8F() { ADC_A_R8(getRegisterALoc()); }
 
-	void CPU::op_90() { /* TODO */; }
-	void CPU::op_91() { /* TODO */; }
-	void CPU::op_92() { /* TODO */; }
-	void CPU::op_93() { /* TODO */; }
-	void CPU::op_94() { /* TODO */; }
-	void CPU::op_95() { /* TODO */; }
-	void CPU::op_96() { /* TODO */; }
-	void CPU::op_97() { /* TODO */; }
-	void CPU::op_98() { /* TODO */; }
-	void CPU::op_99() { /* TODO */; }
-	void CPU::op_9A() { /* TODO */; }
-	void CPU::op_9B() { /* TODO */; }
-	void CPU::op_9C() { /* TODO */; }
-	void CPU::op_9D() { /* TODO */; }
-	void CPU::op_9E() { /* TODO */; }
-	void CPU::op_9F() { /* TODO */; }
+	void CPU::op_90() { SUB_A_R8(getRegisterBLoc()); }
+	void CPU::op_91() { SUB_A_R8(getRegisterCLoc()); }
+	void CPU::op_92() { SUB_A_R8(getRegisterDLoc()); }
+	void CPU::op_93() { SUB_A_R8(getRegisterELoc()); }
+	void CPU::op_94() { SUB_A_R8(getRegisterHLoc()); }
+	void CPU::op_95() { SUB_A_R8(getRegisterLLoc()); }
+	void CPU::op_96() { SUB_A_HL(); }
+	void CPU::op_97() { SUB_A_R8(getRegisterALoc()); }
+	void CPU::op_98() { SBC_A_R8(getRegisterBLoc()); }
+	void CPU::op_99() { SBC_A_R8(getRegisterCLoc()); }
+	void CPU::op_9A() { SBC_A_R8(getRegisterDLoc()); }
+	void CPU::op_9B() { SBC_A_R8(getRegisterELoc()); }
+	void CPU::op_9C() { SBC_A_R8(getRegisterHLoc()); }
+	void CPU::op_9D() { SBC_A_R8(getRegisterLLoc()); }
+	void CPU::op_9E() { SBC_A_HL(); }
+	void CPU::op_9F() { SBC_A_R8(getRegisterALoc()); }
 
-	void CPU::op_A0() { /* TODO */; }
-	void CPU::op_A1() { /* TODO */; }
-	void CPU::op_A2() { /* TODO */; }
-	void CPU::op_A3() { /* TODO */; }
-	void CPU::op_A4() { /* TODO */; }
-	void CPU::op_A5() { /* TODO */; }
-	void CPU::op_A6() { /* TODO */; }
-	void CPU::op_A7() { /* TODO */; }
-	void CPU::op_A8() { /* TODO */; }
-	void CPU::op_A9() { /* TODO */; }
-	void CPU::op_AA() { /* TODO */; }
-	void CPU::op_AB() { /* TODO */; }
-	void CPU::op_AC() { /* TODO */; }
-	void CPU::op_AD() { /* TODO */; }
-	void CPU::op_AE() { /* TODO */; }
-	void CPU::op_AF() { /* TODO */; }
+	void CPU::op_A0() { AND_A_R8(getRegisterBLoc()); }
+	void CPU::op_A1() { AND_A_R8(getRegisterCLoc()); }
+	void CPU::op_A2() { AND_A_R8(getRegisterDLoc()); }
+	void CPU::op_A3() { AND_A_R8(getRegisterELoc()); }
+	void CPU::op_A4() { AND_A_R8(getRegisterHLoc()); }
+	void CPU::op_A5() { AND_A_R8(getRegisterLLoc()); }
+	void CPU::op_A6() { AND_A_HL(); }
+	void CPU::op_A7() { AND_A_R8(getRegisterALoc()); }
+	void CPU::op_A8() { XOR_A_R8(getRegisterBLoc()); }
+	void CPU::op_A9() { XOR_A_R8(getRegisterCLoc()); }
+	void CPU::op_AA() { XOR_A_R8(getRegisterDLoc()); }
+	void CPU::op_AB() { XOR_A_R8(getRegisterELoc()); }
+	void CPU::op_AC() { XOR_A_R8(getRegisterHLoc()); }
+	void CPU::op_AD() { XOR_A_R8(getRegisterLLoc()); }
+	void CPU::op_AE() { XOR_A_HL(); }
+	void CPU::op_AF() { XOR_A_R8(getRegisterALoc()); }
 
-	void CPU::op_B0() { /* TODO */; }
-	void CPU::op_B1() { /* TODO */; }
-	void CPU::op_B2() { /* TODO */; }
-	void CPU::op_B3() { /* TODO */; }
-	void CPU::op_B4() { /* TODO */; }
-	void CPU::op_B5() { /* TODO */; }
-	void CPU::op_B6() { /* TODO */; }
-	void CPU::op_B7() { /* TODO */; }
-	void CPU::op_B8() { /* TODO */; }
-	void CPU::op_B9() { /* TODO */; }
-	void CPU::op_BA() { /* TODO */; }
-	void CPU::op_BB() { /* TODO */; }
-	void CPU::op_BC() { /* TODO */; }
-	void CPU::op_BD() { /* TODO */; }
-	void CPU::op_BE() { /* TODO */; }
-	void CPU::op_BF() { /* TODO */; }
+	void CPU::op_B0() { OR_A_R8(getRegisterBLoc()); }
+	void CPU::op_B1() { OR_A_R8(getRegisterCLoc()); }
+	void CPU::op_B2() { OR_A_R8(getRegisterDLoc()); }
+	void CPU::op_B3() { OR_A_R8(getRegisterELoc()); }
+	void CPU::op_B4() { OR_A_R8(getRegisterHLoc()); }
+	void CPU::op_B5() { OR_A_R8(getRegisterLLoc()); }
+	void CPU::op_B6() { OR_A_HL(); }
+	void CPU::op_B7() { OR_A_R8(getRegisterALoc()); }
+	void CPU::op_B8() { CP_A_R8(getRegisterBLoc()); }
+	void CPU::op_B9() { CP_A_R8(getRegisterCLoc()); }
+	void CPU::op_BA() { CP_A_R8(getRegisterDLoc()); }
+	void CPU::op_BB() { CP_A_R8(getRegisterELoc()); }
+	void CPU::op_BC() { CP_A_R8(getRegisterHLoc()); }
+	void CPU::op_BD() { CP_A_R8(getRegisterLLoc()); }
+	void CPU::op_BE() { CP_A_HL(); }
+	void CPU::op_BF() { CP_A_R8(getRegisterALoc()); }
 
 	void CPU::op_C0() { /* TODO */; }
 	void CPU::op_C1() { /* TODO */; }
@@ -473,12 +491,12 @@ namespace cpu {
 	void CPU::op_C3() { /* TODO */; }
 	void CPU::op_C4() { /* TODO */; }
 	void CPU::op_C5() { /* TODO */; }
-	void CPU::op_C6() { /* TODO */; }
+	void CPU::op_C6() { ADD_A_N8(getByte()); }
 	void CPU::op_C7() { /* TODO */; }
 	void CPU::op_C8() { /* TODO */; }
 	void CPU::op_C9() { /* TODO */; }
 	void CPU::op_CA() { /* TODO */; }
-	void CPU::op_CB() { /* TODO */; }
+	void CPU::op_CB() { /* TODO */; } // Go to CB table
 	void CPU::op_CC() { /* TODO */; }
 	void CPU::op_CD() { /* TODO */; }
 	void CPU::op_CE() { /* TODO */; }
@@ -487,17 +505,17 @@ namespace cpu {
 	void CPU::op_D0() { /* TODO */; }
 	void CPU::op_D1() { /* TODO */; }
 	void CPU::op_D2() { /* TODO */; }
-	void CPU::op_D3() { /* TODO */; }
+	void CPU::op_D3() { throw; }
 	void CPU::op_D4() { /* TODO */; }
 	void CPU::op_D5() { /* TODO */; }
-	void CPU::op_D6() { /* TODO */; }
+	void CPU::op_D6() { SUB_A_N8(getByte()); }
 	void CPU::op_D7() { /* TODO */; }
 	void CPU::op_D8() { /* TODO */; }
 	void CPU::op_D9() { /* TODO */; }
 	void CPU::op_DA() { /* TODO */; }
-	void CPU::op_DB() { /* TODO */; }
+	void CPU::op_DB() { throw; }
 	void CPU::op_DC() { /* TODO */; }
-	void CPU::op_DD() { /* TODO */; }
+	void CPU::op_DD() { throw; }
 	void CPU::op_DE() { /* TODO */; }
 	void CPU::op_DF() { /* TODO */; }
 
@@ -505,16 +523,16 @@ namespace cpu {
 	void CPU::op_E1() { /* TODO */; }
 	void CPU::op_E2() { /* TODO */; }
 	void CPU::op_E3() { /* TODO */; }
-	void CPU::op_E4() { /* TODO */; }
-	void CPU::op_E5() { /* TODO */; }
-	void CPU::op_E6() { /* TODO */; }
+	void CPU::op_E4() { throw; }
+	void CPU::op_E5() { throw; }
+	void CPU::op_E6() { AND_A_N8(getByte()); }
 	void CPU::op_E7() { /* TODO */; }
 	void CPU::op_E8() { /* TODO */; }
 	void CPU::op_E9() { /* TODO */; }
 	void CPU::op_EA() { /* TODO */; }
-	void CPU::op_EB() { /* TODO */; }
-	void CPU::op_EC() { /* TODO */; }
-	void CPU::op_ED() { /* TODO */; }
+	void CPU::op_EB() { throw; }
+	void CPU::op_EC() { throw; }
+	void CPU::op_ED() { throw; }
 	void CPU::op_EE() { /* TODO */; }
 	void CPU::op_EF() { /* TODO */; }
 
@@ -522,16 +540,16 @@ namespace cpu {
 	void CPU::op_F1() { /* TODO */; }
 	void CPU::op_F2() { /* TODO */; }
 	void CPU::op_F3() { /* TODO */; }
-	void CPU::op_F4() { /* TODO */; }
+	void CPU::op_F4() { throw; }
 	void CPU::op_F5() { /* TODO */; }
-	void CPU::op_F6() { /* TODO */; }
+	void CPU::op_F6() { OR_A_N8(getByte()); }
 	void CPU::op_F7() { /* TODO */; }
 	void CPU::op_F8() { /* TODO */; }
 	void CPU::op_F9() { /* TODO */; }
 	void CPU::op_FA() { /* TODO */; }
 	void CPU::op_FB() { /* TODO */; }
-	void CPU::op_FC() { /* TODO */; }
-	void CPU::op_FD() { /* TODO */; }
+	void CPU::op_FC() { throw; }
+	void CPU::op_FD() { throw; }
 	void CPU::op_FE() { /* TODO */; }
 	void CPU::op_FF() { /* TODO */; }
 

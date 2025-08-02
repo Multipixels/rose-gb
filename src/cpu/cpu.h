@@ -10,6 +10,7 @@ namespace cpu
 		CPU(mmu::MMU* mmu);
 
 		void executeInstruction(u8 instr);
+		u8 getByte();
 		u16 getBytePair();
 	private:
 		// Reference to MMU
@@ -38,6 +39,15 @@ namespace cpu
 		Register16 programCounter = 0;
 
 		// Getters, Setters, Incrementers
+		Register8* getRegisterALoc();
+		Register8* getRegisterFLoc();
+		Register8* getRegisterBLoc();
+		Register8* getRegisterCLoc();
+		Register8* getRegisterDLoc();
+		Register8* getRegisterELoc();
+		Register8* getRegisterHLoc();
+		Register8* getRegisterLLoc();
+
 		Register8 getRegisterA();
 		Register8 getRegisterF();
 		Register8 getRegisterB();
@@ -101,9 +111,9 @@ namespace cpu
 		void ADD_A_R8(CPU::Register8* r);
 		void ADD_A_HL();
 		void ADD_A_N8(u8 n);
-		void CP_A_R8();
+		void CP_A_R8(CPU::Register8*);
 		void CP_A_HL();
-		void CP_A_N8();
+		void CP_A_N8(u8 n);
 		void DEC_R8(CPU::Register8* r);
 		void DEC_HL();
 		void INC_R8(CPU::Register8* r);
