@@ -18,16 +18,18 @@ namespace cpu
 		// Typedefs and Enums
 		typedef u16 Register16;
 		typedef u8 Register8;
+		typedef bool Flag;
+
+		typedef enum ConditionCode {
+			Z, // Execute if Z is sete
+			NZ, // Execute if Z is not set
+			C, // Execute if C is set
+			NC // Execute if C is not set
+		} ConditionCode;
 
 		// Registers
 			// Each 16 bits. BC, DE, FE can act as two 8-bit registers.
 			// First 8 bits of accumulatorFlags is register A, last 8 bits are flags.
-
-		// Flags
-			// bit 7 "z": zero flag. used for conditional jumps, set if result of operation is 0
-			// bit 6 "n": subtraction flag
-			// bit 5 "h": half carry flag
-			// bit 4 "c": carry flag
 		Register16 accumulatorFlags = 0;
 		Register16 bc = 0;
 		Register16 de = 0;
@@ -54,6 +56,23 @@ namespace cpu
 		void setRegisterH(u8 value);
 		void setRegisterL(u8 value);
 
+		// Flags
+			// bit 7 "z": zero flag. used for conditional jumps, set if result of operation is 0
+			// bit 6 "n": subtraction flag
+			// bit 5 "h": half carry flag
+			// bit 4 "c": carry flag
+		Flag getFlagZ();
+		Flag getFlagN();
+		Flag getFlagH();
+		Flag getFlagC();
+
+		void setFlagZ(bool value);
+		void setFlagN(bool value);
+		void setFlagH(bool value);
+		void setFlagC(bool value);
+
+		void setFlags(u4 value);
+
 		// CPU Instruction Set: https://rgbds.gbdev.io/docs/v0.9.4/gbz80.7
 			// Loads
 		void LD_R8_R8(Register8* ra, Register8* rb);
@@ -76,78 +95,78 @@ namespace cpu
 		void LD_A_HLD();
 
 			// 8-bit Arithmetic
-		void ADC_A_R8();
+		void ADC_A_R8(CPU::Register8* r);
 		void ADC_A_HL();
-		void ADC_A_N8();
-		void ADD_A_R8();
+		void ADC_A_N8(u8 n);
+		void ADD_A_R8(CPU::Register8* r);
 		void ADD_A_HL();
-		void ADD_A_n8();
+		void ADD_A_N8(u8 n);
 		void CP_A_R8();
 		void CP_A_HL();
 		void CP_A_N8();
-		void DEC_R8();
+		void DEC_R8(CPU::Register8* r);
 		void DEC_HL();
-		void INC_R8();
+		void INC_R8(CPU::Register8* r);
 		void INC_HL();
-		void SBC_A_R8();
+		void SBC_A_R8(CPU::Register8* r);
 		void SBC_A_HL();
-		void SBC_A_N8();
-		void SUB_A_R8();
+		void SBC_A_N8(u8 n);
+		void SUB_A_R8(CPU::Register8* r);
 		void SUB_A_HL();
-		void SUB_A_N8();
+		void SUB_A_N8(u8 n);
 
 			// 16-bit Arithmetic
-		void ADD_HL_R16();
-		void DEC_R16();
-		void INC_R16();
+		void ADD_HL_R16(CPU::Register16* r);
+		void DEC_R16(CPU::Register16* r);
+		void INC_R16(CPU::Register16* r);
 
 			// Bitwise Logic
-		void AND_A_R8();
+		void AND_A_R8(CPU::Register8* r);
 		void AND_A_HL();
-		void AND_A_N8();
+		void AND_A_N8(u8 n);
 		void CPL();
-		void OR_A_R8();
+		void OR_A_R8(CPU::Register8* r);
 		void OR_A_HL();
-		void OR_A_N8();
-		void XOR_A_R8();
+		void OR_A_N8(u8 n);
+		void XOR_A_R8(CPU::Register8* r);
 		void XOR_A_HL();
-		void XOR_A_N8();
+		void XOR_A_N8(u8 n);
 
 			// Bit Flags
-		void BIT_U3_R8();
-		void BIT_U3_HL();
-		void RES_U3_R8();
-		void RES_U3_HL();
-		void SET_U3_R8();
-		void SET_U3_HL();
+		void BIT_U3_R8(u3 u, CPU::Register8* r);
+		void BIT_U3_HL(u3 u);
+		void RES_U3_R8(u3 u, CPU::Register8* r);
+		void RES_U3_HL(u3 u);
+		void SET_U3_R8(u3 u, CPU::Register8* r);
+		void SET_U3_HL(u3 u);
 
 			// Bit Shifts
-		void RL_R8();
+		void RL_R8(CPU::Register8* r);
 		void RL_HL();
 		void RL_A();
-		void RL_C_R8();
+		void RL_C_R8(CPU::Register8* r);
 		void RL_C_HL();
 		void RL_C_A();
-		void RR_R8();
+		void RR_R8(CPU::Register8* r);
 		void RR_HL();
 		void RR_A();
-		void RR_C_R8();
+		void RR_C_R8(CPU::Register8* r);
 		void RR_C_HL();
 		void RR_C_A();
-		void SL_A_R8();
-		void SL_A_HL();
-		void SR_A_R8();
-		void SR_A_HL();
-		void SR_L_R8();
+		void SLA_R8(CPU::Register8* r);
+		void SLA_HL();
+		void SRA_R8(CPU::Register8* r);
+		void SRA_HL();
+		void SRL_R8(CPU::Register8* r);
 		void SRL_HL();
-		void SWAP_R8();
+		void SWAP_R8(CPU::Register8* r);
 		void SWAP_HL();
 
 			// Jumps and Subroutines
-		void CALL_N16();
-		void CALL_CC_N16();
+		void CALL_N16(u16 n);
+		void CALL_CC_N16(ConditionCode cc, u16 n);
 		void JP_HL();
-		void JP_N16();
+		void JP_N16(u16 n);
 		void JP_CC_N16();
 		void JR_N16();
 		void JR_CC_N16();

@@ -4,7 +4,7 @@ namespace mmu
 {
 	MMU::MMU()
 	{
-		memory = std::vector<u16>(0xFFFF, 0);
+		memory = std::vector<u8>(0xFFFF, 0);
 	}
 
 	int MMU::loadCartridgeData(std::filebuf* cartData)
@@ -15,6 +15,27 @@ namespace mmu
 
 	u16 MMU::getU16(int address)
 	{
+		if (address > 0xFFFE)
+		{
+			throw;
+		}
+
+		return (memory.at(address) << 8) | memory.at(address + 1);
+	}
+
+	int MMU::setU16(int address, u16 value)
+	{
+		if (address > 0xFFFE)
+		{
+			throw;
+		}
+		memory[address] = value >> 8;
+		memory[address + 1] = value & 0x00FF;
+		return 0;
+	}
+
+	u8 MMU::getU8(int address)
+	{
 		if (address > 0xFFFF)
 		{
 			throw;
@@ -23,31 +44,14 @@ namespace mmu
 		return memory.at(address);
 	}
 
-	int MMU::setU16(int address, u16 value)
-	{
+	int MMU::setU8(int address, u8 value)
+	{ 
 		if (address > 0xFFFF)
 		{
 			throw;
 		}
-		memory[address] = value;
-		return 0;
-	}
-
-	int MMU::setU8(int address, u8 value)
-	{ 
-		if (address > 0x1FFFF)
-		{
-			throw;
-		}
 		
-		if (address % 2 == 0)
-		{
-			memory[address / 2] = (memory[address / 2] && 0x00FF) || (value << 8);
-		}
-		else
-		{
-			memory[address / 2] = (memory[address / 2] && 0xFF00) || value;
-		}
+		memory[address] = value;
 		return 0;
 	}
 

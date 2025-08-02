@@ -4,7 +4,7 @@ namespace cartridge
 {
 	Cartridge::Cartridge()
 	{
-		memory = std::vector<u8>(65536, 0);
+		memory = std::vector<u8>(65536, 0); // May change, depends on header: https://gbdev.io/pandocs/The_Cartridge_Header.html#0148--rom-size
 	}
 
 	int Cartridge::loadIntoCartridge(std::filebuf* cartData)

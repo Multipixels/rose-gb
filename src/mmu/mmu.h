@@ -16,10 +16,12 @@ namespace mmu
 
 		u16 getU16(int address);
 		int setU16(int address, u16 value);
+
+		u8 getU8(int address);
 		int setU8(int address, u8 value);
 
 	private:
-		std::vector<u16> memory; // 0-65535
+		std::vector<u8> memory; // 0-65535
 		
 		/*u16* bankZero = &memory;
 		u16* bankOne = &memory[16384];
