@@ -49,3 +49,25 @@ if(MSVC) # If using the VS compiler...
 endif()
 
 message("CMake Build Type: ${CMAKE_BUILD_TYPE}")
+
+
+
+# TESTING
+
+message(${RELEASE_BUILD})
+if(NOT ${RELEASE_BUILD})
+    project(
+        RoseTests
+        VERSION 1.0
+        DESCRIPTION "Game Boy Emulator Tests"
+        LANGUAGES CXX C
+    )
+
+    set(CMAKE_CXX_STANDARD 23)
+    set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+    add_subdirectory(tests)
+
+    target_compile_definitions("${CMAKE_PROJECT_NAME}" PUBLIC RELEASE_BUILD=0) 
+    target_compile_definitions("${CMAKE_PROJECT_NAME}" PUBLIC DEVELOPMENT_BUILD=1) 
+endif()

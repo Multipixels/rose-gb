@@ -36,8 +36,6 @@ target_include_directories(RoseGB PUBLIC
     "../vendor/ImGui"
 )
 
-
-
 if(MSVC)
 	target_compile_definitions("RoseGB" PUBLIC _CRT_SECURE_NO_WARNING)
 endif()
