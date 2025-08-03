@@ -15,12 +15,14 @@ namespace rose
 	// Loads the cartridge and boots up the Game Boy
 	int Rose::runGame()
 	{
-		loadCartridge("../resources/blargg/cpu_instrs.gb");
+		if (loadCartridge("../resources/blargg/cpu_instrs/01-special.gb") == 1) 
+		{
+			return 1;
+		};
 
 		while (true)
 		{
 			cpu.executeInstruction();
-			std::cout << "Finished line";
 		}
 
 		return 0;

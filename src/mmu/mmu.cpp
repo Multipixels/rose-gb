@@ -4,7 +4,7 @@ namespace mmu
 {
 	MMU::MMU()
 	{
-		memory = std::vector<u8>(0xFFFF, 0);
+		memory = std::vector<u8>(0x10000, 0);
 	}
 
 	int MMU::loadCartridgeData(std::filebuf* cartData)

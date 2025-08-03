@@ -28,6 +28,19 @@ namespace cpu
 			NC // Execute if C is not set
 		} ConditionCode;
 
+		typedef enum RSTVec {
+			x00,
+			x08,
+			x10,
+			x18,
+			x20,
+			x28,
+			x30,
+			x38
+		} RSTVec;
+
+		u8 convertRSTVec(RSTVec vec);
+
 		// Registers
 			// Each 16 bits. BC, DE, FE can act as two 8-bit registers.
 			// First 8 bits of accumulatorFlags is register A, last 8 bits are flags.
@@ -97,11 +110,11 @@ namespace cpu
 		void LD_R16_A(Register16* r);
 		void LD_N16_A(u16 n);
 		void LDH_N16_A(u16 n);
-		void LDH_C_A(int c);
+		void LDH_C_A();
 		void LD_A_R16(Register16* r);
 		void LD_A_N16(u16 n);
 		void LDH_A_N16(u16 n);
-		void LDH_A_C(int c);
+		void LDH_A_C();
 		void LD_HLI_A();
 		void LD_HLD_A();
 		void LD_A_HLI();
@@ -183,10 +196,10 @@ namespace cpu
 		void JP_CC_N16(ConditionCode cc, s16 n);
 		void JR_N8(s8 n);
 		void JR_CC_N8(ConditionCode cc, s8 n);
-		void RET_CC();
 		void RET();
+		void RET_CC(ConditionCode cc);
 		void RETI();
-		void RST_VEC();
+		void RST_VEC(RSTVec vec);
 
 			// Carry Flag
 		void CCF();

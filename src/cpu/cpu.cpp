@@ -9,6 +9,7 @@ namespace cpu {
 
 	void CPU::executeInstruction()
 	{
+		if (programCounter > 0xFFFF) return;
 		switch (getByte()) {
 		case 0x00: op_00(); break; case 0x01: op_01(); break; case 0x02: op_02(); break; case 0x03: op_03(); break;
 		case 0x04: op_04(); break; case 0x05: op_05(); break; case 0x06: op_06(); break; case 0x07: op_07(); break;
@@ -106,6 +107,20 @@ namespace cpu {
 		return returnValue;
 	}
 
+	u8 CPU::convertRSTVec(RSTVec vec)
+	{
+		switch (vec) {
+		case x00: return 0x00;
+		case x08: return 0x08;
+		case x10: return 0x10;
+		case x18: return 0x18;
+		case x20: return 0x20;
+		case x28: return 0x28;
+		case x30: return 0x30;
+		case x38: return 0x38;
+		}
+	}
+
 	CPU::Register8* CPU::getRegisterALoc() { return (Register8*) &accumulatorFlags; }
 	CPU::Register8* CPU::getRegisterFLoc() { return ((Register8*)&accumulatorFlags) + 1; }
 	CPU::Register8* CPU::getRegisterBLoc() { return (Register8*) &bc; }
@@ -166,11 +181,11 @@ namespace cpu {
 	void CPU::LD_R16_A(Register16* r) { mmu->setU8(*r, getRegisterA()); }
 	void CPU::LD_N16_A(u16 n) { mmu->setU8(n, getRegisterA()); }
 	void CPU::LDH_N16_A(u16 n) { if (n < 0xFF00 || n > 0xFFFF) { throw; } else { mmu->setU8(n, getRegisterA()); } }
-	void CPU::LDH_C_A(int c) { mmu->setU8(0xFF00 + c, getRegisterA()); }
+	void CPU::LDH_C_A() { mmu->setU8(0xFF00 + getRegisterC(), getRegisterA()); }
 	void CPU::LD_A_R16(Register16* r) { setRegisterA(mmu->getU8(*r)); }
 	void CPU::LD_A_N16(u16 n) { setRegisterA(mmu->getU8(n)); }
 	void CPU::LDH_A_N16(u16 n) { if (n < 0xFF00 || n > 0xFFFF) { throw; } else { setRegisterA(mmu->getU8(n)); } }
-	void CPU::LDH_A_C(int c) { setRegisterA(mmu->getU8(0xFF00 + c)); }
+	void CPU::LDH_A_C() { setRegisterA(mmu->getU8(0xFF00 + getRegisterC())); }
 	void CPU::LD_HLI_A() { mmu->setU8(hl, getRegisterA()); hl++; }
 	void CPU::LD_HLD_A() { mmu->setU8(hl, getRegisterA()); hl--; }
 	void CPU::LD_A_HLI() { setRegisterA(mmu->getU8(hl)); hl++; }
@@ -257,10 +272,10 @@ namespace cpu {
 	void CPU::JP_CC_N16(ConditionCode cc, s16 n) { if (ccStatus(cc)) programCounter = n; }
 	void CPU::JR_N8(s8 n) { programCounter += n; }
 	void CPU::JR_CC_N8(ConditionCode cc, s8 n) { if (ccStatus(cc)) programCounter += n; }
-	void CPU::RET_CC() { /* TODO */ }
-	void CPU::RET() { /* TODO */ }
-	void CPU::RETI() { /* TODO */ }
-	void CPU::RST_VEC() { /* TODO */ }
+	void CPU::RET() { POP_R16(&programCounter); }
+	void CPU::RET_CC(ConditionCode cc) { if (ccStatus(cc)) POP_R16(&programCounter); }
+	void CPU::RETI() { EI(); RET(); }
+	void CPU::RST_VEC(RSTVec vec) { CALL_N16(convertRSTVec(vec)); }
 
 	// Carry Flag
 	void CPU::CCF() { setFlagN(0); setFlagH(0); setFlagC(!getFlagC()); }
@@ -299,7 +314,7 @@ namespace cpu {
 	void CPU::op_05() { DEC_R8(getRegisterBLoc()); }
 	void CPU::op_06() { LD_R8_N8(getRegisterBLoc(), getByte()); }
 	void CPU::op_07() { RL_C_A(); }
-	void CPU::op_08() { /* TODO */; }
+	void CPU::op_08() { LD_N16_SP(getBytePair()); }
 	void CPU::op_09() { ADD_HL_R16(&bc); }
 	void CPU::op_0A() { LD_A_R16(&bc); }
 	void CPU::op_0B() { DEC_R16(&bc); }
@@ -316,7 +331,7 @@ namespace cpu {
 	void CPU::op_15() { DEC_R8(getRegisterDLoc()); }
 	void CPU::op_16() { LD_R8_N8(getRegisterDLoc(), getByte()); }
 	void CPU::op_17() { RL_A(); }
-	void CPU::op_18() { /* TODO */; } // Clarify whether 8 bit or 16 bit
+	void CPU::op_18() { JR_N8(getByte()); } // Clarify whether 8 bit or 16 bit
 	void CPU::op_19() { ADD_HL_R16(&de); }
 	void CPU::op_1A() { LD_A_R16(&de); }
 	void CPU::op_1B() { DEC_R16(&de); }
@@ -325,7 +340,7 @@ namespace cpu {
 	void CPU::op_1E() { LD_R8_N8(getRegisterELoc(), getByte()); }
 	void CPU::op_1F() { RR_A(); }
 
-	void CPU::op_20() { /* TODO */; }
+	void CPU::op_20() { JR_CC_N8(NZ, getByte()); }
 	void CPU::op_21() { LD_R16_N16(&hl, getBytePair());; }
 	void CPU::op_22() { LD_HLI_A(); }
 	void CPU::op_23() { INC_R16(&hl); }
@@ -333,7 +348,7 @@ namespace cpu {
 	void CPU::op_25() { DEC_R8(getRegisterHLoc()); }
 	void CPU::op_26() { LD_R8_N8(getRegisterHLoc(), getByte()); }
 	void CPU::op_27() { DAA(); }
-	void CPU::op_28() { /* TODO */; } // Clarify whether 8 bit or 16 bit
+	void CPU::op_28() { JR_CC_N8(Z, getByte()); }
 	void CPU::op_29() { ADD_HL_R16(&hl); }
 	void CPU::op_2A() { LD_A_HLI(); }
 	void CPU::op_2B() { DEC_R16(&hl);; }
@@ -342,7 +357,7 @@ namespace cpu {
 	void CPU::op_2E() { LD_R8_N8(getRegisterLLoc(), getByte()); }
 	void CPU::op_2F() { CPL(); }
 
-	void CPU::op_30() { /* TODO */; }
+	void CPU::op_30() { JR_CC_N8(NC, getByte()); }
 	void CPU::op_31() { LD_R16_N16(&stackPointer, getBytePair());; }
 	void CPU::op_32() { LD_HLD_A(); }
 	void CPU::op_33() { INC_R16(&stackPointer); }
@@ -350,7 +365,7 @@ namespace cpu {
 	void CPU::op_35() { DEC_HL(); }
 	void CPU::op_36() { LD_HL_N8(getByte()); }
 	void CPU::op_37() { SCF(); }
-	void CPU::op_38() { /* TODO */; } // Clarify whether 8 bit or 16 bit
+	void CPU::op_38() { JR_CC_N8(C, getByte()); }
 	void CPU::op_39() { ADD_HL_R16(&stackPointer); }
 	void CPU::op_3A() { LD_A_HLD(); }
 	void CPU::op_3B() { DEC_R16(&stackPointer);; }
@@ -495,72 +510,72 @@ namespace cpu {
 	void CPU::op_BE() { CP_A_HL(); }
 	void CPU::op_BF() { CP_A_R8(getRegisterALoc()); }
 
-	void CPU::op_C0() { /* TODO */; }
-	void CPU::op_C1() { /* TODO */; }
-	void CPU::op_C2() { /* TODO */; }
-	void CPU::op_C3() { /* TODO */; }
-	void CPU::op_C4() { /* TODO */; }
-	void CPU::op_C5() { /* TODO */; }
+	void CPU::op_C0() { RET_CC(NZ); }
+	void CPU::op_C1() { POP_R16(&bc); }
+	void CPU::op_C2() { JP_CC_N16(NZ, getBytePair()); }
+	void CPU::op_C3() { JP_N16(getBytePair()); }
+	void CPU::op_C4() { CALL_CC_N16(NZ, getBytePair()); }
+	void CPU::op_C5() { PUSH_R16(&bc); }
 	void CPU::op_C6() { ADD_A_N8(getByte()); }
-	void CPU::op_C7() { /* TODO */; }
-	void CPU::op_C8() { /* TODO */; }
-	void CPU::op_C9() { /* TODO */; }
-	void CPU::op_CA() { /* TODO */; }
-	void CPU::op_CB() { /* TODO */; } // Go to CB table
-	void CPU::op_CC() { /* TODO */; }
-	void CPU::op_CD() { /* TODO */; }
-	void CPU::op_CE() { /* TODO */; }
-	void CPU::op_CF() { /* TODO */; }
+	void CPU::op_C7() { RST_VEC(x00); }
+	void CPU::op_C8() { RET_CC(Z); }
+	void CPU::op_C9() { RET(); }
+	void CPU::op_CA() { JP_CC_N16(Z, getBytePair()); }
+	void CPU::op_CB() { /* TODO */ } // Switch to CB opcodes
+	void CPU::op_CC() { CALL_CC_N16(Z, getBytePair()); }
+	void CPU::op_CD() { CALL_N16(getBytePair()); }
+	void CPU::op_CE() { ADC_A_N8(getByte()); }
+	void CPU::op_CF() { RST_VEC(x08); }
 
-	void CPU::op_D0() { /* TODO */; }
-	void CPU::op_D1() { /* TODO */; }
-	void CPU::op_D2() { /* TODO */; }
+	void CPU::op_D0() { RET_CC(NC); }
+	void CPU::op_D1() { POP_R16(&de); }
+	void CPU::op_D2() { JP_CC_N16(NC, getBytePair()); }
 	void CPU::op_D3() { throw; }
-	void CPU::op_D4() { /* TODO */; }
-	void CPU::op_D5() { /* TODO */; }
+	void CPU::op_D4() { CALL_CC_N16(NC, getBytePair()); }
+	void CPU::op_D5() { PUSH_R16(&de); }
 	void CPU::op_D6() { SUB_A_N8(getByte()); }
-	void CPU::op_D7() { /* TODO */; }
-	void CPU::op_D8() { /* TODO */; }
-	void CPU::op_D9() { /* TODO */; }
-	void CPU::op_DA() { /* TODO */; }
+	void CPU::op_D7() { RST_VEC(x10); }
+	void CPU::op_D8() { RET_CC(C); }
+	void CPU::op_D9() { RETI(); }
+	void CPU::op_DA() { JP_CC_N16(C, getBytePair()); }
 	void CPU::op_DB() { throw; }
-	void CPU::op_DC() { /* TODO */; }
+	void CPU::op_DC() { CALL_CC_N16(C, getBytePair()); }
 	void CPU::op_DD() { throw; }
-	void CPU::op_DE() { /* TODO */; }
-	void CPU::op_DF() { /* TODO */; }
+	void CPU::op_DE() { SBC_A_N8(getByte()); }
+	void CPU::op_DF() { RST_VEC(x18); }
 
-	void CPU::op_E0() { /* TODO */; }
-	void CPU::op_E1() { /* TODO */; }
-	void CPU::op_E2() { /* TODO */; }
-	void CPU::op_E3() { /* TODO */; }
+	void CPU::op_E0() { LDH_N16_A(getBytePair()); }
+	void CPU::op_E1() { POP_R16(&hl); }
+	void CPU::op_E2() { LDH_C_A(); }
+	void CPU::op_E3() { throw; }
 	void CPU::op_E4() { throw; }
-	void CPU::op_E5() { throw; }
+	void CPU::op_E5() { PUSH_R16(&hl); }
 	void CPU::op_E6() { AND_A_N8(getByte()); }
-	void CPU::op_E7() { /* TODO */; }
-	void CPU::op_E8() { /* TODO */; }
-	void CPU::op_E9() { /* TODO */; }
-	void CPU::op_EA() { /* TODO */; }
+	void CPU::op_E7() { RST_VEC(x20); }
+	void CPU::op_E8() { ADD_SP_S8(getByte()); }
+	void CPU::op_E9() { JP_HL(); }
+	void CPU::op_EA() { LD_N16_A(getBytePair()); }
 	void CPU::op_EB() { throw; }
 	void CPU::op_EC() { throw; }
 	void CPU::op_ED() { throw; }
-	void CPU::op_EE() { /* TODO */; }
-	void CPU::op_EF() { /* TODO */; }
+	void CPU::op_EE() { XOR_A_N8(getByte()); }
+	void CPU::op_EF() { RST_VEC(x28); }
 
-	void CPU::op_F0() { /* TODO */; }
-	void CPU::op_F1() { /* TODO */; }
-	void CPU::op_F2() { /* TODO */; }
-	void CPU::op_F3() { /* TODO */; }
+	void CPU::op_F0() { LDH_A_N16(getBytePair()); }
+	void CPU::op_F1() { POP_R16(&accumulatorFlags); }
+	void CPU::op_F2() { LDH_A_C(); }
+	void CPU::op_F3() { DI(); }
 	void CPU::op_F4() { throw; }
-	void CPU::op_F5() { /* TODO */; }
+	void CPU::op_F5() { PUSH_R16(&accumulatorFlags); }
 	void CPU::op_F6() { OR_A_N8(getByte()); }
-	void CPU::op_F7() { /* TODO */; }
-	void CPU::op_F8() { /* TODO */; }
-	void CPU::op_F9() { /* TODO */; }
-	void CPU::op_FA() { /* TODO */; }
-	void CPU::op_FB() { /* TODO */; }
+	void CPU::op_F7() { RST_VEC(x30); }
+	void CPU::op_F8() { LD_HL_SP_S8(getByte()); }
+	void CPU::op_F9() { LD_SP_HL(); }
+	void CPU::op_FA() { LD_A_N16(getBytePair()); }
+	void CPU::op_FB() { EI(); }
 	void CPU::op_FC() { throw; }
 	void CPU::op_FD() { throw; }
-	void CPU::op_FE() { /* TODO */; }
-	void CPU::op_FF() { /* TODO */; }
+	void CPU::op_FE() { CP_A_N8(getByte()); }
+	void CPU::op_FF() { RST_VEC(x38); }
 
 }
