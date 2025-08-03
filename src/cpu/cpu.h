@@ -9,7 +9,7 @@ namespace cpu
 	public:
 		CPU(mmu::MMU* mmu);
 
-		void executeInstruction(u8 instr);
+		void executeInstruction();
 		u8 getByte();
 		u16 getBytePair();
 	private:
@@ -22,7 +22,7 @@ namespace cpu
 		typedef bool Flag;
 
 		typedef enum ConditionCode {
-			Z, // Execute if Z is sete
+			Z, // Execute if Z is set
 			NZ, // Execute if Z is not set
 			C, // Execute if C is set
 			NC // Execute if C is not set
@@ -36,7 +36,7 @@ namespace cpu
 		Register16 de = 0;
 		Register16 hl = 0;
 		Register16 stackPointer = 0;
-		Register16 programCounter = 0;
+		Register16 programCounter = 0x100;
 
 		// Getters, Setters, Incrementers
 		Register8* getRegisterALoc();
@@ -82,6 +82,9 @@ namespace cpu
 		void setFlagC(bool value);
 
 		void setFlags(u4 value);
+		void setFlags(bool z, bool n, bool h, bool c);
+
+		bool ccStatus(ConditionCode cc);
 
 		// CPU Instruction Set: https://rgbds.gbdev.io/docs/v0.9.4/gbz80.7
 			// Loads
@@ -176,10 +179,10 @@ namespace cpu
 		void CALL_N16(u16 n);
 		void CALL_CC_N16(ConditionCode cc, u16 n);
 		void JP_HL();
-		void JP_N16(u16 n);
-		void JP_CC_N16();
-		void JR_N16();
-		void JR_CC_N16();
+		void JP_N16(s16 n);
+		void JP_CC_N16(ConditionCode cc, s16 n);
+		void JR_N8(s8 n);
+		void JR_CC_N8(ConditionCode cc, s8 n);
 		void RET_CC();
 		void RET();
 		void RETI();
@@ -191,17 +194,17 @@ namespace cpu
 
 			// Stack Manipulation
 		void ADD_HL_SP();
-		void ADD_SP_E8();
+		void ADD_SP_S8(s8 s);
 		void DEC_SP();
 		void INC_SP();
-		void LD_SP_N16();
-		void LD_N16_SP();
-		void LD_HL_SP_E8();
+		void LD_SP_N16(u16 n);
+		void LD_N16_SP(u16 n);
+		void LD_HL_SP_S8(s8 s);
 		void LD_SP_HL();
 		void POP_AF();
-		void POP_R16();
+		void POP_R16(Register16* r);
 		void PUSH_AF();
-		void PUSH_R16();
+		void PUSH_R16(Register16* r);
 
 			// Interrupt Related
 		void DI();

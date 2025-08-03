@@ -16,6 +16,13 @@ namespace rose
 	int Rose::runGame()
 	{
 		loadCartridge("../resources/blargg/cpu_instrs.gb");
+
+		while (true)
+		{
+			cpu.executeInstruction();
+			std::cout << "Finished line";
+		}
+
 		return 0;
 	}
 
