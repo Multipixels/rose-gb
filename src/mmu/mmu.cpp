@@ -48,7 +48,7 @@ namespace mmu
 	{ 
 		if (address > 0xFFFF)
 		{
-			throw;
+			throw; // TODO: replace with actual error checking
 		}
 		
 		memory[address] = value;

@@ -33,6 +33,8 @@ add_executable("RoseTests"
 
     "cpu/cpu-test.cpp"
     "cpu/cpu-test.h"
+    "mmu/mmu-test.cpp"
+    "mmu/mmu-test.h"
 
     "../src/cpu/cpu.cpp"
     "../src/cpu/cpu.h"
@@ -54,9 +56,11 @@ set_property(TARGET "RoseTests" PROPERTY CXX_STANDARD 23)
 
 target_include_directories(RoseTests PUBLIC 
     "../vendor/ImGui"
+    "../src"
+    "../src/cartridge"
     "../src/cpu"
     "../src/mmu"
-    # ...
+    "../src/utility"
 )
 
 if(MSVC)
