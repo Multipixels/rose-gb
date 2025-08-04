@@ -16,11 +16,10 @@ TEST(MMUTest, Getters)
 	EXPECT_EQ(mmu.getU8(0x744B), 0xF5);
 	EXPECT_EQ(mmu.getU8(0xE742), 0x0); // we only load 0x0000 to 0x7FFF at bootup, expect rest to be 0
 
-	EXPECT_EQ(mmu.getU16(0x00), 0x3CC9);
-	EXPECT_EQ(mmu.getU16(0x01), 0xC900);
-	EXPECT_EQ(mmu.getU16(0x697), 0x616C);
-	EXPECT_EQ(mmu.getU16(0x697), 0x616C);
-	EXPECT_EQ(mmu.getU16(0x7542), 0xF083);
+	EXPECT_EQ(mmu.getU16(0x00), 0xC93C);
+	EXPECT_EQ(mmu.getU16(0x01), 0x00C9);
+	EXPECT_EQ(mmu.getU16(0x697), 0x6C61);
+	EXPECT_EQ(mmu.getU16(0x7542), 0x83F0);
 }
 
 TEST(MMUTest, Setters)
@@ -36,7 +35,7 @@ TEST(MMUTest, Setters)
 	ASSERT_NO_FATAL_FAILURE(mmu.setU16(0x01, 0xDA34));
 	EXPECT_EQ(mmu.getU8(0x01), 0xDA);
 	EXPECT_EQ(mmu.getU8(0x02), 0x34);
-	EXPECT_EQ(mmu.getU16(0x01), 0xDA34);
+	EXPECT_EQ(mmu.getU16(0x01), 0x34DA);
 }
 
 // Takes in a file path and attempts to load a .gb file into Rose's Cartridge

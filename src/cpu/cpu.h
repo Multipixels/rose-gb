@@ -10,6 +10,7 @@ namespace cpu
 		CPU(mmu::MMU* mmu);
 
 		void executeInstruction();
+		void executeCBInstruction();
 		u8 getByte();
 		u16 getBytePair();
 	private:
@@ -49,7 +50,7 @@ namespace cpu
 		Register16 de = 0;
 		Register16 hl = 0;
 		Register16 stackPointer = 0;
-		Register16 programCounter = 0x100;
+		Register16 programCounter = 0x000;
 
 		// Getters, Setters, Incrementers
 		Register8* getRegisterALoc();
@@ -249,21 +250,21 @@ namespace cpu
 		void op_F0(); void op_F1(); void op_F2(); void op_F3(); void op_F4(); void op_F5(); void op_F6(); void op_F7(); void op_F8(); void op_F9(); void op_FA(); void op_FB(); void op_FC(); void op_FD(); void op_FE(); void op_FF();
 		
 			// 16 bit opcodes starting with CB
-		void op_cb00(); void op_cb01(); void op_cb02(); void op_cb03(); void op_cb04(); void op_cb05(); void op_cb06(); void op_cb07(); void op_cb08(); void op_cb09(); void op_cb0A(); void op_cb0B(); void op_cb0C(); void op_cb0D(); void op_cb0E(); void op_cb0F();
-		void op_cb10(); void op_cb11(); void op_cb12(); void op_cb13(); void op_cb14(); void op_cb15(); void op_cb16(); void op_cb17(); void op_cb18(); void op_cb19(); void op_cb1A(); void op_cb1B(); void op_cb1C(); void op_cb1D(); void op_cb1E(); void op_cb1F();
-		void op_cb20(); void op_cb21(); void op_cb22(); void op_cb23(); void op_cb24(); void op_cb25(); void op_cb26(); void op_cb27(); void op_cb28(); void op_cb29(); void op_cb2A(); void op_cb2B(); void op_cb2C(); void op_cb2D(); void op_cb2E(); void op_cb2F();
-		void op_cb30(); void op_cb31(); void op_cb32(); void op_cb33(); void op_cb34(); void op_cb35(); void op_cb36(); void op_cb37(); void op_cb38(); void op_cb39(); void op_cb3A(); void op_cb3B(); void op_cb3C(); void op_cb3D(); void op_cb3E(); void op_cb3F();
-		void op_cb40(); void op_cb41(); void op_cb42(); void op_cb43(); void op_cb44(); void op_cb45(); void op_cb46(); void op_cb47(); void op_cb48(); void op_cb49(); void op_cb4A(); void op_cb4B(); void op_cb4C(); void op_cb4D(); void op_cb4E(); void op_cb4F();
-		void op_cb50(); void op_cb51(); void op_cb52(); void op_cb53(); void op_cb54(); void op_cb55(); void op_cb56(); void op_cb57(); void op_cb58(); void op_cb59(); void op_cb5A(); void op_cb5B(); void op_cb5C(); void op_cb5D(); void op_cb5E(); void op_cb5F();
-		void op_cb60(); void op_cb61(); void op_cb62(); void op_cb63(); void op_cb64(); void op_cb65(); void op_cb66(); void op_cb67(); void op_cb68(); void op_cb69(); void op_cb6A(); void op_cb6B(); void op_cb6C(); void op_cb6D(); void op_cb6E(); void op_cb6F();
-		void op_cb70(); void op_cb71(); void op_cb72(); void op_cb73(); void op_cb74(); void op_cb75(); void op_cb76(); void op_cb77(); void op_cb78(); void op_cb79(); void op_cb7A(); void op_cb7B(); void op_cb7C(); void op_cb7D(); void op_cb7E(); void op_cb7F();
-		void op_cb80(); void op_cb81(); void op_cb82(); void op_cb83(); void op_cb84(); void op_cb85(); void op_cb86(); void op_cb87(); void op_cb88(); void op_cb89(); void op_cb8A(); void op_cb8B(); void op_cb8C(); void op_cb8D(); void op_cb8E(); void op_cb8F();
-		void op_cb90(); void op_cb91(); void op_cb92(); void op_cb93(); void op_cb94(); void op_cb95(); void op_cb96(); void op_cb97(); void op_cb98(); void op_cb99(); void op_cb9A(); void op_cb9B(); void op_cb9C(); void op_cb9D(); void op_cb9E(); void op_cb9F();
-		void op_cbA0(); void op_cbA1(); void op_cbA2(); void op_cbA3(); void op_cbA4(); void op_cbA5(); void op_cbA6(); void op_cbA7(); void op_cbA8(); void op_cbA9(); void op_cbAA(); void op_cbAB(); void op_cbAC(); void op_cbAD(); void op_cbAE(); void op_cbAF();
-		void op_cbB0(); void op_cbB1(); void op_cbB2(); void op_cbB3(); void op_cbB4(); void op_cbB5(); void op_cbB6(); void op_cbB7(); void op_cbB8(); void op_cbB9(); void op_cbBA(); void op_cbBB(); void op_cbBC(); void op_cbBD(); void op_cbBE(); void op_cbBF();
-		void op_cbC0(); void op_cbC1(); void op_cbC2(); void op_cbC3(); void op_cbC4(); void op_cbC5(); void op_cbC6(); void op_cbC7(); void op_cbC8(); void op_cbC9(); void op_cbCA(); void op_cbCB(); void op_cbCC(); void op_cbCD(); void op_cbCE(); void op_cbCF();
-		void op_cbD0(); void op_cbD1(); void op_cbD2(); void op_cbD3(); void op_cbD4(); void op_cbD5(); void op_cbD6(); void op_cbD7(); void op_cbD8(); void op_cbD9(); void op_cbDA(); void op_cbDB(); void op_cbDC(); void op_cbDD(); void op_cbDE(); void op_cbDF();
-		void op_cbE0(); void op_cbE1(); void op_cbE2(); void op_cbE3(); void op_cbE4(); void op_cbE5(); void op_cbE6(); void op_cbE7(); void op_cbE8(); void op_cbE9(); void op_cbEA(); void op_cbEB(); void op_cbEC(); void op_cbED(); void op_cbEE(); void op_cbEF();
-		void op_cbF0(); void op_cbF1(); void op_cbF2(); void op_cbF3(); void op_cbF4(); void op_cbF5(); void op_cbF6(); void op_cbF7(); void op_cbF8(); void op_cbF9(); void op_cbFA(); void op_cbFB(); void op_cbFC(); void op_cbFD(); void op_cbFE(); void op_cbFF();
+		void op_cb_00(); void op_cb_01(); void op_cb_02(); void op_cb_03(); void op_cb_04(); void op_cb_05(); void op_cb_06(); void op_cb_07(); void op_cb_08(); void op_cb_09(); void op_cb_0A(); void op_cb_0B(); void op_cb_0C(); void op_cb_0D(); void op_cb_0E(); void op_cb_0F();
+		void op_cb_10(); void op_cb_11(); void op_cb_12(); void op_cb_13(); void op_cb_14(); void op_cb_15(); void op_cb_16(); void op_cb_17(); void op_cb_18(); void op_cb_19(); void op_cb_1A(); void op_cb_1B(); void op_cb_1C(); void op_cb_1D(); void op_cb_1E(); void op_cb_1F();
+		void op_cb_20(); void op_cb_21(); void op_cb_22(); void op_cb_23(); void op_cb_24(); void op_cb_25(); void op_cb_26(); void op_cb_27(); void op_cb_28(); void op_cb_29(); void op_cb_2A(); void op_cb_2B(); void op_cb_2C(); void op_cb_2D(); void op_cb_2E(); void op_cb_2F();
+		void op_cb_30(); void op_cb_31(); void op_cb_32(); void op_cb_33(); void op_cb_34(); void op_cb_35(); void op_cb_36(); void op_cb_37(); void op_cb_38(); void op_cb_39(); void op_cb_3A(); void op_cb_3B(); void op_cb_3C(); void op_cb_3D(); void op_cb_3E(); void op_cb_3F();
+		void op_cb_40(); void op_cb_41(); void op_cb_42(); void op_cb_43(); void op_cb_44(); void op_cb_45(); void op_cb_46(); void op_cb_47(); void op_cb_48(); void op_cb_49(); void op_cb_4A(); void op_cb_4B(); void op_cb_4C(); void op_cb_4D(); void op_cb_4E(); void op_cb_4F();
+		void op_cb_50(); void op_cb_51(); void op_cb_52(); void op_cb_53(); void op_cb_54(); void op_cb_55(); void op_cb_56(); void op_cb_57(); void op_cb_58(); void op_cb_59(); void op_cb_5A(); void op_cb_5B(); void op_cb_5C(); void op_cb_5D(); void op_cb_5E(); void op_cb_5F();
+		void op_cb_60(); void op_cb_61(); void op_cb_62(); void op_cb_63(); void op_cb_64(); void op_cb_65(); void op_cb_66(); void op_cb_67(); void op_cb_68(); void op_cb_69(); void op_cb_6A(); void op_cb_6B(); void op_cb_6C(); void op_cb_6D(); void op_cb_6E(); void op_cb_6F();
+		void op_cb_70(); void op_cb_71(); void op_cb_72(); void op_cb_73(); void op_cb_74(); void op_cb_75(); void op_cb_76(); void op_cb_77(); void op_cb_78(); void op_cb_79(); void op_cb_7A(); void op_cb_7B(); void op_cb_7C(); void op_cb_7D(); void op_cb_7E(); void op_cb_7F();
+		void op_cb_80(); void op_cb_81(); void op_cb_82(); void op_cb_83(); void op_cb_84(); void op_cb_85(); void op_cb_86(); void op_cb_87(); void op_cb_88(); void op_cb_89(); void op_cb_8A(); void op_cb_8B(); void op_cb_8C(); void op_cb_8D(); void op_cb_8E(); void op_cb_8F();
+		void op_cb_90(); void op_cb_91(); void op_cb_92(); void op_cb_93(); void op_cb_94(); void op_cb_95(); void op_cb_96(); void op_cb_97(); void op_cb_98(); void op_cb_99(); void op_cb_9A(); void op_cb_9B(); void op_cb_9C(); void op_cb_9D(); void op_cb_9E(); void op_cb_9F();
+		void op_cb_A0(); void op_cb_A1(); void op_cb_A2(); void op_cb_A3(); void op_cb_A4(); void op_cb_A5(); void op_cb_A6(); void op_cb_A7(); void op_cb_A8(); void op_cb_A9(); void op_cb_AA(); void op_cb_AB(); void op_cb_AC(); void op_cb_AD(); void op_cb_AE(); void op_cb_AF();
+		void op_cb_B0(); void op_cb_B1(); void op_cb_B2(); void op_cb_B3(); void op_cb_B4(); void op_cb_B5(); void op_cb_B6(); void op_cb_B7(); void op_cb_B8(); void op_cb_B9(); void op_cb_BA(); void op_cb_BB(); void op_cb_BC(); void op_cb_BD(); void op_cb_BE(); void op_cb_BF();
+		void op_cb_C0(); void op_cb_C1(); void op_cb_C2(); void op_cb_C3(); void op_cb_C4(); void op_cb_C5(); void op_cb_C6(); void op_cb_C7(); void op_cb_C8(); void op_cb_C9(); void op_cb_CA(); void op_cb_CB(); void op_cb_CC(); void op_cb_CD(); void op_cb_CE(); void op_cb_CF();
+		void op_cb_D0(); void op_cb_D1(); void op_cb_D2(); void op_cb_D3(); void op_cb_D4(); void op_cb_D5(); void op_cb_D6(); void op_cb_D7(); void op_cb_D8(); void op_cb_D9(); void op_cb_DA(); void op_cb_DB(); void op_cb_DC(); void op_cb_DD(); void op_cb_DE(); void op_cb_DF();
+		void op_cb_E0(); void op_cb_E1(); void op_cb_E2(); void op_cb_E3(); void op_cb_E4(); void op_cb_E5(); void op_cb_E6(); void op_cb_E7(); void op_cb_E8(); void op_cb_E9(); void op_cb_EA(); void op_cb_EB(); void op_cb_EC(); void op_cb_ED(); void op_cb_EE(); void op_cb_EF();
+		void op_cb_F0(); void op_cb_F1(); void op_cb_F2(); void op_cb_F3(); void op_cb_F4(); void op_cb_F5(); void op_cb_F6(); void op_cb_F7(); void op_cb_F8(); void op_cb_F9(); void op_cb_FA(); void op_cb_FB(); void op_cb_FC(); void op_cb_FD(); void op_cb_FE(); void op_cb_FF();
 	};
 }

@@ -20,7 +20,7 @@ namespace mmu
 			throw;
 		}
 
-		return (memory.at(address) << 8) | memory.at(address + 1);
+		return (memory.at(address + 1) << 8) | memory.at(address);
 	}
 
 	int MMU::setU16(int address, u16 value)

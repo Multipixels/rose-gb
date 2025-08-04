@@ -23,6 +23,10 @@ namespace rose
 		while (true)
 		{
 			cpu.executeInstruction();
+			if (mmu.getU8(0xFF02) & 0xE0)
+			{
+				std::cout << "test";
+			};
 		}
 
 		return 0;
