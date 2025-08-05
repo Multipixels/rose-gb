@@ -98,6 +98,13 @@ namespace cpu
 		void setFlags(u4 value);
 		void setFlags(bool z, bool n, bool h, bool c);
 
+		void setFlagsForU8Overflow(u16 a, u16 b, u16 c);
+		void setFlagsForU8Overflow(u16 a, u16 b);
+		void setFlagsForU16Overflow(u16 a, u16 b);
+
+		void setFlagsForU8Borrow(u8 a, u8 b);
+		void setFlagsForU8Borrow(u8 a, u8 b, u8 c);
+
 		bool ccStatus(ConditionCode cc);
 
 		// CPU Instruction Set: https://rgbds.gbdev.io/docs/v0.9.4/gbz80.7

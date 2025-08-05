@@ -250,6 +250,87 @@ namespace cpu {
 	void CPU::setFlags(u4 value) { accumulatorFlags &= (0b11110000 | value.value); }
 	void CPU::setFlags(bool z, bool n, bool h, bool c) { accumulatorFlags &= (0b11110000 | ((int)z << 3) | ((int)n << 2) | ((int)h << 1) | (int)c); }
 
+	void CPU::setFlagsForU8Overflow(u16 a, u16 b, u16 c)
+	{
+		u8 res = a + b + c;
+		if (res == 0) setFlagC(true);
+		else setFlagC(false);
+
+		setFlagN(0);
+
+		u8 halfRes = (a & 0x0F) + (b & 0x0F) + c;
+		if (halfRes >= 0x10) setRegisterH(1);
+		else setRegisterH(0);
+
+		u16 overflowRes = a + b + c;
+		if (overflowRes >= 0x0100) setRegisterC(1);
+		else setRegisterC(0);
+	}
+
+	void CPU::setFlagsForU8Overflow(u16 a, u16 b)
+	{
+		u8 res = a + b;
+		if (res == 0) setFlagC(true);
+		else setFlagC(false);
+
+		setFlagN(0);
+
+		u8 halfRes = (a & 0x0F) + (b & 0x0F);
+		if (halfRes >= 0x10) setRegisterH(1);
+		else setRegisterH(0);
+
+		u16 overflowRes = a + b;
+		if (overflowRes >= 0x0100) setRegisterC(1);
+		else setRegisterC(0);
+	}
+
+	void CPU::setFlagsForU16Overflow(u16 a, u16 b)
+	{
+		u16 res = a + b;
+		if (res == 0) setFlagC(true);
+		else setFlagC(false);
+
+		setFlagN(0);
+
+		u16 halfRes = (a & 0x0FFF) + (b & 0x0FFF);
+		if (halfRes >= 0x1000) setRegisterH(1);
+		else setRegisterH(0);
+
+		u32 overflowRes = a + b;
+		if (overflowRes >= 0x10000) setRegisterC(1);
+		else setRegisterC(0);
+	}
+
+	void CPU::setFlagsForU8Borrow(u8 a, u8 b)
+	{
+		u8 res = a - b;
+		if (res == 0) setFlagC(true);
+		else setFlagC(false);
+
+		setFlagN(true);
+
+		if ((a & 0x0F) < (b & 0x0F)) setFlagH(true);
+		else setFlagH(false);
+
+		if (a < b) setFlagC(true);
+		else setFlagC(false);
+	}
+
+	void CPU::setFlagsForU8Borrow(u8 a, u8 b, u8 c)
+	{
+		u8 res = a - b - c;
+		if (res == 0) setFlagC(true);
+		else setFlagC(false);
+
+		setFlagN(true);
+
+		if ((a & 0x0F) < ((b + c) & 0x0F)) setFlagH(true);
+		else setFlagH(false);
+
+		if (a < b + c) setFlagC(true);
+		else setFlagC(false);
+	}
+
 	bool CPU::ccStatus(ConditionCode cc)
 	{
 		switch (cc) {
@@ -283,49 +364,49 @@ namespace cpu {
 
 	// 8-bit Arithmetic
 	// TODO: Set flags
-	void CPU::ADC_A_R8(Register8* r) { setRegisterA(getRegisterA() + *r + getFlagC()); }
-	void CPU::ADC_A_HL() { setRegisterA(getRegisterA() + mmu->getU8(hl) + getFlagC()); }
-	void CPU::ADC_A_N8(u8 n) { setRegisterA(getRegisterA() + n + getFlagC()); }
-	void CPU::ADD_A_R8(Register8* r) { setRegisterA(getRegisterA() + *r); }
-	void CPU::ADD_A_HL() { setRegisterA(getRegisterA() + mmu->getU8(hl)); }
-	void CPU::ADD_A_N8(u8 n) { setRegisterA(getRegisterA() + n); }
-	void CPU::CP_A_R8(Register8* r) { if (getRegisterA() - *r == 0) { setFlagZ(true); } setFlagN(true); if (getRegisterA() < *r) { setFlagC(true); } if ((getRegisterA() & 0x0F) < (*r & 0x0F)) { setFlagH(true); } }
-	void CPU::CP_A_HL() { if (getRegisterA() - hl == 0) { setFlagZ(true); } setFlagN(true); if (getRegisterA() < hl) { setFlagC(true); } if ((getRegisterA() & 0x0F) < (hl & 0x0F)) { setFlagH(true); } }
-	void CPU::CP_A_N8(u8 n) { if (getRegisterA() - n == 0) { setFlagZ(true); } setFlagN(true); if (getRegisterA() < n) { setFlagC(true); } if ((getRegisterA() & 0x0F) < (n & 0x0F)) { setFlagH(true); } }
-	void CPU::DEC_R8(Register8* r) { (*r)--; }
-	void CPU::DEC_HL() { mmu->setU8(hl, mmu->getU8(hl) - 1); }
-	void CPU::INC_R8(Register8* r) { (*r)++; }
-	void CPU::INC_HL() { mmu->setU8(hl, mmu->getU8(hl) + 1); }
-	void CPU::SBC_A_R8(Register8* r) { setRegisterA(getRegisterA() - *r - getFlagC()); }
-	void CPU::SBC_A_HL() { setRegisterA(getRegisterA() - mmu->getU8(hl) - getFlagC()); }
-	void CPU::SBC_A_N8(u8 n) { setRegisterA(getRegisterA() - n - getFlagC()); }
-	void CPU::SUB_A_R8(Register8* r) { setRegisterA(getRegisterA() - *r); }
-	void CPU::SUB_A_HL() { setRegisterA(getRegisterA() - mmu->getU8(hl)); }
-	void CPU::SUB_A_N8(u8 n) { setRegisterA(getRegisterA() - n); }
+	void CPU::ADC_A_R8(Register8* r) { setFlagsForU8Overflow(getRegisterA(), *r, getFlagC()); setRegisterA(getRegisterA() + *r + getFlagC());  }
+	void CPU::ADC_A_HL() { setFlagsForU8Overflow(getRegisterA(), hl, getFlagC()); setRegisterA(getRegisterA() + mmu->getU8(hl) + getFlagC());  }
+	void CPU::ADC_A_N8(u8 n) { setFlagsForU8Overflow(getRegisterA(), n, getFlagC()); setRegisterA(getRegisterA() + n + getFlagC());  }
+	void CPU::ADD_A_R8(Register8* r) { setFlagsForU8Overflow(getRegisterA(), *r); setRegisterA(getRegisterA() + *r);  }
+	void CPU::ADD_A_HL() { setFlagsForU8Overflow(getRegisterA(), hl); setRegisterA(getRegisterA() + mmu->getU8(hl));  }
+	void CPU::ADD_A_N8(u8 n) { setFlagsForU8Overflow(getRegisterA(), n); setRegisterA(getRegisterA() + n);  }
+	void CPU::CP_A_R8(Register8* r) { setFlagsForU8Borrow(getRegisterA(), *r); }
+	void CPU::CP_A_HL() { setFlagsForU8Borrow(getRegisterA(), hl); }
+	void CPU::CP_A_N8(u8 n) { setFlagsForU8Borrow(getRegisterA(), n); }
+	void CPU::DEC_R8(Register8* r) { if ((*r & 0xF) == 0b0000) { setFlagH(true); } else { setFlagH(false); } (*r)--; setFlagN(true);  if (*r == 0) { setFlagZ(1); } else { setFlagZ(0); } }
+	void CPU::DEC_HL() { if ((mmu->getU8(hl) & 0xF) == 0b0000) { setFlagH(true); } else { setFlagH(false); } mmu->setU8(hl, mmu->getU8(hl) - 1); setFlagN(true); if (mmu->getU8(hl) == 0) { setFlagZ(1); } else { setFlagZ(0); } }
+	void CPU::INC_R8(Register8* r) { if ((*r & 0xF) == 0b1111) { setFlagH(true); } else { setFlagH(false); } (*r)++; setFlagN(false); if (*r == 0) { setFlagZ(true); } else { setFlagZ(false); } }
+	void CPU::INC_HL() { if ((hl & 0xF) == 0b1111) { setFlagH(true); } else { setFlagH(false); } mmu->setU8(hl, mmu->getU8(hl) + 1); setFlagN(false); if (hl == 0) { setFlagZ(true); } else { setFlagZ(false); } }
+	void CPU::SBC_A_R8(Register8* r) { setFlagsForU8Borrow(getRegisterA(), *r, getFlagC()); setRegisterA(getRegisterA() - *r - getFlagC());  }
+	void CPU::SBC_A_HL() { setFlagsForU8Borrow(getRegisterA(), hl, getFlagC()); setRegisterA(getRegisterA() - mmu->getU8(hl) - getFlagC()); }
+	void CPU::SBC_A_N8(u8 n) { setFlagsForU8Borrow(getRegisterA(), n, getFlagC()); setRegisterA(getRegisterA() - n - getFlagC()); }
+	void CPU::SUB_A_R8(Register8* r) { setFlagsForU8Borrow(getRegisterA(), *r); setRegisterA(getRegisterA() - *r); }
+	void CPU::SUB_A_HL() { setFlagsForU8Borrow(getRegisterA(), hl); setRegisterA(getRegisterA() - mmu->getU8(hl)); }
+	void CPU::SUB_A_N8(u8 n) { setFlagsForU8Borrow(getRegisterA(), n); setRegisterA(getRegisterA() - n); }
 
 	// 16-bit Arithmetic
 	// TODO: Set flags
-	void CPU::ADD_HL_R16(Register16* r) { hl += *r; }
+	void CPU::ADD_HL_R16(Register16* r) { setFlagsForU16Overflow(*r, hl); hl += *r;  }
 	void CPU::DEC_R16(Register16* r) { (*r)--; }
 	void CPU::INC_R16(Register16* r) { (*r)++; }
 
 	// Bitwise Logic
 	// TODO: Set flags
-	void CPU::AND_A_R8(Register8* r) { setRegisterA(getRegisterA() & *r); }
-	void CPU::AND_A_HL() { setRegisterA(getRegisterA() & mmu->getU8(hl)); }
-	void CPU::AND_A_N8(u8 n) { setRegisterA(getRegisterA() & n); }
-	void CPU::CPL() { setRegisterA(~getRegisterA()); }
-	void CPU::OR_A_R8(Register8* r) { setRegisterA(getRegisterA() | *r); }
-	void CPU::OR_A_HL() { setRegisterA(getRegisterA() | mmu->getU8(hl)); }
-	void CPU::OR_A_N8(u8 n) { setRegisterA(getRegisterA() | n); }
-	void CPU::XOR_A_R8(Register8* r) { setRegisterA(getRegisterA() ^ *r); }
-	void CPU::XOR_A_HL() { setRegisterA(getRegisterA() ^ mmu->getU8(hl)); }
-	void CPU::XOR_A_N8(u8 n) { setRegisterA(getRegisterA() ^ n); }
+	void CPU::AND_A_R8(Register8* r) { setFlags(!(getRegisterA() & *r), 0, 1, 0); setRegisterA(getRegisterA() & *r);  }
+	void CPU::AND_A_HL() { setFlags(!(getRegisterA() & mmu->getU8(hl)), 0, 1, 0); setRegisterA(getRegisterA() & mmu->getU8(hl));  }
+	void CPU::AND_A_N8(u8 n) { setFlags(!(getRegisterA() & n), 0, 1, 0); setRegisterA(getRegisterA() & n);  }
+	void CPU::CPL() { setRegisterA(~getRegisterA()); setFlagN(1); setFlagH(1); }
+	void CPU::OR_A_R8(Register8* r) { setRegisterA(getRegisterA() | *r); setFlags(!getRegisterA(), 0, 0, 0); }
+	void CPU::OR_A_HL() { setRegisterA(getRegisterA() | mmu->getU8(hl)); setFlags(!getRegisterA(), 0, 0, 0); }
+	void CPU::OR_A_N8(u8 n) { setRegisterA(getRegisterA() | n); setFlags(!getRegisterA(), 0, 0, 0); }
+	void CPU::XOR_A_R8(Register8* r) { setRegisterA(getRegisterA() ^ *r); setFlags(!getRegisterA(), 0, 0, 0); }
+	void CPU::XOR_A_HL() { setRegisterA(getRegisterA() ^ mmu->getU8(hl)); setFlags(!getRegisterA(), 0, 0, 0); }
+	void CPU::XOR_A_N8(u8 n) { setRegisterA(getRegisterA() ^ n); setFlags(!getRegisterA(), 0, 0, 0); }
 
 	// Bit Flags
 	// TODO: Set flags
-	void CPU::BIT_U3_R8(u3 u, Register8* r) { /* TODO */ }
-	void CPU::BIT_U3_HL(u3 u) { /* TODO */ }
+	void CPU::BIT_U3_R8(u3 u, Register8* r) { setFlags(~((*r >> u.value) & 0x1), 0, 1, getFlagC()); }
+	void CPU::BIT_U3_HL(u3 u) { setFlags(~((mmu->getU8(hl) >> u.value) & 0x1), 0, 1, getFlagC()); }
 	void CPU::RES_U3_R8(u3 u, Register8* r) { *r = *r & ~(0xFF & (1 << u.value)); }
 	void CPU::RES_U3_HL(u3 u) { mmu->setU8(hl, mmu->getU8(hl) & ~(0xFF & (1 << u.value))); }
 	void CPU::SET_U3_R8(u3 u, Register8* r) { *r = *r | (1 << u.value); }
@@ -333,26 +414,26 @@ namespace cpu {
 
 	// Bit Shifts
 	// TODO: Set flags
-	void CPU::RL_R8(Register8* r) { u8 temp = *r & 0x80; *r = (*r << 1) | (int)getFlagC(); setFlagC(temp); }
-	void CPU::RL_HL() { u8 temp = mmu->getU8(hl) & 0x80; mmu->setU8(hl, (mmu->getU8(hl) << 1) | (int)getFlagC()); setFlagC(temp); }
-	void CPU::RL_A() { u8 temp = getRegisterA() & 0x80; setRegisterA((getRegisterA() << 1) | (int)getFlagC()); setFlagC(temp); }
-	void CPU::RL_C_R8(Register8* r) { u8 temp = *r & 0x80; *r = (*r << 1) | (temp >> 7); setFlagC(temp); }
-	void CPU::RL_C_HL() { u8 temp = mmu->getU8(hl) & 0x80; mmu->setU8(hl, (mmu->getU8(hl) << 1) | (temp >> 7)); setFlagC(temp); }
-	void CPU::RL_C_A() { u8 temp = getRegisterA() & 0x80; setRegisterA((getRegisterA() << 1) | (temp >> 7)); setFlagC(temp); }
-	void CPU::RR_R8(Register8* r) { u8 temp = *r & 0x01; *r = (*r >> 1) | (getFlagC() << 7); setFlagC(temp); }
-	void CPU::RR_HL() { u8 temp = mmu->getU8(hl) & 0x01; mmu->setU8(hl, (mmu->getU8(hl) >> 1) | (getFlagC() << 7)); setFlagC(temp); }
-	void CPU::RR_A() { u8 temp = getRegisterA() & 0x01; setRegisterA((getRegisterA() >> 1) | (getFlagC() << 7)); setFlagC(temp); }
-	void CPU::RR_C_R8(Register8* r) { u8 temp = *r & 0x01; *r = (*r >> 1) | (temp << 7); setFlagC(temp); }
-	void CPU::RR_C_HL() { u8 temp = mmu->getU8(hl) & 0x01; mmu->setU8(hl, (mmu->getU8(hl) >> 1) | (temp << 7)); setFlagC(temp); }
-	void CPU::RR_C_A() { u8 temp = getRegisterA() & 0x01; setRegisterA((getRegisterA() >> 1) | (temp << 7)); setFlagC(temp); }
-	void CPU::SLA_R8(Register8* r) { setFlagC(*r & 0x80); *r = (*r << 1); }
-	void CPU::SLA_HL() { setFlagC(mmu->getU8(hl) & 0x80); mmu->setU8(hl, mmu->getU8(hl) << 1); }
-	void CPU::SRA_R8(Register8* r) { setFlagC(*r & 0x01); *r = (*r & 0x80) | (*r >> 1); }
-	void CPU::SRA_HL() { setFlagC(mmu->getU8(hl) & 0x01); mmu->setU8(hl, (mmu->getU8(hl) & 0x80) | (mmu->getU8(hl) >> 1)); }
-	void CPU::SRL_R8(Register8* r) { setFlagC(*r & 0x01); *r = *r >> 1; }
-	void CPU::SRL_HL() { setFlagC(mmu->getU8(hl) & 0x01); mmu->setU8(hl, mmu->getU8(hl) & 0x80); }
-	void CPU::SWAP_R8(Register8* r) { *r = (*r << 4) | (*r >> 4); }
-	void CPU::SWAP_HL() { mmu->setU8(hl, (mmu->getU8(hl) << 4) | (mmu->getU8(hl) >> 4)); }
+	void CPU::RL_R8(Register8* r) { u8 temp = *r & 0x80; *r = (*r << 1) | (int)getFlagC(); setFlags(*r, 0, 0, temp);  }
+	void CPU::RL_HL() { u8 temp = mmu->getU8(hl) & 0x80; mmu->setU8(hl, (mmu->getU8(hl) << 1) | (int)getFlagC()); setFlags(mmu->getU8(hl), 0, 0, temp); }
+	void CPU::RL_A() { u8 temp = getRegisterA() & 0x80; setRegisterA((getRegisterA() << 1) | (int)getFlagC()); setFlags(0, 0, 0, temp); }
+	void CPU::RL_C_R8(Register8* r) { u8 temp = *r & 0x80; *r = (*r << 1) | (temp >> 7); setFlags(*r, 0, 0, temp); }
+	void CPU::RL_C_HL() { u8 temp = mmu->getU8(hl) & 0x80; mmu->setU8(hl, (mmu->getU8(hl) << 1) | (temp >> 7)); setFlags(mmu->getU8(hl), 0, 0, temp); }
+	void CPU::RL_C_A() { u8 temp = getRegisterA() & 0x80; setRegisterA((getRegisterA() << 1) | (temp >> 7)); setFlags(0, 0, 0, temp); }
+	void CPU::RR_R8(Register8* r) { u8 temp = *r & 0x01; *r = (*r >> 1) | (getFlagC() << 7); setFlags(*r, 0, 0, temp); }
+	void CPU::RR_HL() { u8 temp = mmu->getU8(hl) & 0x01; mmu->setU8(hl, (mmu->getU8(hl) >> 1) | (getFlagC() << 7)); setFlags(mmu->getU8(hl), 0, 0, temp); }
+	void CPU::RR_A() { u8 temp = getRegisterA() & 0x01; setRegisterA((getRegisterA() >> 1) | (getFlagC() << 7)); setFlags(0, 0, 0, temp); }
+	void CPU::RR_C_R8(Register8* r) { u8 temp = *r & 0x01; *r = (*r >> 1) | (temp << 7); setFlags(*r, 0, 0, temp); }
+	void CPU::RR_C_HL() { u8 temp = mmu->getU8(hl) & 0x01; mmu->setU8(hl, (mmu->getU8(hl) >> 1) | (temp << 7)); setFlags(mmu->getU8(hl), 0, 0, temp); }
+	void CPU::RR_C_A() { u8 temp = getRegisterA() & 0x01; setRegisterA((getRegisterA() >> 1) | (temp << 7)); setFlags(0, 0, 0, temp); }
+	void CPU::SLA_R8(Register8* r) { setFlags(0, 0, 0, *r & 0x80); *r = (*r << 1); setFlagZ(*r); }
+	void CPU::SLA_HL() { setFlags(0, 0, 0, mmu->getU8(hl) & 0x80); mmu->setU8(hl, mmu->getU8(hl) << 1); setFlagZ(!mmu->getU8(hl)); }
+	void CPU::SRA_R8(Register8* r) { setFlags(0, 0, 0, *r & 0x01);  *r = (*r & 0x80) | (*r >> 1); setFlagZ(!*r); }
+	void CPU::SRA_HL() { setFlags(0, 0, 0, mmu->getU8(hl) & 0x01); mmu->setU8(hl, (mmu->getU8(hl) & 0x80) | (mmu->getU8(hl) >> 1)); setFlagZ(!mmu->getU8(hl)); }
+	void CPU::SRL_R8(Register8* r) { setFlags(0, 0, 0, *r & 0x01); *r = *r >> 1; setFlagZ(!*r);}
+	void CPU::SRL_HL() { setFlags(0, 0, 0, mmu->getU8(hl) & 0x01); mmu->setU8(hl, mmu->getU8(hl) & 0x80); setFlagZ(!mmu->getU8(hl));}
+	void CPU::SWAP_R8(Register8* r) { *r = (*r << 4) | (*r >> 4); setFlags(!*r, 0, 0, 0); }
+	void CPU::SWAP_HL() { mmu->setU8(hl, (mmu->getU8(hl) << 4) | (mmu->getU8(hl) >> 4)); setFlags(!mmu->getU8(hl), 0, 0, 0); }
 
 	// Jumps and Subroutines
 	void CPU::CALL_N16(u16 n) { stackPointer -= 2; mmu->setU16(stackPointer, ((n & 0xFF) << 8) | (n >> 8)); JP_N16(n); }
@@ -372,13 +453,13 @@ namespace cpu {
 	void CPU::SCF() { setFlagN(0); setFlagH(0); setFlagC(1); }
 
 	// Stack Manipulation
-	void CPU::ADD_HL_SP() { hl += stackPointer; }
-	void CPU::ADD_SP_S8(s8 s) { stackPointer += s; }
+	void CPU::ADD_HL_SP() { setFlagsForU16Overflow(stackPointer, hl); hl += stackPointer; }
+	void CPU::ADD_SP_S8(s8 s) { setFlagsForU8Overflow(s, stackPointer); stackPointer += s;  }
 	void CPU::DEC_SP() { stackPointer--; }
 	void CPU::INC_SP() { stackPointer++; }
 	void CPU::LD_SP_N16(u16 n) { mmu->setU16(stackPointer, n); }
 	void CPU::LD_N16_SP(u16 n) { mmu->setU16(n, ((stackPointer & 0xFF) << 8) | (stackPointer >> 8)); }
-	void CPU::LD_HL_SP_S8(s8 s) { stackPointer += s; hl = stackPointer; }
+	void CPU::LD_HL_SP_S8(s8 s) { stackPointer += s; hl = stackPointer; setFlagsForU8Overflow(stackPointer, s); }
 	void CPU::LD_SP_HL() { stackPointer = hl; }
 	void CPU::POP_AF() { accumulatorFlags = ((mmu->getU16(stackPointer) & 0xFF) << 8) | (mmu->getU16(stackPointer) >> 8); stackPointer += 2; }
 	void CPU::POP_R16(Register16* r) { *r = ((mmu->getU16(stackPointer) & 0xFF) << 8) | (mmu->getU16(stackPointer) >> 8); stackPointer += 2; }
@@ -386,14 +467,14 @@ namespace cpu {
 	void CPU::PUSH_R16(Register16* r) { stackPointer -= 2; mmu->setU16(stackPointer, ((*r & 0xFF) << 8) | (*r >> 8)); }
 
 	// Interrupt Related
-	void CPU::DI() { /* TODO */ }
-	void CPU::EI() { /* TODO */ }
-	void CPU::HALT() { /* TODO */ }
+	void CPU::DI() { /* TODO: https://rgbds.gbdev.io/docs/v0.9.4/gbz80.7#DI */ }
+	void CPU::EI() { /* TODO: https://rgbds.gbdev.io/docs/v0.9.4/gbz80.7#EI */ }
+	void CPU::HALT() { /* TODO: https://rgbds.gbdev.io/docs/v0.9.4/gbz80.7#HALT */ }
 
 	// Miscellaneous
-	void CPU::DAA() { /* TODO */ }
+	void CPU::DAA() { /* TODO: https://rgbds.gbdev.io/docs/v0.9.4/gbz80.7#DAA */ }
 	void CPU::NOP() { ; } // Do nothing
-	void CPU::STOP() { /* TODO */ }
+	void CPU::STOP() { /* TODO: https://rgbds.gbdev.io/docs/v0.9.4/gbz80.7#STOP */ }
 
 	// Operator Codes
 	void CPU::op_00() { /* does nothing */ }
