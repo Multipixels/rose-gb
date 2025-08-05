@@ -50,7 +50,7 @@ namespace cpu
 		Register16 de = 0;
 		Register16 hl = 0;
 		Register16 stackPointer = 0;
-		Register16 programCounter = 0x000;
+		Register16 programCounter = 0x100;
 
 		// Getters, Setters, Incrementers
 		Register8* getRegisterALoc();

@@ -16,25 +16,37 @@ else()
     set(CMAKE_INTERPROCEDURAL_OPTIMIZATION FALSE)
 endif()
 
+
+# ROSE CORE LIBRARY AND APP
+
 project(
-  "RoseGB"
+  "RoseCore"
   VERSION 1.0
-  DESCRIPTION "Game Boy Emulator"
+  DESCRIPTION "Game Boy Emulator Core Library"
   LANGUAGES CXX C
 )
 
-FILE(COPY "resources" DESTINATION "${CMAKE_BINARY_DIR}")
+project(
+  "RoseApp"
+  VERSION 1.0
+  DESCRIPTION "Game Boy Emulator Application"
+  LANGUAGES CXX C
+)
+
+# OTHER
+
+set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT RoseGB)
 
 # https://github.com/libsdl-org/SDL/blob/main/docs/INTRO-cmake.md
 # Ensures DLLs go into build directory correctly
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIGURATION>")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIGURATION>")
 
+FILE(COPY "resources" DESTINATION "${CMAKE_BINARY_DIR}")
+
 add_subdirectory(vendor EXCLUDE_FROM_ALL)
 add_subdirectory(src)
-set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT RoseGB)
-
-
+set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT RoseApp)
 
 if(RELEASE_BUILD)
 	target_compile_definitions("${CMAKE_PROJECT_NAME}" PUBLIC RELEASE_BUILD=1) 
@@ -49,7 +61,6 @@ if(MSVC) # If using the VS compiler...
 endif()
 
 message("CMake Build Type: ${CMAKE_BUILD_TYPE}")
-
 
 
 # TESTING

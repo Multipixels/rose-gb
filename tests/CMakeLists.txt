@@ -36,19 +36,19 @@ add_executable("RoseTests"
     "mmu/mmu-test.cpp"
     "mmu/mmu-test.h"
 
-    "../src/cpu/cpu.cpp"
-    "../src/cpu/cpu.h"
-    "../src/mmu/mmu.cpp"
-    "../src/mmu/mmu.h"
-    "../src/rose.cpp" 
-    "../src/rose.h"
-    "../src/cartridge/cartridge.cpp" 
-    "../src/cartridge/cartridge.h" 
-    "../src/utility/definitions.h"
+    #"../src/core/cpu/cpu.cpp"
+    #"../src/core/cpu/cpu.h"
+    #"../src/core/mmu/mmu.cpp"
+    #"../src/core/mmu/mmu.h"
+    #"../src/core/rose.cpp" 
+    #"../src/core/rose.h"
+    #"../src/core/cartridge/cartridge.cpp" 
+    #"../src/core/cartridge/cartridge.h" 
+    #"../src/core/utility/definitions.h"
 )
 
 target_link_libraries(
-    RoseTests PRIVATE vendor glad
+    RoseTests PRIVATE vendor glad RoseCore
     GTest::gtest_main
 )
 
@@ -56,11 +56,11 @@ set_property(TARGET "RoseTests" PROPERTY CXX_STANDARD 23)
 
 target_include_directories(RoseTests PUBLIC 
     "../vendor/ImGui"
-    "../src"
-    "../src/cartridge"
-    "../src/cpu"
-    "../src/mmu"
-    "../src/utility"
+    "../src/core"
+    "../src/core/cartridge"
+    "../src/core/cpu"
+    "../src/core/mmu"
+    "../src/core/utility"
 )
 
 if(MSVC)
