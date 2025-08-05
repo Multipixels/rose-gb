@@ -19,6 +19,8 @@ set(ImGuiSource ../../vendor/ImGui/imgui.cpp
 add_executable("RoseApp" 
     ${ImGuiSource}
     "main.cpp"
+    "windows/memory.cpp"
+    "windows/memory.h"
 )
 
 find_package(OpenGL REQUIRED)
@@ -32,6 +34,7 @@ set_target_properties("RoseApp" PROPERTIES WIN32_EXECUTABLE TRUE)
 
 target_include_directories(RoseApp PUBLIC 
     "../../vendor/ImGui"
+    "windows"
     "../core"
     "../core/cartridge"
     "../core/cpu"

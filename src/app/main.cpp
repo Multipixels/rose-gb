@@ -12,13 +12,14 @@
 #include <SDL3/SDL_opengl.h>
 
 #include "rose.h"
+#include "windows/memory.h"
 
 /* We will use this renderer to draw into this window every frame. */
 static SDL_Window* window = NULL;
 static SDL_Renderer* renderer = NULL;
 SDL_GLContext gl_context = NULL;
 
-bool show_demo_window = true;
+bool show_demo_window = false;
 bool show_another_window = false;
 ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
@@ -27,8 +28,10 @@ static SDL_AppResult handle_key_event(SDL_Scancode key_code)
     switch (key_code) {
     case SDL_SCANCODE_ESCAPE:
         return SDL_APP_SUCCESS;
+    case SDL_SCANCODE_TAB:
+        show_demo_window = !show_demo_window;
     default:
-        break;
+        ;
     }
     return SDL_APP_CONTINUE;
 }
@@ -56,7 +59,7 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
 
     float main_scale = SDL_GetDisplayContentScale(SDL_GetPrimaryDisplay());
     SDL_WindowFlags window_flags = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN | SDL_WINDOW_HIGH_PIXEL_DENSITY;
-    window = SDL_CreateWindow("Dear ImGui SDL3+OpenGL3 example", (int)(1280 * main_scale), (int)(720 * main_scale), window_flags);
+    window = SDL_CreateWindow("RoseGB", (int)(1600 * main_scale), (int)(900 * main_scale), window_flags);
     
     if (window == nullptr)
     {
@@ -149,30 +152,9 @@ SDL_AppResult SDL_AppIterate(void* appstate)
 
     ImGuiIO& io = ImGui::GetIO(); (void)io;
 
-    if(show_demo_window)
-        ImGui::ShowDemoWindow(&show_demo_window);
-
-    {
-        static float f = 0.0f;
-        static int counter = 0;
-
-        ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
-
-        ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
-        ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
-        ImGui::Checkbox("Another Window", &show_another_window);
-
-        ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-        ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
-
-        if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-            counter++;
-        ImGui::SameLine();
-        ImGui::Text("counter = %d", counter);
-
-        ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
-        ImGui::End();
-    }
+    if (show_demo_window)
+        //ImGui::ShowDemoWindow(&show_demo_window);
+        createMemoryWindow();
 
     if (show_another_window)
     {
