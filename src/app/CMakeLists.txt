@@ -21,8 +21,10 @@ add_executable("RoseApp"
     "main.cpp"
 )
 
+find_package(OpenGL REQUIRED)
+
 target_link_libraries(
-    RoseApp PRIVATE vendor glad RoseCore
+    RoseApp PRIVATE vendor glad RoseCore OpenGL::GL
 )
 
 set_property(TARGET "RoseApp" PROPERTY CXX_STANDARD 23)
