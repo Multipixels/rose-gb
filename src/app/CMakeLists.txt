@@ -26,6 +26,7 @@ target_link_libraries(
 )
 
 set_property(TARGET "RoseApp" PROPERTY CXX_STANDARD 23)
+set_target_properties("RoseApp" PROPERTIES WIN32_EXECUTABLE TRUE)
 
 target_include_directories(RoseApp PUBLIC 
     "../../vendor/ImGui"
