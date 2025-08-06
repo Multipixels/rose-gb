@@ -12,14 +12,17 @@ namespace rose
 	{
 	}
 
-	// Loads the cartridge and boots up the Game Boy
-	int Rose::runGame()
+	int Rose::loadGame()
 	{
-		if (loadCartridge("../resources/blargg/cpu_instrs/01-special.gb") == 1) 
+		if (loadCartridge("../resources/blargg/cpu_instrs.gb") == 1)
 		{
 			return 1;
 		};
+	}
 
+	// Loads the cartridge and boots up the Game Boy
+	int Rose::runGame()
+	{
 		while (true)
 		{
 			cpu.executeInstruction();
@@ -64,5 +67,10 @@ namespace rose
 		cartridgeBuffer->close();
 
 		return 0;
+	}
+
+	const mmu::MMU& Rose::getMMU() const
+	{
+		return mmu;
 	}
 }

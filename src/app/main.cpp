@@ -23,6 +23,8 @@ bool show_demo_window = false;
 bool show_another_window = false;
 ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
+rose::Rose* roseInstance = NULL;
+
 static SDL_AppResult handle_key_event(SDL_Scancode key_code)
 {
     switch (key_code) {
@@ -116,6 +118,8 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
     //ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf");
     //IM_ASSERT(font != nullptr);
 
+    roseInstance = new rose::Rose();
+    roseInstance->loadGame();
 
     return SDL_APP_CONTINUE;  /* carry on with the program! */
 }
@@ -154,7 +158,7 @@ SDL_AppResult SDL_AppIterate(void* appstate)
 
     if (show_demo_window)
         //ImGui::ShowDemoWindow(&show_demo_window);
-        createMemoryWindow();
+        createMemoryWindow(roseInstance);
 
     if (show_another_window)
     {

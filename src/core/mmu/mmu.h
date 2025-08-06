@@ -20,6 +20,7 @@ namespace mmu
 		u8 getU8(int address);
 		int setU8(int address, u8 value);
 
+		const std::vector<u8>& getMemory() const;
 	private:
 		std::vector<u8> memory; // 0-65535
 		

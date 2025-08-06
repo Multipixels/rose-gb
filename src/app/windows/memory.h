@@ -1,3 +1,5 @@
 #pragma once
 
-void createMemoryWindow();
+#include "rose.h"
+
+void createMemoryWindow(rose::Rose* rose);

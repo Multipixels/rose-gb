@@ -55,4 +55,9 @@ namespace mmu
 		return 0;
 	}
 
+	const std::vector<u8>& MMU::getMemory() const
+	{
+		return memory;
+	}
+
 }

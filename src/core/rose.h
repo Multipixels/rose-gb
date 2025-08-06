@@ -13,8 +13,12 @@ namespace rose
 	public:
 		Rose();
 
+		int loadGame();
 		int runGame();
 		int loadCartridge(std::string path);
+
+		const mmu::MMU& getMMU() const;
+
 	private:
 		cartridge::Cartridge cart;
 		cpu::CPU cpu;
