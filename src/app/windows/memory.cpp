@@ -2,12 +2,23 @@
 
 #include "imgui.h"
 
-void createMemoryWindow(rose::Rose* rose) {
+
+MemoryWindow::MemoryWindow(rose::Rose* roseInstance)
+    : roseInstance(roseInstance)
+{
+}
+
+void MemoryWindow::Draw()
+{
     static float f = 0.0f;
 
-    static std::vector<u8> test = rose->getMMU().getMemory();
+    static std::vector<u8> test = roseInstance->getMMU().getMemory();
 
-    ImGui::Begin("Memory");                          // Create a window called "Hello, world!" and append into it.
+    if (!ImGui::Begin("Memory"))                          // Create a window called "Hello, world!" and append into it.
+    {
+        ImGui::End();
+        return;
+    }
 
     ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
 

@@ -156,9 +156,12 @@ SDL_AppResult SDL_AppIterate(void* appstate)
 
     ImGuiIO& io = ImGui::GetIO(); (void)io;
 
+    static MemoryWindow mw(roseInstance);
     if (show_demo_window)
-        //ImGui::ShowDemoWindow(&show_demo_window);
-        createMemoryWindow(roseInstance);
+    {
+        ImGui::ShowDemoWindow(&show_demo_window);
+        mw.Draw();
+    }
 
     if (show_another_window)
     {

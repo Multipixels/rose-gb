@@ -2,4 +2,11 @@
 
 #include "rose.h"
 
-void createMemoryWindow(rose::Rose* rose);
+class MemoryWindow
+{
+public:
+	MemoryWindow(rose::Rose* roseInstance);
+	void Draw();
+private:
+	rose::Rose* roseInstance;
+};
