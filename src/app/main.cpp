@@ -12,7 +12,7 @@
 #include <SDL3/SDL_opengl.h>
 
 #include "rose.h"
-#include "windows/memory.h"
+#include "windows/memoryWindow.h"
 
 /* We will use this renderer to draw into this window every frame. */
 static SDL_Window* window = NULL;

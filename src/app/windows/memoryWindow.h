@@ -9,4 +9,6 @@ public:
 	void Draw();
 private:
 	rose::Rose* roseInstance;
+
+
 };

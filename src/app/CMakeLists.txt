@@ -19,7 +19,7 @@ set(ImGuiSource ../../vendor/ImGui/imgui.cpp
 add_executable("RoseApp" 
     ${ImGuiSource}
     "main.cpp"
-    "windows/memory.cpp"
+    "windows/memoryWindow.cpp"
     "windows/memory.h"
 )
 
