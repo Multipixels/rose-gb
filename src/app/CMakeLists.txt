@@ -20,7 +20,7 @@ add_executable("RoseApp"
     ${ImGuiSource}
     "main.cpp"
     "windows/memoryWindow.cpp"
-    "windows/memory.h"
+    "windows/memoryWindow.h"
 )
 
 find_package(OpenGL REQUIRED)
