@@ -16,7 +16,7 @@ void MemoryWindow::Draw()
 
     static std::vector<u8> test = roseInstance->getMMU().getMemory();
 
-    if (!ImGui::Begin("Memory"))                          // Create a window called "Hello, world!" and append into it.
+    if (!ImGui::Begin("Memory"))
     {
         ImGui::End();
         return;

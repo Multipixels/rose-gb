@@ -13,27 +13,35 @@
 
 #include "rose.h"
 #include "windows/memoryWindow.h"
+#include "windows/registerWindow.h"
 
 /* We will use this renderer to draw into this window every frame. */
 static SDL_Window* window = NULL;
 static SDL_Renderer* renderer = NULL;
 SDL_GLContext gl_context = NULL;
 
+static MemoryWindow* mw;
+static RegisterWindow* rw;
+
+bool show_debug_window = false;
 bool show_demo_window = false;
-bool show_another_window = false;
 ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
 rose::Rose* roseInstance = NULL;
 
 static SDL_AppResult handle_key_event(SDL_Scancode key_code)
 {
-    switch (key_code) {
+    switch (key_code) { 
     case SDL_SCANCODE_ESCAPE:
         return SDL_APP_SUCCESS;
     case SDL_SCANCODE_TAB:
+        show_debug_window = !show_debug_window;
+        break;
+    case SDL_SCANCODE_GRAVE:
         show_demo_window = !show_demo_window;
+        break;
     default:
-        ;
+        break;
     }
     return SDL_APP_CONTINUE;
 }
@@ -121,6 +129,9 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
     roseInstance = new rose::Rose();
     roseInstance->loadGame();
 
+    mw = new MemoryWindow(roseInstance);
+    rw = new RegisterWindow(roseInstance);
+
     return SDL_APP_CONTINUE;  /* carry on with the program! */
 }
 
@@ -156,20 +167,16 @@ SDL_AppResult SDL_AppIterate(void* appstate)
 
     ImGuiIO& io = ImGui::GetIO(); (void)io;
 
-    static MemoryWindow mw(roseInstance);
+
     if (show_demo_window)
     {
         ImGui::ShowDemoWindow(&show_demo_window);
-        mw.Draw();
     }
 
-    if (show_another_window)
+    if (show_debug_window)
     {
-        ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
-        ImGui::Text("Hello from another window!");
-        if (ImGui::Button("Close Me"))
-            show_another_window = false;
-        ImGui::End();
+        mw->Draw();
+        rw->Draw();
     }
 
     ImGui::Render();

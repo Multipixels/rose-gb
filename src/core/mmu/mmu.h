@@ -22,7 +22,7 @@ namespace mmu
 
 		const std::vector<u8>& getMemory() const;
 	private:
-		std::vector<u8> memory; // 0-65535
+		std::vector<u8> m_memory; // 0-65535
 		
 		/*u16* bankZero = &memory;
 		u16* bankOne = &memory[16384];

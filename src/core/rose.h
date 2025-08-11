@@ -20,8 +20,8 @@ namespace rose
 		const mmu::MMU& getMMU() const;
 
 	private:
-		cartridge::Cartridge cart;
-		cpu::CPU cpu;
-		mmu::MMU mmu;
+		cartridge::Cartridge m_cart;
+		cpu::CPU m_cpu;
+		mmu::MMU m_mmu;
 	};
 }

@@ -6,9 +6,9 @@
 namespace rose
 {
 	Rose::Rose() 
-		: cart(cartridge::Cartridge())
-		, mmu(mmu::MMU())
-		, cpu(cpu::CPU(&mmu))
+		: m_cart(cartridge::Cartridge())
+		, m_mmu(mmu::MMU())
+		, m_cpu(cpu::CPU(&m_mmu))
 	{
 	}
 
@@ -25,8 +25,8 @@ namespace rose
 	{
 		while (true)
 		{
-			cpu.executeInstruction();
-			if (mmu.getU8(0xFF02) & 0xE0)
+			m_cpu.executeInstruction();
+			if (m_mmu.getU8(0xFF02) & 0xE0)
 			{
 				std::cout << "test";
 			};
@@ -36,12 +36,12 @@ namespace rose
 	}
 
 	// Takes in a file path and attempts to load a .gb file into Rose's Cartridge
-	int Rose::loadCartridge(std::string path)
+	int Rose::loadCartridge(std::string p_path)
 	{
 		// Load into Cartridge construct
 		std::ifstream istr;
 		std::filebuf* cartridgeBuffer = istr.rdbuf();
-		auto errorChk = cartridgeBuffer->open(path, std::ios_base::in | std::ios_base::binary);
+		auto errorChk = cartridgeBuffer->open(p_path, std::ios_base::in | std::ios_base::binary);
 
 		if (!errorChk)
 		{
@@ -49,13 +49,13 @@ namespace rose
 			return 1;
 		}
 
-		cart.loadIntoCartridge(cartridgeBuffer);
+		m_cart.loadIntoCartridge(cartridgeBuffer);
 		cartridgeBuffer->close();
 
 
 		// Load into MMU
 		cartridgeBuffer = istr.rdbuf();
-		errorChk = cartridgeBuffer->open(path, std::ios_base::in | std::ios_base::binary);
+		errorChk = cartridgeBuffer->open(p_path, std::ios_base::in | std::ios_base::binary);
 
 		if (!errorChk)
 		{
@@ -63,7 +63,7 @@ namespace rose
 			return 1;
 		}
 
-		mmu.loadCartridgeData(cartridgeBuffer);
+		m_mmu.loadCartridgeData(cartridgeBuffer);
 		cartridgeBuffer->close();
 
 		return 0;
@@ -71,6 +71,6 @@ namespace rose
 
 	const mmu::MMU& Rose::getMMU() const
 	{
-		return mmu;
+		return m_mmu;
 	}
 }

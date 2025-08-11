@@ -15,7 +15,7 @@ namespace cpu
 		u16 getBytePair();
 	private:
 		// Reference to MMU
-		mmu::MMU* mmu;
+		mmu::MMU* m_mmu;
 
 		// Typedefs and Enums
 		typedef u16 Register16;
@@ -45,12 +45,12 @@ namespace cpu
 		// Registers
 			// Each 16 bits. BC, DE, FE can act as two 8-bit registers.
 			// First 8 bits of accumulatorFlags is register A, last 8 bits are flags.
-		Register16 accumulatorFlags = 0;
-		Register16 bc = 0;
-		Register16 de = 0;
-		Register16 hl = 0;
-		Register16 stackPointer = 0;
-		Register16 programCounter = 0x100;
+		Register16 m_accumulatorFlags = 0;
+		Register16 m_bc = 0;
+		Register16 m_de = 0;
+		Register16 m_hl = 0;
+		Register16 m_stackPointer = 0;
+		Register16 m_programCounter = 0x100;
 
 		// Getters, Setters, Incrementers
 		Register8* getRegisterALoc();

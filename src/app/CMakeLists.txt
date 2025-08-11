@@ -21,6 +21,8 @@ add_executable("RoseApp"
     "main.cpp"
     "windows/memoryWindow.cpp"
     "windows/memoryWindow.h"
+    "windows/registerWindow.cpp"
+    "windows/registerWindow.h"
 )
 
 find_package(OpenGL REQUIRED)

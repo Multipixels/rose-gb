@@ -26,7 +26,9 @@ add_library("RoseCore" STATIC
     "rose.h"
     "cartridge/cartridge.cpp" 
     "cartridge/cartridge.h" 
-    "utility/definitions.h")
+    "utility/definitions.h" 
+    "utility/register.cpp" 
+    "utility/register.h")
 
 set_property(TARGET "RoseCore" PROPERTY CXX_STANDARD 23)
 target_link_libraries(RoseCore PRIVATE vendor glad)
