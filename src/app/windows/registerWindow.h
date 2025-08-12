@@ -5,8 +5,8 @@
 class RegisterWindow
 {
 public:
-	RegisterWindow(rose::Rose* roseInstance);
+	RegisterWindow(rose_core::Rose* roseInstance);
 	void Draw();
 private:
-	rose::Rose* roseInstance;
+	rose_core::Rose* roseInstance;
 };

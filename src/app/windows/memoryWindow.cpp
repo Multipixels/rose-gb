@@ -4,7 +4,7 @@
 #include "imgui_internal.h"
 
 
-MemoryWindow::MemoryWindow(rose::Rose* roseInstance)
+MemoryWindow::MemoryWindow(rose_core::Rose* roseInstance)
     : roseInstance(roseInstance)
 {
     
@@ -14,7 +14,7 @@ void MemoryWindow::Draw()
 {
     static float f = 0.0f;
 
-    static std::vector<u8> test = roseInstance->getMMU().getMemory();
+    static std::vector<rose_core::u8> test = roseInstance->getMMU().getMemory();
 
     if (!ImGui::Begin("Memory"))
     {

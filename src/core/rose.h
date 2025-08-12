@@ -17,11 +17,11 @@ namespace rose_core
 		int runGame();
 		int loadCartridge(std::string path);
 
-		const mmu::MMU& getMMU() const;
+		const MMU& getMMU() const;
 
 	private:
-		cartridge::Cartridge m_cart;
-		cpu::CPU m_cpu;
-		mmu::MMU m_mmu;
+		Cartridge m_cart;
+		CPU m_cpu;
+		MMU m_mmu;
 	};
 }

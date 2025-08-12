@@ -27,7 +27,7 @@ bool show_debug_window = false;
 bool show_demo_window = false;
 ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
-rose::Rose* roseInstance = NULL;
+rose_core::Rose* roseInstance = NULL;
 
 static SDL_AppResult handle_key_event(SDL_Scancode key_code)
 {
@@ -126,7 +126,7 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
     //ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf");
     //IM_ASSERT(font != nullptr);
 
-    roseInstance = new rose::Rose();
+    roseInstance = new rose_core::Rose();
     roseInstance->loadGame();
 
     mw = new MemoryWindow(roseInstance);

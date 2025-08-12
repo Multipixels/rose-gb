@@ -5,8 +5,8 @@
 class MemoryWindow
 {
 public:
-	MemoryWindow(rose::Rose* roseInstance);
+	MemoryWindow(rose_core::Rose* roseInstance);
 	void Draw();
 private:
-	rose::Rose* roseInstance;
+	rose_core::Rose* roseInstance;
 };

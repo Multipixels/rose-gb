@@ -6,9 +6,9 @@
 namespace rose_core
 {
 	Rose::Rose() 
-		: m_cart(cartridge::Cartridge())
-		, m_mmu(mmu::MMU())
-		, m_cpu(cpu::CPU(&m_mmu))
+		: m_cart(Cartridge())
+		, m_mmu(MMU())
+		, m_cpu(CPU(m_mmu))
 	{
 	}
 
@@ -69,7 +69,7 @@ namespace rose_core
 		return 0;
 	}
 
-	const mmu::MMU& Rose::getMMU() const
+	const MMU& Rose::getMMU() const
 	{
 		return m_mmu;
 	}

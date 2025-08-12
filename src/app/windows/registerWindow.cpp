@@ -2,7 +2,7 @@
 
 #include "imgui.h"
 
-RegisterWindow::RegisterWindow(rose::Rose* roseInstance)
+RegisterWindow::RegisterWindow(rose_core::Rose* roseInstance)
     : roseInstance(roseInstance)
 {
 
