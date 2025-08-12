@@ -1,6 +1,6 @@
 #include "mmu.h"
 
-namespace mmu
+namespace rose_core
 {
 	MMU::MMU()
 	{

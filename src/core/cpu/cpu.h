@@ -2,12 +2,12 @@
 #include "../utility/definitions.h"
 #include "../mmu/mmu.h"
 
-namespace cpu
+namespace rose_core
 {
 	class CPU
 	{
 	public:
-		CPU(mmu::MMU* mmu);
+		CPU(MMU& mmu);
 
 		void executeInstruction();
 		void executeCBInstruction();
@@ -15,7 +15,7 @@ namespace cpu
 		u16 getBytePair();
 	private:
 		// Reference to MMU
-		mmu::MMU* m_mmu;
+		MMU& m_mmu;
 
 		// Typedefs and Enums
 		typedef u16 Register16;
@@ -23,62 +23,41 @@ namespace cpu
 		typedef bool Flag;
 
 		typedef enum ConditionCode {
-			Z, // Execute if Z is set
+			Z,  // Execute if Z is set
 			NZ, // Execute if Z is not set
-			C, // Execute if C is set
-			NC // Execute if C is not set
+			C,  // Execute if C is set
+			NC  // Execute if C is not set
 		} ConditionCode;
 
 		typedef enum RSTVec {
-			x00,
-			x08,
-			x10,
-			x18,
-			x20,
-			x28,
-			x30,
-			x38
+			x00, x08, x10, x18,
+			x20, x28, x30, x38
 		} RSTVec;
 
 		u8 convertRSTVec(RSTVec vec);
 
-		// Registers
-			// Each 16 bits. BC, DE, FE can act as two 8-bit registers.
-			// First 8 bits of accumulatorFlags is register A, last 8 bits are flags.
-		Register16 m_accumulatorFlags = 0;
-		Register16 m_bc = 0;
-		Register16 m_de = 0;
-		Register16 m_hl = 0;
-		Register16 m_stackPointer = 0;
-		Register16 m_programCounter = 0x100;
+		typedef struct Registers
+		{
+			Register16 af = 0x0000;
+			Register16 bc = 0x0000;
+			Register16 de = 0x0000;
+			Register16 hl = 0x0000;
+			Register16 stackPointer = 0x0000;
+			Register16 programCounter = 0x0100;
 
-		// Getters, Setters, Incrementers
-		Register8* getRegisterALoc();
-		Register8* getRegisterFLoc();
-		Register8* getRegisterBLoc();
-		Register8* getRegisterCLoc();
-		Register8* getRegisterDLoc();
-		Register8* getRegisterELoc();
-		Register8* getRegisterHLoc();
-		Register8* getRegisterLLoc();
+			Register8& a = *((Register8*)(&af) + 1);
+			Register8& f = *(Register8*)(&af);
 
-		Register8 getRegisterA();
-		Register8 getRegisterF();
-		Register8 getRegisterB();
-		Register8 getRegisterC();
-		Register8 getRegisterD();
-		Register8 getRegisterE();
-		Register8 getRegisterH();
-		Register8 getRegisterL();
+			Register8& b = *((Register8*)(&bc) + 1);
+			Register8& c = *(Register8*)(&bc);
 
-		void setRegisterA(u8 value);
-		void setRegisterF(u8 value);
-		void setRegisterB(u8 value);
-		void setRegisterC(u8 value);
-		void setRegisterD(u8 value);
-		void setRegisterE(u8 value);
-		void setRegisterH(u8 value);
-		void setRegisterL(u8 value);
+			Register8& d = *((Register8*)(&de) + 1);
+			Register8& e = *(Register8*)(&de);
+
+			Register8& h = *((Register8*)(&h) + 1);
+			Register8& l = *(Register8*)(&l);
+		} Registers;
+		Registers m_registers;
 
 		// Flags
 			// bit 7 "z": zero flag. used for conditional jumps, set if result of operation is 0
@@ -109,17 +88,17 @@ namespace cpu
 
 		// CPU Instruction Set: https://rgbds.gbdev.io/docs/v0.9.4/gbz80.7
 			// Loads
-		void LD_R8_R8(Register8* ra, Register8* rb);
-		void LD_R8_N8(Register8* r, u8 n);
-		void LD_R16_N16(Register16* r, u16 n);
-		void LD_HL_R8(Register8* r);
+		void LD_R8_R8(Register8& ra, Register8& rb);
+		void LD_R8_N8(Register8& r, u8 n);
+		void LD_R16_N16(Register16& r, u16 n);
+		void LD_HL_R8(Register8& r);
 		void LD_HL_N8(u8 n);
-		void LD_R8_HL(Register8* r);
-		void LD_R16_A(Register16* r);
+		void LD_R8_HL(Register8& r);
+		void LD_R16_A(Register16& r);
 		void LD_N16_A(u16 n);
 		void LDH_N16_A(u16 n);
 		void LDH_C_A();
-		void LD_A_R16(Register16* r);
+		void LD_A_R16(Register16& r);
 		void LD_A_N16(u16 n);
 		void LDH_A_N16(u16 n);
 		void LDH_A_C();
@@ -129,71 +108,71 @@ namespace cpu
 		void LD_A_HLD();
 
 			// 8-bit Arithmetic
-		void ADC_A_R8(CPU::Register8* r);
+		void ADC_A_R8(CPU::Register8& r);
 		void ADC_A_HL();
 		void ADC_A_N8(u8 n);
-		void ADD_A_R8(CPU::Register8* r);
+		void ADD_A_R8(CPU::Register8& r);
 		void ADD_A_HL();
 		void ADD_A_N8(u8 n);
-		void CP_A_R8(CPU::Register8*);
+		void CP_A_R8(CPU::Register8&);
 		void CP_A_HL();
 		void CP_A_N8(u8 n);
-		void DEC_R8(CPU::Register8* r);
+		void DEC_R8(CPU::Register8& r);
 		void DEC_HL();
-		void INC_R8(CPU::Register8* r);
+		void INC_R8(CPU::Register8& r);
 		void INC_HL();
-		void SBC_A_R8(CPU::Register8* r);
+		void SBC_A_R8(CPU::Register8& r);
 		void SBC_A_HL();
 		void SBC_A_N8(u8 n);
-		void SUB_A_R8(CPU::Register8* r);
+		void SUB_A_R8(CPU::Register8& r);
 		void SUB_A_HL();
 		void SUB_A_N8(u8 n);
 
 			// 16-bit Arithmetic
-		void ADD_HL_R16(CPU::Register16* r);
-		void DEC_R16(CPU::Register16* r);
-		void INC_R16(CPU::Register16* r);
+		void ADD_HL_R16(CPU::Register16& r);
+		void DEC_R16(CPU::Register16& r);
+		void INC_R16(CPU::Register16& r);
 
 			// Bitwise Logic
-		void AND_A_R8(CPU::Register8* r);
+		void AND_A_R8(CPU::Register8& r);
 		void AND_A_HL();
 		void AND_A_N8(u8 n);
 		void CPL();
-		void OR_A_R8(CPU::Register8* r);
+		void OR_A_R8(CPU::Register8& r);
 		void OR_A_HL();
 		void OR_A_N8(u8 n);
-		void XOR_A_R8(CPU::Register8* r);
+		void XOR_A_R8(CPU::Register8& r);
 		void XOR_A_HL();
 		void XOR_A_N8(u8 n);
 
 			// Bit Flags
-		void BIT_U3_R8(u3 u, CPU::Register8* r);
+		void BIT_U3_R8(u3 u, CPU::Register8& r);
 		void BIT_U3_HL(u3 u);
-		void RES_U3_R8(u3 u, CPU::Register8* r);
+		void RES_U3_R8(u3 u, CPU::Register8& r);
 		void RES_U3_HL(u3 u);
-		void SET_U3_R8(u3 u, CPU::Register8* r);
+		void SET_U3_R8(u3 u, CPU::Register8& r);
 		void SET_U3_HL(u3 u);
 
 			// Bit Shifts
-		void RL_R8(CPU::Register8* r);
+		void RL_R8(CPU::Register8& r);
 		void RL_HL();
 		void RL_A();
-		void RL_C_R8(CPU::Register8* r);
+		void RL_C_R8(CPU::Register8& r);
 		void RL_C_HL();
 		void RL_C_A();
-		void RR_R8(CPU::Register8* r);
+		void RR_R8(CPU::Register8& r);
 		void RR_HL();
 		void RR_A();
-		void RR_C_R8(CPU::Register8* r);
+		void RR_C_R8(CPU::Register8& r);
 		void RR_C_HL();
 		void RR_C_A();
-		void SLA_R8(CPU::Register8* r);
+		void SLA_R8(CPU::Register8& r);
 		void SLA_HL();
-		void SRA_R8(CPU::Register8* r);
+		void SRA_R8(CPU::Register8& r);
 		void SRA_HL();
-		void SRL_R8(CPU::Register8* r);
+		void SRL_R8(CPU::Register8& r);
 		void SRL_HL();
-		void SWAP_R8(CPU::Register8* r);
+		void SWAP_R8(CPU::Register8& r);
 		void SWAP_HL();
 
 			// Jumps and Subroutines
@@ -223,9 +202,9 @@ namespace cpu
 		void LD_HL_SP_S8(s8 s);
 		void LD_SP_HL();
 		void POP_AF();
-		void POP_R16(Register16* r);
+		void POP_R16(Register16& r);
 		void PUSH_AF();
-		void PUSH_R16(Register16* r);
+		void PUSH_R16(Register16& r);
 
 			// Interrupt Related
 		void DI();

@@ -3,7 +3,7 @@
 
 #include "rose.h"
 
-namespace rose
+namespace rose_core
 {
 	Rose::Rose() 
 		: m_cart(cartridge::Cartridge())

@@ -1,6 +1,6 @@
 #include "cartridge.h"
 
-namespace cartridge
+namespace rose_core
 {
 	Cartridge::Cartridge()
 	{

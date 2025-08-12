@@ -5,7 +5,7 @@
 
 #include "../utility/definitions.h"
 
-namespace cartridge
+namespace rose_core
 {
 	class Cartridge
 	{

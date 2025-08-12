@@ -5,7 +5,7 @@
 
 #include "../utility/definitions.h"
 
-namespace mmu 
+namespace rose_core
 {
 	class MMU 
 	{

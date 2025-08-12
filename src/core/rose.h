@@ -6,7 +6,7 @@
 #include "cpu/cpu.h"
 #include "mmu/mmu.h"
 
-namespace rose
+namespace rose_core
 {
 	class Rose
 	{
