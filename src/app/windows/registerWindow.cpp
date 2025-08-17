@@ -16,14 +16,14 @@ void RegisterWindow::Draw()
         return;
     }
 
-    auto test = roseInstance->viewCPU().viewRegisters();
+    auto registers = roseInstance->viewCPU().viewRegisters();
     
-    ImGui::Text("AF: 0x%04X", test.af);
-    ImGui::Text("BC: 0x%04X", test.bc);
-    ImGui::Text("DE: 0x%04X", test.de);
-    ImGui::Text("HL: 0x%04X", test.hl);
-    ImGui::Text("SP: 0x%04X", test.stackPointer);
-    ImGui::Text("PC: 0x%04X", test.programCounter);
+    ImGui::Text("AF: 0x%04X", registers.af);
+    ImGui::Text("BC: 0x%04X", registers.bc);
+    ImGui::Text("DE: 0x%04X", registers.de);
+    ImGui::Text("HL: 0x%04X", registers.hl);
+    ImGui::Text("SP: 0x%04X", registers.stackPointer);
+    ImGui::Text("PC: 0x%04X", registers.programCounter);
 
     ImGui::End();
 }

@@ -14,7 +14,8 @@ void MemoryWindow::Draw()
 {
     static float f = 0.0f;
 
-    static std::vector<rose_core::u8> test = roseInstance->viewMMU().getMemory();
+    static std::vector<rose_core::u8> memory = roseInstance->viewMMU().getMemory();
+    auto registers = roseInstance->viewCPU().viewRegisters();
 
     if (!ImGui::Begin("Memory"))
     {
@@ -51,9 +52,13 @@ void MemoryWindow::Draw()
                 for (int column = 0; column < 16; column++)
                 {
                     ImGui::TableSetColumnIndex(column + 1); // To account for frozen label column
+                    
+                    if (registers.programCounter == row * 16 + column)
+                        ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, ImGui::ColorConvertFloat4ToU32(ImVec4(0, 0.5f, 0, 1.0f)));
+
                     if (row == ImGui::TableGetHoveredRow() + clipper.DisplayStart - 2 && column == ImGui::TableGetHoveredColumn() - 1)
                         ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, ImGui::ColorConvertFloat4ToU32(ImVec4(0.212f, 0.314f, 0.443f, 1.0f)));
-                    ImGui::Text("%02X", test[16 * row + column]);
+                    ImGui::Text("%02X", memory[16 * row + column]);
                 }
             }
         }
