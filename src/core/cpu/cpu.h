@@ -7,12 +7,16 @@ namespace rose_core
 	class CPU
 	{
 	public:
+		struct Registers;
+
 		CPU(MMU& mmu);
 
 		void executeInstruction();
 		void executeCBInstruction();
 		u8 getByte();
 		u16 getBytePair();
+
+		const Registers& viewRegisters() const;
 	private:
 		// Reference to MMU
 		MMU& m_mmu;

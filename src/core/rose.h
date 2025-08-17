@@ -18,6 +18,7 @@ namespace rose_core
 		int loadCartridge(std::string path);
 
 		const MMU& getMMU() const;
+		const CPU& viewCPU() const;
 
 	private:
 		Cartridge m_cart;

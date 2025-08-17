@@ -195,6 +195,11 @@ namespace rose_core {
 		return returnValue;
 	}
 
+	const CPU::Registers& CPU::viewRegisters() const
+	{
+		return m_registers;
+	}
+
 	u8 CPU::convertRSTVec(RSTVec p_vec)
 	{
 		switch (p_vec) {

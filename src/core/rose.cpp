@@ -73,4 +73,9 @@ namespace rose_core
 	{
 		return m_mmu;
 	}
+
+	const CPU& Rose::viewCPU() const
+	{
+		return m_cpu;
+	}
 }
