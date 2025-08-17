@@ -14,6 +14,7 @@
 #include "rose.h"
 #include "windows/memoryWindow.h"
 #include "windows/registerWindow.h"
+#include "windows/playControlWindow.h"
 
 /* We will use this renderer to draw into this window every frame. */
 static SDL_Window* window = NULL;
@@ -22,6 +23,7 @@ SDL_GLContext gl_context = NULL;
 
 static MemoryWindow* mw;
 static RegisterWindow* rw;
+static PlayControlWindow* pcw;
 
 bool show_debug_window = false;
 bool show_demo_window = false;
@@ -131,6 +133,7 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
 
     mw = new MemoryWindow(roseInstance);
     rw = new RegisterWindow(roseInstance);
+    pcw = new PlayControlWindow(roseInstance);
 
     return SDL_APP_CONTINUE;  /* carry on with the program! */
 }
@@ -177,6 +180,7 @@ SDL_AppResult SDL_AppIterate(void* appstate)
     {
         mw->Draw();
         rw->Draw();
+        pcw->Draw();
     }
 
     ImGui::Render();

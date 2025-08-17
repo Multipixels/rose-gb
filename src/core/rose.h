@@ -15,14 +15,18 @@ namespace rose_core
 
 		int loadGame();
 		int runGame();
+		int stepForward();
+		int togglePause();
 		int loadCartridge(std::string path);
 
-		const MMU& getMMU() const;
+		const MMU& viewMMU() const;
 		const CPU& viewCPU() const;
 
 	private:
 		Cartridge m_cart;
 		CPU m_cpu;
 		MMU m_mmu;
+
+		bool paused = true;
 	};
 }

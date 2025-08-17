@@ -25,13 +25,26 @@ namespace rose_core
 	{
 		while (true)
 		{
-			m_cpu.executeInstruction();
-			if (m_mmu.getU8(0xFF02) & 0xE0)
+			if (!paused)
 			{
-				std::cout << "test";
-			};
+				m_cpu.executeInstruction();
+			}
 		}
 
+		return 0;
+	}
+
+	// Executes a single instruction
+	int Rose::stepForward()
+	{
+		m_cpu.executeInstruction();
+		return 0;
+	}
+
+	// Executes a single instruction
+	int Rose::togglePause()
+	{
+		paused = !paused;
 		return 0;
 	}
 
@@ -69,7 +82,7 @@ namespace rose_core
 		return 0;
 	}
 
-	const MMU& Rose::getMMU() const
+	const MMU& Rose::viewMMU() const
 	{
 		return m_mmu;
 	}

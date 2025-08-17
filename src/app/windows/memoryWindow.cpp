@@ -14,7 +14,7 @@ void MemoryWindow::Draw()
 {
     static float f = 0.0f;
 
-    static std::vector<rose_core::u8> test = roseInstance->getMMU().getMemory();
+    static std::vector<rose_core::u8> test = roseInstance->viewMMU().getMemory();
 
     if (!ImGui::Begin("Memory"))
     {

@@ -21,6 +21,8 @@ add_executable("RoseApp"
     "main.cpp"
     "windows/memoryWindow.cpp"
     "windows/memoryWindow.h"
+    "windows/playControlWindow.cpp"
+    "windows/playControlWindow.h"
     "windows/registerWindow.cpp"
     "windows/registerWindow.h"
 )
