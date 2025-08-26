@@ -12,20 +12,19 @@
 #include <SDL3/SDL_opengl.h>
 
 #include "rose.h"
-#include "windows/memoryWindow.h"
-#include "windows/registerWindow.h"
-#include "windows/playControlWindow.h"
+#include "windows/windows.h"
 
 /* We will use this renderer to draw into this window every frame. */
 static SDL_Window* window = NULL;
 static SDL_Renderer* renderer = NULL;
 SDL_GLContext gl_context = NULL;
 
+static InstructionWindow* iw;
 static MemoryWindow* mw;
 static RegisterWindow* rw;
 static PlayControlWindow* pcw;
 
-bool show_debug_window = false;
+bool show_debug_window = true;
 bool show_demo_window = false;
 ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
@@ -131,6 +130,7 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
     roseInstance = new rose_core::Rose();
     roseInstance->loadGame();
 
+    iw = new InstructionWindow(roseInstance);
     mw = new MemoryWindow(roseInstance);
     rw = new RegisterWindow(roseInstance);
     pcw = new PlayControlWindow(roseInstance);
@@ -178,6 +178,7 @@ SDL_AppResult SDL_AppIterate(void* appstate)
 
     if (show_debug_window)
     {
+        iw->Draw();
         mw->Draw();
         rw->Draw();
         pcw->Draw();

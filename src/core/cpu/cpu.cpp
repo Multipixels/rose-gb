@@ -191,7 +191,7 @@ namespace rose_core {
 	u16 CPU::getBytePair()
 	{
 		u16 returnValue = m_mmu.getU16(m_registers.programCounter);
-		m_registers.programCounter++;
+		m_registers.programCounter += 2;
 		return returnValue;
 	}
 
@@ -329,11 +329,11 @@ namespace rose_core {
 	void CPU::LD_R8_HL(Register8& p_r) { p_r = m_mmu.getU8(m_registers.hl); }
 	void CPU::LD_R16_A(Register16& p_r) { m_mmu.setU8(p_r, m_registers.a); }
 	void CPU::LD_N16_A(u16 p_n) { m_mmu.setU8(p_n, m_registers.a); }
-	void CPU::LDH_N16_A(u16 p_n) { if (p_n < 0xFF00 || p_n > 0xFFFF) { throw; } else { m_mmu.setU8(p_n, m_registers.a); } }
+	void CPU::LDH_N16_A(u8 p_n) { m_mmu.setU8(0xFF00 + p_n, m_registers.a); }
 	void CPU::LDH_C_A() { m_mmu.setU8(0xFF00 + m_registers.c, m_registers.a); }
 	void CPU::LD_A_R16(Register16& p_r) { m_registers.a = m_mmu.getU8(p_r); }
 	void CPU::LD_A_N16(u16 p_n) { m_registers.a = m_mmu.getU8(p_n); }
-	void CPU::LDH_A_N16(u16 p_n) { if (p_n < 0xFF00 || p_n > 0xFFFF) { throw; } else { m_registers.a = m_mmu.getU8(p_n); } }
+	void CPU::LDH_A_N16(u8 p_n) { m_registers.a = m_mmu.getU8(0xFF00 + p_n); }
 	void CPU::LDH_A_C() { m_registers.a = m_mmu.getU8(0xFF00 + m_registers.c); }
 	void CPU::LD_HLI_A() { m_mmu.setU8(m_registers.hl, m_registers.a); m_registers.hl++; }
 	void CPU::LD_HLD_A() { m_mmu.setU8(m_registers.hl, m_registers.a); m_registers.hl--; }
@@ -436,8 +436,8 @@ namespace rose_core {
 	void CPU::LD_N16_SP(u16 p_n) { m_mmu.setU16(p_n, ((m_registers.stackPointer & 0xFF) << 8) | (m_registers.stackPointer >> 8)); }
 	void CPU::LD_HL_SP_S8(s8 p_s) { m_registers.stackPointer += p_s; m_registers.hl = m_registers.stackPointer; setFlagsForU8Overflow(m_registers.stackPointer, p_s); }
 	void CPU::LD_SP_HL() { m_registers.stackPointer = m_registers.hl; }
-	void CPU::POP_AF() { m_registers.af = ((m_mmu.getU16(m_registers.stackPointer) & 0xFF) << 8) | (m_mmu.getU16(m_registers.stackPointer) >> 8); m_registers.stackPointer += 2; }
-	void CPU::POP_R16(Register16& p_r) { p_r = ((m_mmu.getU16(m_registers.stackPointer) & 0xFF) << 8) | (m_mmu.getU16(m_registers.stackPointer) >> 8); m_registers.stackPointer += 2; }
+	void CPU::POP_AF() { m_registers.af = m_mmu.getU16(m_registers.stackPointer); m_registers.stackPointer += 2; }
+	void CPU::POP_R16(Register16& p_r) { p_r = m_mmu.getU16(m_registers.stackPointer); m_registers.stackPointer += 2; }
 	void CPU::PUSH_AF() { m_registers.stackPointer -= 2; m_mmu.setU16(m_registers.stackPointer, ((m_registers.af & 0xFF) << 8) | (m_registers.af >> 8)); }
 	void CPU::PUSH_R16(Register16& p_r) { m_registers.stackPointer -= 2; m_mmu.setU16(m_registers.stackPointer, ((p_r & 0xFF) << 8) | (p_r >> 8)); }
 
@@ -690,7 +690,7 @@ namespace rose_core {
 	void CPU::op_DE() { SBC_A_N8(getByte()); }
 	void CPU::op_DF() { RST_VEC(x18); }
 
-	void CPU::op_E0() { LDH_N16_A(getBytePair()); }
+	void CPU::op_E0() { LDH_N16_A(getByte()); }
 	void CPU::op_E1() { POP_R16(m_registers.hl); }
 	void CPU::op_E2() { LDH_C_A(); }
 	void CPU::op_E3() { throw; }
@@ -707,7 +707,7 @@ namespace rose_core {
 	void CPU::op_EE() { XOR_A_N8(getByte()); }
 	void CPU::op_EF() { RST_VEC(x28); }
 
-	void CPU::op_F0() { LDH_A_N16(getBytePair()); }
+	void CPU::op_F0() { LDH_A_N16(getByte()); }
 	void CPU::op_F1() { POP_R16(m_registers.af); }
 	void CPU::op_F2() { LDH_A_C(); }
 	void CPU::op_F3() { DI(); }

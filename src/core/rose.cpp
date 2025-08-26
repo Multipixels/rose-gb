@@ -25,9 +25,9 @@ namespace rose_core
 	{
 		while (true)
 		{
-			if (!paused)
+			if (!m_paused)
 			{
-				m_cpu.executeInstruction();
+				stepForward();
 			}
 		}
 
@@ -37,6 +37,9 @@ namespace rose_core
 	// Executes a single instruction
 	int Rose::stepForward()
 	{
+		m_tempInstrHistory[m_tempInstrHistoryHead] = m_cpu.viewRegisters().programCounter;
+		m_tempInstrHistoryHead = (m_tempInstrHistoryHead + 1) % 10;
+		m_tempInstrRan++;
 		m_cpu.executeInstruction();
 		return 0;
 	}
@@ -44,7 +47,7 @@ namespace rose_core
 	// Executes a single instruction
 	int Rose::togglePause()
 	{
-		paused = !paused;
+		m_paused = !m_paused;
 		return 0;
 	}
 
@@ -90,5 +93,20 @@ namespace rose_core
 	const CPU& Rose::viewCPU() const
 	{
 		return m_cpu;
+	}
+
+	const std::array<u16, 10>& Rose::tempViewInstrHistory() const
+	{
+		return m_tempInstrHistory;
+	}
+
+	int Rose::tempViewInstrHistoryHead()
+	{
+		return m_tempInstrHistoryHead;
+	}
+
+	int Rose::tempViewInstrRan()
+	{
+		return m_tempInstrRan;
 	}
 }
