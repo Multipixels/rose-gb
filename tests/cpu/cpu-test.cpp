@@ -7,6 +7,17 @@
 
 std::string test_1 = "../resources/blargg/cpu_instrs/01-special.gb";
 
+/*
+
+Untested Instructions:
+- 0x00 NOP
+- 0x10 STOP
+- 0x76 HALT
+- 0xF3 DI
+- 0xFB EI
+*/
+
+
 TEST(CPUTest, TestingTests)
 {
 	rose_core::MMU mmu;
@@ -505,6 +516,97 @@ TEST(CPUTest, LogicalCmpWithFlags)
 		EXPECT_EQ(test.expected_value, getERegister(cpu, test.eRegister));
 	}
 }
+
+
+TEST(CPUTest, RotateRegisters)
+{
+	typedef struct TestCase
+	{
+		std::vector<rose_core::u8> instructions;
+		ERegister eRegister;
+		rose_core::u16 expected_value;
+	} TestCase;
+
+	std::vector<TestCase> testCases{
+		{ { 0x3E, 0b10101010, 0x07 }, A, 0b01010101}, // Set A to 0b1010 and then rotate left.
+		{ { 0x3E, 0b10101010, 0x07 }, F, 0b00010000}, // Set A to 0b1010 and then rotate left. Flag check.
+
+		{ { 0x3E, 0b10101010, 0x07, 0x07 }, A, 0b10101010}, // Set A to 0b1010 and then rotate left twice.
+		{ { 0x3E, 0b10101010, 0x07, 0x07 }, F, 0b00000000}, // Set A to 0b1010 and then rotate left twice. Flag check.
+
+		{ { 0x3E, 0b10101010, 0x17 }, A, 0b01010100}, // Set A to 0b1010 and then rotate left w/ carry.
+		{ { 0x3E, 0b10101010, 0x17 }, F, 0b00010000}, // Set A to 0b1010 and then rotate left w/ carry. Flag check.
+
+		{ { 0x3E, 0b10101010, 0x17, 0x17 }, A, 0b10101001}, // Set A to 0b1010 and then rotate left w/ carry twice.
+		{ { 0x3E, 0b10101010, 0x17, 0x17 }, F, 0b00000000}, // Set A to 0b1010 and then rotate left w/ carry twice. Flag check.
+
+
+		{ { 0x3E, 0b10101010, 0x0F }, A, 0b01010101}, // Set A to 0b1010 and then rotate left.
+		{ { 0x3E, 0b10101010, 0x0F }, F, 0b00000000}, // Set A to 0b1010 and then rotate left. Flag check.
+
+		{ { 0x3E, 0b10101010, 0x0F, 0x0F }, A, 0b10101010}, // Set A to 0b1010 and then rotate left twice.
+		{ { 0x3E, 0b10101010, 0x0F, 0x0F }, F, 0b00010000}, // Set A to 0b1010 and then rotate left twice. Flag check.
+
+		{ { 0x3E, 0b10101010, 0x1F }, A, 0b01010101}, // Set A to 0b1010 and then rotate left w/ carry.
+		{ { 0x3E, 0b10101010, 0x1F }, F, 0b00000000}, // Set A to 0b1010 and then rotate left w/ carry. Flag check.
+
+		{ { 0x3E, 0b10101010, 0x1F, 0x1F }, A, 0b00101010}, // Set A to 0b1010 and then rotate left w/ carry twice.
+		{ { 0x3E, 0b10101010, 0x1F, 0x1F }, F, 0b00010000}, // Set A to 0b1010 and then rotate left w/ carry twice. Flag check.
+	};
+
+	for (TestCase test : testCases)
+	{
+		rose_core::MMU mmu;
+		rose_core::CPU cpu(mmu, 0x0);
+
+		loadVectorToMemory(test.instructions, mmu);
+
+		while (cpu.viewRegisters().programCounter < test.instructions.size())
+		{
+			ASSERT_NO_FATAL_FAILURE(cpu.executeInstruction());
+		}
+		EXPECT_EQ(test.expected_value, getERegister(cpu, test.eRegister));
+	}
+}
+
+
+
+TEST(CPUTest, Miscellaneous)
+{
+	typedef struct TestCase
+	{
+		std::vector<rose_core::u8> instructions;
+		ERegister eRegister;
+		rose_core::u16 expected_value;
+	} TestCase;
+
+	std::vector<TestCase> testCases{
+		{ { 0x37 }, F, 0b00010000}, // Set carry flag SCF
+
+		{ { 0xC6, 0x54, 0xC6, 0x28}, A, 0x7C}, // https://blog.ollien.com/posts/gb-daa/ Without DAA.
+		{ { 0xC6, 0x54, 0xC6, 0x28, 0x27 }, A, 0x82}, // https://blog.ollien.com/posts/gb-daa/ Testing DAA.
+
+		{ { 0x3F }, F, 0b00010000}, // Flip carry flag CCF
+		{ { 0x3F, 0x3F }, F, 0b00000000}, // Flip carry flag twice CCF
+
+		{ { 0x2F }, A, 0xFF}, // One's complement register A CPL
+	};
+
+	for (TestCase test : testCases)
+	{
+		rose_core::MMU mmu;
+		rose_core::CPU cpu(mmu, 0x0);
+
+		loadVectorToMemory(test.instructions, mmu);
+
+		while (cpu.viewRegisters().programCounter < test.instructions.size())
+		{
+			ASSERT_NO_FATAL_FAILURE(cpu.executeInstruction());
+		}
+		EXPECT_EQ(test.expected_value, getERegister(cpu, test.eRegister));
+	}
+}
+
 
 rose_core::u16 getERegister(rose_core::CPU& p_cpu, ERegister p_eRegister)
 {

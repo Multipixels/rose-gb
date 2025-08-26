@@ -500,7 +500,7 @@ namespace rose_core {
 	void CPU::HALT() { /* TODO: https://rgbds.gbdev.io/docs/v0.9.4/gbz80.7#HALT */ }
 
 	// Miscellaneous
-	void CPU::DAA() { /* TODO: https://rgbds.gbdev.io/docs/v0.9.4/gbz80.7#DAA */ }
+	void CPU::DAA() { u8 adjustment = 0; if (getFlagN()) { if (getFlagH()) { adjustment += 0x06; } if (getFlagC()) { adjustment += 0x60; } m_registers.a -= adjustment; } else { if (getFlagH() || ((m_registers.a & 0xF) > 0x9)) { adjustment += 0x6; } if (getFlagC() || m_registers.a > 0x99) { adjustment += 0x60; setFlagC(true); } m_registers.a += adjustment; }; setFlagC(m_registers.a == 0); setFlagH(0); }
 	void CPU::NOP() { ; } // Do nothing
 	void CPU::STOP() { /* TODO: https://rgbds.gbdev.io/docs/v0.9.4/gbz80.7#STOP */ }
 
