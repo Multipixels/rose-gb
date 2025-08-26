@@ -15,6 +15,7 @@ namespace rose_core
 		struct Registers;
 
 		CPU(MMU& mmu);
+		CPU(MMU& mmu, u16 programCounterStart);
 
 		void executeInstruction();
 		void executeCBInstruction();
@@ -251,9 +252,9 @@ namespace rose_core
 			Register8& h = *((Register8*)(&hl) + 1);
 			Register8& l = *(Register8*)(&hl);
 		} Registers;
+	private:
 		Registers m_registers;
 
-	private:
 		// Flags
 			// bit 7 "z": zero flag. used for conditional jumps, set if result of operation is 0
 			// bit 6 "n": subtraction flag

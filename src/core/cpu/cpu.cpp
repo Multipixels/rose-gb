@@ -9,6 +9,12 @@ namespace rose_core {
 	{
 	}
 
+	CPU::CPU(MMU& p_mmu, u16 p_programCounterStart)
+		: m_mmu(p_mmu)
+	{
+		m_registers.programCounter = p_programCounterStart;
+	}
+
 	void CPU::executeInstruction()
 	{
 		if (m_registers.programCounter > 0xFFFF) throw;
@@ -215,24 +221,25 @@ namespace rose_core {
 		return 0x00;
 	}
 
-	CPU::Flag CPU::getFlagZ() { return (m_registers.f & 0b0001); }
-	CPU::Flag CPU::getFlagN() { return (m_registers.f & 0b0010) >> 1; }
-	CPU::Flag CPU::getFlagH() { return (m_registers.f & 0b0100) >> 2; }
-	CPU::Flag CPU::getFlagC() { return (m_registers.f & 0b1000) >> 3; }
+	CPU::Flag CPU::getFlagZ() { return (m_registers.f & 0b10000000) >> 4; }
+	CPU::Flag CPU::getFlagN() { return (m_registers.f & 0b01000000) >> 5; }
+	CPU::Flag CPU::getFlagH() { return (m_registers.f & 0b00100000) >> 6; }
+	CPU::Flag CPU::getFlagC() { return (m_registers.f & 0b00010000) >> 7; }
 
-	void CPU::setFlagZ(bool p_value) { m_registers.f &= (0b1110 | (0b0001 & p_value)); }
-	void CPU::setFlagN(bool p_value) { m_registers.f &= (0b1101 | (0b0010 & p_value)); }
-	void CPU::setFlagH(bool p_value) { m_registers.f &= (0b1011 | (0b0100 & p_value)); }
-	void CPU::setFlagC(bool p_value) { m_registers.f &= (0b0111 | (0b1000 & p_value)); }
+	// https://stackoverflow.com/questions/47981/how-to-set-clear-and-toggle-a-single-bit
+	void CPU::setFlagZ(bool p_value) { m_registers.f = (m_registers.f & ~(1 << 7)) | (p_value << 7); }
+	void CPU::setFlagN(bool p_value) { m_registers.f = (m_registers.f & ~(1 << 6)) | (p_value << 6); }
+	void CPU::setFlagH(bool p_value) { m_registers.f = (m_registers.f & ~(1 << 5)) | (p_value << 5); }
+	void CPU::setFlagC(bool p_value) { m_registers.f = (m_registers.f & ~(1 << 4)) | (p_value << 4); }
 
 	void CPU::setFlags(u4 p_value) { m_registers.f = p_value.value; }
-	void CPU::setFlags(bool p_z, bool p_n, bool p_h, bool p_c) { m_registers.f = (p_z << 3) | (p_n << 2) | (p_h << 1) | p_c; }
+	void CPU::setFlags(bool p_z, bool p_n, bool p_h, bool p_c) { m_registers.f = (p_z << 7) | (p_n << 6) | (p_h << 5) | (p_c << 4); }
 
 	void CPU::setFlagsForU8Overflow(u16 p_a, u16 p_b, u16 p_c)
 	{
 		u8 res = p_a + p_b + p_c;
-		if (res == 0) setFlagC(true);
-		else setFlagC(false);
+		if (res == 0) setFlagZ(true);
+		else setFlagZ(false);
 
 		setFlagN(false);
 
@@ -248,8 +255,8 @@ namespace rose_core {
 	void CPU::setFlagsForU8Overflow(u16 p_a, u16 p_b)
 	{
 		u8 res = p_a + p_b;
-		if (res == 0) setFlagC(true);
-		else setFlagC(false);
+		if (res == 0) setFlagZ(true);
+		else setFlagZ(false);
 
 		setFlagN(false);
 
@@ -265,8 +272,8 @@ namespace rose_core {
 	void CPU::setFlagsForU16Overflow(u16 p_a, u16 p_b)
 	{
 		u16 res = p_a + p_b;
-		if (res == 0) setFlagC(true);
-		else setFlagC(false);
+		if (res == 0) setFlagZ(true);
+		else setFlagZ(false);
 
 		setFlagN(false);
 
@@ -282,8 +289,8 @@ namespace rose_core {
 	void CPU::setFlagsForU8Borrow(u8 p_a, u8 p_b)
 	{
 		u8 res = p_a - p_b;
-		if (res == 0) setFlagC(true);
-		else setFlagC(false);
+		if (res == 0) setFlagZ(true);
+		else setFlagZ(false);
 
 		setFlagN(true);
 
@@ -297,8 +304,8 @@ namespace rose_core {
 	void CPU::setFlagsForU8Borrow(u8 p_a, u8 p_b, u8 p_c)
 	{
 		u8 res = p_a - p_b - p_c;
-		if (res == 0) setFlagC(true);
-		else setFlagC(false);
+		if (res == 0) setFlagZ(true);
+		else setFlagZ(false);
 
 		setFlagN(true);
 

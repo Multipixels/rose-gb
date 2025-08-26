@@ -38,7 +38,7 @@ TEST(MMUTest, Setters)
 	EXPECT_EQ(mmu.getU16(0x01), 0x34DA);
 }
 
-// Takes in a file path and attempts to load a .gb file into Rose's Cartridge
+// Takes in a file path and attempts to load a .gb file into Rose's Cartridge and then memory
 void loadTestCartridge(std::string path, rose_core::MMU& mmu)
 {
 	// Load into Cartridge construct
@@ -54,4 +54,13 @@ void loadTestCartridge(std::string path, rose_core::MMU& mmu)
 
 	mmu.loadCartridgeData(cartridgeBuffer);
 	cartridgeBuffer->close();
+}
+
+// Takes in an array of bytes and loads it into Rose's memory
+void loadVectorToMemory(std::vector<rose_core::u8>& values, rose_core::MMU& mmu)
+{
+	for (size_t i = 0; i < values.size(); ++i)
+	{
+		mmu.setU8(i, values[i]);
+	}
 }
