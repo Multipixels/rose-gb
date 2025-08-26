@@ -214,6 +214,28 @@ TEST(CPUTest, SubtractingAndFlags)
 		EXPECT_EQ(test.expected_value, getERegister(cpu, test.eRegister));
 	}
 }
+
+TEST(CPUTest, LogicalAndWithFlags)
+{
+	typedef struct TestCase
+	{
+		std::vector<rose_core::u8> instructions;
+		ERegister eRegister;
+		rose_core::u16 expected_value;
+	} TestCase;
+
+	std::vector<TestCase> testCases {
+		{ { 0x3E, 0b10101010, 0x06, 0b01010101, 0xA0 }, A, 0x00 }, // Load 0b10101010 to A, 0b01010101 to B, and AND them together.
+		{ { 0x3E, 0b10101010, 0x06, 0b01010101, 0xA0 }, F, 0b10100000 }, // Load 0b10101010 to A, 0b01010101 to B, and AND them together. Test flags.
+
+		{ { 0x3E, 0b11110000, 0x06, 0b01010101, 0xA0 }, A, 0b01010000 }, // Load 0b11110000 to A, 0b01010101 to B, and AND them together.
+		{ { 0x3E, 0b11110000, 0x06, 0b01010101, 0xA0 }, F, 0b00100000 }, // Load 0b11110000 to A, 0b01010101 to B, and AND them together. Test flags.
+
+		{ { 0xA7, 0x3E, 0b10101010, 0xA7 }, A, 0b10101010 }, // And A with itself, load 0b10101010 into A, And A with itself
+		{ { 0xA7, 0x3E, 0b10101010, 0xA7 }, F, 0b00100000 }, // And A with itself, load 0b10101010 into A, And A with itself, test flags
+	
+		{ { 0x3E, 0xFF, 0xE6, 0x0F }, A, 0x0F}, // Load 0xFF into A, AND with constant 0x0F.
+		{ { 0x3E, 0xFF, 0xE6, 0x0F }, F, 0b00100000}, // Load 0xFF into A, AND with constant 0x0F. Test flags.
 	};
 
 	for (TestCase test : testCases)
