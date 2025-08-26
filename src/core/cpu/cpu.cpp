@@ -59,10 +59,10 @@ namespace rose_core {
 		case 0x78: op_78(); break; case 0x79: op_79(); break; case 0x7A: op_7A(); break; case 0x7B: op_7B(); break;
 		case 0x7C: op_7C(); break; case 0x7D: op_7D(); break; case 0x7E: op_7E(); break; case 0x7F: op_7F(); break;
 
-		case 0x80: op_80(); break; case 0x81: op_81(); break; case 0x82: op_32(); break; case 0x83: op_83(); break;
-		case 0x84: op_84(); break; case 0x85: op_85(); break; case 0x86: op_36(); break; case 0x87: op_87(); break;
-		case 0x88: op_88(); break; case 0x89: op_89(); break; case 0x8A: op_3A(); break; case 0x8B: op_8B(); break;
-		case 0x8C: op_8C(); break; case 0x8D: op_8D(); break; case 0x8E: op_3E(); break; case 0x8F: op_8F(); break;
+		case 0x80: op_80(); break; case 0x81: op_81(); break; case 0x82: op_82(); break; case 0x83: op_83(); break;
+		case 0x84: op_84(); break; case 0x85: op_85(); break; case 0x86: op_86(); break; case 0x87: op_87(); break;
+		case 0x88: op_88(); break; case 0x89: op_89(); break; case 0x8A: op_8A(); break; case 0x8B: op_8B(); break;
+		case 0x8C: op_8C(); break; case 0x8D: op_8D(); break; case 0x8E: op_8E(); break; case 0x8F: op_8F(); break;
 
 		case 0x90: op_90(); break; case 0x91: op_91(); break; case 0x92: op_92(); break; case 0x93: op_93(); break;
 		case 0x94: op_94(); break; case 0x95: op_95(); break; case 0x96: op_96(); break; case 0x97: op_97(); break;
@@ -393,27 +393,27 @@ namespace rose_core {
 
 	// 8-bit Arithmetic
 	void CPU::ADC_A_R8(Register8& p_r) { Flag isCarry = getFlagC(); setFlagsForU8Overflow(m_registers.a, p_r, getFlagC()); m_registers.a += p_r + isCarry; }
-	void CPU::ADC_A_HL() { Flag isCarry = getFlagC();  setFlagsForU8Overflow(m_registers.a, m_registers.hl, getFlagC()); m_registers.a += m_mmu.getU8(m_registers.hl) + isCarry;  }
+	void CPU::ADC_A_HL() { Flag isCarry = getFlagC();  setFlagsForU8Overflow(m_registers.a, m_mmu.getU8(m_registers.hl), getFlagC()); m_registers.a += m_mmu.getU8(m_registers.hl) + isCarry;  }
 	void CPU::ADC_A_N8(u8 p_n) { Flag isCarry = getFlagC(); setFlagsForU8Overflow(m_registers.a, p_n, getFlagC()); m_registers.a += p_n + isCarry;  }
 	void CPU::ADD_A_R8(Register8& p_r) { setFlagsForU8Overflow(m_registers.a, p_r); m_registers.a += p_r;  }
-	void CPU::ADD_A_HL() { setFlagsForU8Overflow(m_registers.a, m_registers.hl); m_registers.a += m_mmu.getU8(m_registers.hl);  }
+	void CPU::ADD_A_HL() { setFlagsForU8Overflow(m_registers.a, m_mmu.getU8(m_registers.hl)); m_registers.a += m_mmu.getU8(m_registers.hl);  }
 	void CPU::ADD_A_N8(u8 p_n) { setFlagsForU8Overflow(m_registers.a, p_n); m_registers.a += p_n;  }
 	void CPU::CP_A_R8(Register8& p_r) { setFlagsForU8Borrow(m_registers.a, p_r); }
-	void CPU::CP_A_HL() { setFlagsForU8Borrow(m_registers.a, m_registers.hl); }
+	void CPU::CP_A_HL() { setFlagsForU8Borrow(m_registers.a, m_mmu.getU8(m_registers.hl)); }
 	void CPU::CP_A_N8(u8 p_n) { setFlagsForU8Borrow(m_registers.a, p_n); }
 	void CPU::DEC_R8(Register8& p_r) { if ((p_r & 0xF) == 0b0000) { setFlagH(true); } else { setFlagH(false); } p_r--; setFlagN(true);  if (p_r == 0) { setFlagZ(true); } else { setFlagZ(false); } }
 	void CPU::DEC_HL() { if ((m_mmu.getU8(m_registers.hl) & 0xF) == 0b0000) { setFlagH(true); } else { setFlagH(false); } m_mmu.setU8(m_registers.hl, m_mmu.getU8(m_registers.hl) - 1); setFlagN(true); if (m_mmu.getU8(m_registers.hl) == 0) { setFlagZ(true); } else { setFlagZ(false); } }
 	void CPU::INC_R8(Register8& p_r) { if ((p_r & 0xF) == 0b1111) { setFlagH(true); } else { setFlagH(false); } (p_r)++; setFlagN(false); if (p_r == 0) { setFlagZ(true); } else { setFlagZ(false); } }
 	void CPU::INC_HL() { if ((m_registers.hl & 0xF) == 0b1111) { setFlagH(true); } else { setFlagH(false); } m_mmu.setU8(m_registers.hl, m_mmu.getU8(m_registers.hl) + 1); setFlagN(false); if (m_registers.hl == 0) { setFlagZ(true); } else { setFlagZ(false); } }
 	void CPU::SBC_A_R8(Register8& p_r) { Flag isCarry = getFlagC(); setFlagsForU8Borrow(m_registers.a, p_r, getFlagC()); m_registers.a = m_registers.a - p_r - isCarry;  }
-	void CPU::SBC_A_HL() { Flag isCarry = getFlagC(); setFlagsForU8Borrow(m_registers.a, m_registers.hl, getFlagC()); m_registers.a = m_registers.a - m_mmu.getU8(m_registers.hl) - isCarry; }
+	void CPU::SBC_A_HL() { Flag isCarry = getFlagC(); setFlagsForU8Borrow(m_registers.a, m_mmu.getU8(m_registers.hl), getFlagC()); m_registers.a = m_registers.a - m_mmu.getU8(m_registers.hl) - isCarry; }
 	void CPU::SBC_A_N8(u8 p_n) { Flag isCarry = getFlagC(); setFlagsForU8Borrow(m_registers.a, p_n, getFlagC()); m_registers.a = m_registers.a - p_n - isCarry; }
 	void CPU::SUB_A_R8(Register8& p_r) { setFlagsForU8Borrow(m_registers.a, p_r); m_registers.a = m_registers.a - p_r; }
-	void CPU::SUB_A_HL() { setFlagsForU8Borrow(m_registers.a, m_registers.hl); m_registers.a = m_registers.a - m_mmu.getU8(m_registers.hl); }
+	void CPU::SUB_A_HL() { setFlagsForU8Borrow(m_registers.a, m_mmu.getU8(m_registers.hl)); m_registers.a = m_registers.a - m_mmu.getU8(m_registers.hl); }
 	void CPU::SUB_A_N8(u8 p_n) { setFlagsForU8Borrow(m_registers.a, p_n); m_registers.a = m_registers.a - p_n; }
 
 	// 16-bit Arithmetic
-	void CPU::ADD_HL_R16(Register16& p_r) { setFlagsForU16Overflow(p_r, m_registers.hl); m_registers.hl += p_r;  }
+	void CPU::ADD_HL_R16(Register16& p_r) { setFlagN(false); setFlagH(willHalfCarry(m_registers.hl, p_r, true)); setFlagC(willCarry(m_registers.hl, p_r, true)); m_registers.hl += p_r; }
 	void CPU::DEC_R16(Register16& p_r) { p_r--; }
 	void CPU::INC_R16(Register16& p_r) { p_r++; }
 
@@ -475,12 +475,12 @@ namespace rose_core {
 	void CPU::RST_VEC(RSTVec p_vec) { CALL_N16(convertRSTVec(p_vec)); }
 
 	// Carry Flag
-	void CPU::CCF() { setFlagN(0); setFlagH(0); setFlagC(!getFlagC()); }
-	void CPU::SCF() { setFlagN(0); setFlagH(0); setFlagC(1); }
+	void CPU::CCF() { setFlagN(false); setFlagH(false); setFlagC(!getFlagC()); }
+	void CPU::SCF() { setFlagN(false); setFlagH(false); setFlagC(true); }
 
 	// Stack Manipulation
 	void CPU::ADD_HL_SP() { setFlagsForU16Overflow(m_registers.stackPointer, m_registers.hl); m_registers.hl += m_registers.stackPointer; }
-	void CPU::ADD_SP_S8(s8 p_s) { setFlagsForU8Overflow(p_s, m_registers.stackPointer); m_registers.stackPointer += p_s;  }
+	void CPU::ADD_SP_S8(s8 p_s) { setFlagZ(false); setFlagN(false); setFlagH(willHalfCarry(m_registers.stackPointer, (u16)signedToPositiveUnsigned(p_s), p_s >= 0)); setFlagC(willCarry(m_registers.stackPointer, (u16)signedToPositiveUnsigned(p_s), p_s >= 0)); m_registers.stackPointer += p_s;  }
 	void CPU::DEC_SP() { m_registers.stackPointer--; }
 	void CPU::INC_SP() { m_registers.stackPointer++; }
 	void CPU::LD_SP_N16(u16 p_n) { m_mmu.setU16(m_registers.stackPointer, p_n); }

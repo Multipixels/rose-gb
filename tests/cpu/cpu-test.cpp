@@ -250,6 +250,27 @@ TEST(CPUTest, AddingAndFlags)
 
 		{ { 0xC6, 0xFF, 0xC6, 0x01, 0x8F }, A, 0x01 }, // Add 0xFF to A, Ad 0x01 to A, add A to itself and then add carry bit
 		{ { 0xC6, 0xFF, 0xC6, 0x01, 0x8F }, F, 0b00000000 }, // Add 0xFF to A, Add 0x01 to A, add A to itself and then add carry bit
+
+		{ { 0x21, 0x00, 0x00, 0x29 }, HL, 0x0 }, // Load 0x0000 into HL, add HL to itself
+		{ { 0x21, 0x00, 0x00, 0x29 },  F, 0b00000000 }, // Load 0x0000 into HL, add HL to itself, check flags
+
+		{ { 0x21, 0xF0, 0x00, 0x29 }, HL, 0x1E0 }, // Load 0x00F0 into HL, add HL to itself
+		{ { 0x21, 0xF0, 0x00, 0x29 },  F, 0b00000000 }, // Load 0x0000 into HL, add HL to itself, check flags
+
+		{ { 0x21, 0x00, 0x0F, 0x29 }, HL, 0x1E00 }, // Load 0x0F00 into HL, add HL to itself
+		{ { 0x21, 0x00, 0x0F, 0x29 },  F, 0b00100000 }, // Load 0x0F00 into HL, add HL to itself, check flags
+
+		{ { 0x21, 0x00, 0x00, 0x86 }, A, 0x21 }, // Load 0x0000 into HL, add value of address stored by HL to A.
+		{ { 0x21, 0x00, 0x00, 0x86 },  F, 0b00000000 }, // Load 0x0000 into HL, add value of address stored by HL to A, check flags
+
+		{ { 0xC6, 0xFF, 0xC6, 0x01, 0x8E }, A, 0xC7 }, // Add 0xFF to A, add 0x01 to A, add value in HL's address to A and then add carry bit
+		{ { 0xC6, 0xFF, 0xC6, 0x01, 0x8E }, F, 0b00000000 }, // Add 0xFF to A, add 0x01 to A, add value in HL's address to A and then add carry bit. flag check
+	
+		{ { 0xE8, 0x08 }, SP, 0x0008 }, // Add constant signed 8 to SP
+		{ { 0xE8, 0x08 }, F, 0b00000000 }, // Add constant signed 8 to SP, check flags
+
+		{ { 0xE8, 0x08, 0xE8, 0xF8 }, SP, 0x0000 }, //Add constant signed 8 to SP, then add signed -8 to SP
+		{ { 0xE8, 0x08, 0xE8, 0xF8 }, F, 0b00000000 }, //Add constant signed 8 to SP, then add signed -8 to SP, check flags
 	};
 
 	for (TestCase test : testCases)
@@ -296,6 +317,13 @@ TEST(CPUTest, SubtractingAndFlags)
 
 		{ { 0xC6, 0xFF, 0xC6, 0x01, 0x9F }, A, 0xFF }, // Add 0xFF to A, Add 0x01 to A, subtract A from itself and then subtract carry bit
 		{ { 0xC6, 0xFF, 0xC6, 0x01, 0x9F }, F, 0b01110000 }, // Add 0xFF to A, Add 0x01 to A, subtract A from itself and then subtract carry bit
+
+
+		{ { 0x21, 0x01, 0x00, 0x96 }, A, 0xFF }, // Load 0x0001 into HL, sub value of address stored by HL from A.
+		{ { 0x21, 0x01, 0x00, 0x96 },  F, 0b01110000 }, // Load 0x0001 into HL, sub value of address stored by HL from A, check flags
+
+		{ { 0xC6, 0xFF, 0xC6, 0x01, 0x9E }, A, 0x39 }, // Add 0xFF to A, add 0x01 to A, sub value in HL's address from A and then sub carry bit
+		{ { 0xC6, 0xFF, 0xC6, 0x01, 0x9E }, F, 0b01110000 }, // Add 0xFF to A, add 0x01 to A, sub value in HL's address from A and then sub carry bit. flag check
 	};
 
 	for (TestCase test : testCases)
@@ -334,6 +362,9 @@ TEST(CPUTest, LogicalAndWithFlags)
 	
 		{ { 0x3E, 0xFF, 0xE6, 0x0F }, A, 0x0F}, // Load 0xFF into A, AND with constant 0x0F.
 		{ { 0x3E, 0xFF, 0xE6, 0x0F }, F, 0b00100000}, // Load 0xFF into A, AND with constant 0x0F. Test flags.
+
+		{ { 0x21, 0x01, 0x00, 0xA6 }, A, 0x00 }, // Load 0x0001 into HL, AND value of address stored by HL from A.
+		{ { 0x21, 0x01, 0x00, 0xA6 }, F, 0b10100000 }, // Load 0x0001 into HL, AND value of address stored by HL from A. Flags
 	};
 
 	for (TestCase test : testCases)
@@ -372,6 +403,9 @@ TEST(CPUTest, LogicalExclusiveOrWithFlags)
 
 		{ { 0x3E, 0xFF, 0xEE, 0x0F }, A, 0xF0}, // Load 0xFF into A, AND with constant 0x0F.
 		{ { 0x3E, 0xFF, 0xEE, 0x0F }, F, 0b00000000}, // Load 0xFF into A, AND with constant 0x0F. Test flags.
+
+		{ { 0x21, 0x00, 0x00, 0xAE }, A, 0b00100001 }, // Load 0x0000 into HL, XOR value of address stored by HL from A.
+		{ { 0x21, 0x00, 0x00, 0xAE }, F, 0b00000000 }, // Load 0x0000 into HL, XOR value of address stored by HL from A. Flags
 	};
 
 	for (TestCase test : testCases)
@@ -411,6 +445,9 @@ TEST(CPUTest, LogicalOrWithFlags)
 
 		{ { 0x3E, 0xFF, 0xF6, 0x0F }, A, 0xFF}, // Load 0xFF into A, OR with constant 0x0F.
 		{ { 0x3E, 0xFF, 0xF6, 0x0F }, F, 0b00000000}, // Load 0xFF into A, OR with constant 0x0F. Test flags.
+
+		{ { 0x21, 0x00, 0x00, 0xB6 }, A, 0b00100001 }, // Load 0x0000 into HL, OR value of address stored by HL from A.
+		{ { 0x21, 0x00, 0x00, 0xB6 }, F, 0b00000000 }, // Load 0x0000 into HL, OR value of address stored by HL from A. Flags
 	};
 
 	for (TestCase test : testCases)
@@ -449,6 +486,9 @@ TEST(CPUTest, LogicalCmpWithFlags)
 
 		{ { 0x3E, 0xFE, 0xFE, 0xFF }, A, 0xFE }, // Load 0xFE into A, compare to constant 0xFF
 		{ { 0x3E, 0xFE, 0xFE, 0xFF }, F, 0b01110000 }, // Load 0xFE into A, compare to constant 0xFF. Test flags
+
+		{ { 0x21, 0x00, 0x00, 0xBE }, A, 0b00000000 }, // Load 0x0000 into HL, OR value of address stored by HL from A.
+		{ { 0x21, 0x00, 0x00, 0xBE }, F, 0b01110000 }, // Load 0x0000 into HL, OR value of address stored by HL from A. Flags
 	};
 
 	for (TestCase test : testCases)
