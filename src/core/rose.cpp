@@ -10,6 +10,9 @@ namespace rose_core
 		, m_mmu(MMU())
 		, m_cpu(CPU(m_mmu))
 	{
+		m_tempInstrHistory[m_tempInstrHistoryHead] = m_cpu.viewRegisters().programCounter;
+		m_tempInstrHistoryHead = (m_tempInstrHistoryHead + 1) % 10;
+		m_tempInstrRan++;
 	}
 
 	int Rose::loadGame()
@@ -37,10 +40,10 @@ namespace rose_core
 	// Executes a single instruction
 	int Rose::stepForward()
 	{
+		m_cpu.executeInstruction();
 		m_tempInstrHistory[m_tempInstrHistoryHead] = m_cpu.viewRegisters().programCounter;
 		m_tempInstrHistoryHead = (m_tempInstrHistoryHead + 1) % 10;
 		m_tempInstrRan++;
-		m_cpu.executeInstruction();
 		return 0;
 	}
 
