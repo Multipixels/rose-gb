@@ -145,10 +145,10 @@ namespace rose_core {
 		case 0x78: op_cb_78(); break; case 0x79: op_cb_79(); break; case 0x7A: op_cb_7A(); break; case 0x7B: op_cb_7B(); break;
 		case 0x7C: op_cb_7C(); break; case 0x7D: op_cb_7D(); break; case 0x7E: op_cb_7E(); break; case 0x7F: op_cb_7F(); break;
 
-		case 0x80: op_cb_80(); break; case 0x81: op_cb_81(); break; case 0x82: op_cb_32(); break; case 0x83: op_cb_83(); break;
-		case 0x84: op_cb_84(); break; case 0x85: op_cb_85(); break; case 0x86: op_cb_36(); break; case 0x87: op_cb_87(); break;
-		case 0x88: op_cb_88(); break; case 0x89: op_cb_89(); break; case 0x8A: op_cb_3A(); break; case 0x8B: op_cb_8B(); break;
-		case 0x8C: op_cb_8C(); break; case 0x8D: op_cb_8D(); break; case 0x8E: op_cb_3E(); break; case 0x8F: op_cb_8F(); break;
+		case 0x80: op_cb_80(); break; case 0x81: op_cb_81(); break; case 0x82: op_cb_82(); break; case 0x83: op_cb_83(); break;
+		case 0x84: op_cb_84(); break; case 0x85: op_cb_85(); break; case 0x86: op_cb_86(); break; case 0x87: op_cb_87(); break;
+		case 0x88: op_cb_88(); break; case 0x89: op_cb_89(); break; case 0x8A: op_cb_8A(); break; case 0x8B: op_cb_8B(); break;
+		case 0x8C: op_cb_8C(); break; case 0x8D: op_cb_8D(); break; case 0x8E: op_cb_8E(); break; case 0x8F: op_cb_8F(); break;
 
 		case 0x90: op_cb_90(); break; case 0x91: op_cb_91(); break; case 0x92: op_cb_92(); break; case 0x93: op_cb_93(); break;
 		case 0x94: op_cb_94(); break; case 0x95: op_cb_95(); break; case 0x96: op_cb_96(); break; case 0x97: op_cb_97(); break;
@@ -418,7 +418,6 @@ namespace rose_core {
 	void CPU::INC_R16(Register16& p_r) { p_r++; }
 
 	// Bitwise Logic
-	// TODO: Set flags
 	void CPU::AND_A_R8(Register8& p_r) { setFlags(!(m_registers.a & p_r), false, true, false); m_registers.a &= p_r;  }
 	void CPU::AND_A_HL() { setFlags(!(m_registers.a & m_mmu.getU8(m_registers.hl)), false, 1, false); m_registers.a &= m_mmu.getU8(m_registers.hl);  }
 	void CPU::AND_A_N8(u8 p_n) { setFlags(!(m_registers.a & p_n), false, true, false); m_registers.a &= p_n;  }
@@ -431,9 +430,8 @@ namespace rose_core {
 	void CPU::XOR_A_N8(u8 p_n) { m_registers.a ^= p_n; setFlags(!m_registers.a, false, false, false); }
 
 	// Bit Flags
-	// TODO: Set flags
-	void CPU::BIT_U3_R8(u3 p_u, Register8& p_r) { setFlags(~((p_r >> p_u.value) & 0b1), false, true, getFlagC()); }
-	void CPU::BIT_U3_HL(u3 p_u) { setFlags(~((m_mmu.getU8(m_registers.hl) >> p_u.value) & 0x1), false, true, getFlagC()); }
+	void CPU::BIT_U3_R8(u3 p_u, Register8& p_r) { setFlags(!((p_r >> p_u.value) & 0b1), false, true, getFlagC()); }
+	void CPU::BIT_U3_HL(u3 p_u) { setFlags(!((m_mmu.getU8(m_registers.hl) >> p_u.value) & 0x1), false, true, getFlagC()); }
 	void CPU::RES_U3_R8(u3 p_u, Register8& p_r) { p_r &= ~(0xFF & (0b1 << p_u.value)); }
 	void CPU::RES_U3_HL(u3 p_u) { m_mmu.setU8(m_registers.hl, m_mmu.getU8(m_registers.hl) & ~(0xFF & (0b1 << p_u.value))); }
 	void CPU::SET_U3_R8(u3 p_u, Register8& p_r) { p_r |= (0b1 << p_u.value); }

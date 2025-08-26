@@ -15,6 +15,9 @@ Untested Instructions:
 - 0x76 HALT
 - 0xF3 DI
 - 0xFB EI
+- All RET
+- All CALL
+- All RST
 */
 
 
@@ -651,6 +654,50 @@ TEST(CPUTest, Jumps)
 		{ { 0xCA, 0xCD, 0xAB }, PC, 0x3},    // Jump to 0xABCD if Z is 1
 
 		{ { 0x21, 0xCD, 0xAB, 0xE9 }, PC, 0xABCD},    // Set HL to 0xABCD and then jump to the value of HL.
+		
+	};
+
+	for (TestCase test : testCases)
+	{
+		rose_core::MMU mmu;
+		rose_core::CPU cpu(mmu, 0x0);
+
+		loadVectorToMemory(test.instructions, mmu);
+
+		while (cpu.viewRegisters().programCounter < test.instructions.size())
+		{
+			ASSERT_NO_FATAL_FAILURE(cpu.executeInstruction());
+		}
+		EXPECT_EQ(test.expected_value, getERegister(cpu, test.eRegister));
+	}
+}
+
+
+
+
+TEST(CPUTest, BitResSet)
+{
+	typedef struct TestCase
+	{
+		std::vector<rose_core::u8> instructions;
+		ERegister eRegister;
+		rose_core::u16 expected_value;
+	} TestCase;
+
+	std::vector<TestCase> testCases{
+
+		{ { 0x21, 0x01, 0x00, 0xCB, 0x45 }, F, 0b00100000 }, // Set HL to 0x0001, copy complement of bit 0 of L to Z flag
+		{ { 0x21, 0x00, 0x00, 0xCB, 0x45 }, F, 0b10100000 }, // Set HL to 0x0000, copy complement of bit 0 of L to Z flag
+
+		{ { 0x21, 0x00, 0x00, 0xCB, 0x46 }, F, 0b00100000 }, // Set HL to 0x0000, copy complement of bit 0 of value at HL to Z flag
+		{ { 0x21, 0x02, 0x00, 0xCB, 0x46 }, F, 0b10100000 }, // Set HL to 0x0002, copy complement of bit 0 of value at HL to Z flag
+
+		{ { 0xCB, 0xC0, 0xCB, 0x80 }, B, 0x00 }, // Set bit 0 of B to 1, then reset bit 0 of B to 0
+		{ { 0x21, 0x01, 0x00, 0xCB, 0x86, 0xFA, 0x01, 0x00 }, A, 0x00 }, // Set HL to 0x0001, reset bit 0 of 0x0001 to 0, copy value at 0x1 to A
+
+		{ { 0xCB, 0xC0 }, B, 0x01 }, // Set bit 0 of B to 1
+		{ { 0x21, 0x01, 0x00, 0xCB, 0xE6, 0xFA, 0x01, 0x00 }, A, 0x11 }, // Set HL to 0x0001, set bit 4 of 0x0001 to 1, copy value at 0x1 to A
+
 		
 	};
 
