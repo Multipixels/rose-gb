@@ -7,10 +7,10 @@ std::string test_1 = "../resources/blargg/cpu_instrs/01-special.gb";
 
 TEST(CPUTest, TestingTests)
 {
-	mmu::MMU mmu;
-	cpu::CPU cpu(&mmu);
+	rose_core::MMU mmu;
+	rose_core::CPU cpu(mmu);
 
-	ASSERT_NO_FATAL_FAILURE(loadTestCartridge(test_1, &mmu));
+	ASSERT_NO_FATAL_FAILURE(loadTestCartridge(test_1, mmu));
 
 	EXPECT_TRUE(true);
 }

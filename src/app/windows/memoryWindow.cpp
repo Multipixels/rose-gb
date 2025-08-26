@@ -45,7 +45,7 @@ void MemoryWindow::Draw()
             scrollToInstr = true;
             float row_height = ImGui::GetTextLineHeightWithSpacing(); // Or your actual row height
             float target_scroll_pos = ((registers.programCounter >> 4) - 2) * row_height;
-            ImGui::SetScrollY(0);
+            ImGui::SetScrollY(target_scroll_pos);
         }
 
         while (clipper.Step())

@@ -6,8 +6,8 @@ std::string testingCartridge = "../resources/blargg/cpu_instrs.gb";
 
 TEST(MMUTest, Getters)
 {
-	mmu::MMU mmu;
-	ASSERT_NO_FATAL_FAILURE(loadTestCartridge(testingCartridge, &mmu));
+	rose_core::MMU mmu;
+	ASSERT_NO_FATAL_FAILURE(loadTestCartridge(testingCartridge, mmu));
 
 	EXPECT_EQ(mmu.getU8(0x00), 0x3C);
 	EXPECT_EQ(mmu.getU8(0x01), 0xC9);
@@ -24,8 +24,8 @@ TEST(MMUTest, Getters)
 
 TEST(MMUTest, Setters)
 {
-	mmu::MMU mmu;
-	ASSERT_NO_FATAL_FAILURE(loadTestCartridge(testingCartridge, &mmu));
+	rose_core::MMU mmu;
+	ASSERT_NO_FATAL_FAILURE(loadTestCartridge(testingCartridge, mmu));
 
 	ASSERT_NO_FATAL_FAILURE(mmu.setU8(0x00, 0x3D));
 	EXPECT_EQ(mmu.getU8(0x00), 0x3D);
@@ -39,7 +39,7 @@ TEST(MMUTest, Setters)
 }
 
 // Takes in a file path and attempts to load a .gb file into Rose's Cartridge
-void loadTestCartridge(std::string path, mmu::MMU* mmu)
+void loadTestCartridge(std::string path, rose_core::MMU& mmu)
 {
 	// Load into Cartridge construct
 	std::ifstream istr;
@@ -52,6 +52,6 @@ void loadTestCartridge(std::string path, mmu::MMU* mmu)
 		FAIL();
 	}
 
-	mmu->loadCartridgeData(cartridgeBuffer);
+	mmu.loadCartridgeData(cartridgeBuffer);
 	cartridgeBuffer->close();
 }
