@@ -16,7 +16,7 @@ void RegisterWindow::Draw()
         return;
     }
 
-    auto registers = roseInstance->viewCPU().viewRegisters();
+    static const rose_core::CPU::Registers& registers = roseInstance->viewCPU().viewRegisters();
     
     ImGui::Text("AF: 0x%04X", registers.af);
     ImGui::Text("BC: 0x%04X", registers.bc);

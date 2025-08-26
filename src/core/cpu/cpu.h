@@ -228,7 +228,8 @@ namespace rose_core
 		} RSTVec;
 
 		u8 convertRSTVec(RSTVec vec);
-
+		
+	public:
 		typedef struct Registers
 		{
 			Register16 af = 0x0000;
@@ -252,6 +253,7 @@ namespace rose_core
 		} Registers;
 		Registers m_registers;
 
+	private:
 		// Flags
 			// bit 7 "z": zero flag. used for conditional jumps, set if result of operation is 0
 			// bit 6 "n": subtraction flag

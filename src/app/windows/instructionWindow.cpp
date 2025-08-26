@@ -16,9 +16,9 @@ void InstructionWindow::Draw()
         return;
     }
 
-    const rose_core::CPU cpu = roseInstance->viewCPU();
-    const std::vector<rose_core::u8> memory = roseInstance->viewMMU().getMemory();
-    const std::array<rose_core::u16, 10> instrHistory = roseInstance->tempViewInstrHistory();
+    static const rose_core::CPU& cpu = roseInstance->viewCPU();
+    static const std::vector<rose_core::u8>& memory = roseInstance->viewMMU().getMemory();
+    static const std::array<rose_core::u16, 10>& instrHistory = roseInstance->tempViewInstrHistory();
 
     static ImGuiTableFlags table_flags = ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_ScrollX | ImGuiTableFlags_ScrollY | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersInner | ImGuiTableFlags_HighlightHoveredColumn;
     static ImGuiTableColumnFlags column_flags = ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoHide | ImGuiTableColumnFlags_NoReorder;
