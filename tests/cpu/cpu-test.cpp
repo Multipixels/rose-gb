@@ -570,6 +570,64 @@ TEST(CPUTest, RotateRegisters)
 }
 
 
+TEST(CPUTest, StackControl)
+{
+	typedef struct TestCaseAddress
+	{
+		std::vector<rose_core::u8> instructions;
+		rose_core::u16 address_to_check;
+		rose_core::u16 expected_value;
+	} TestCaseAddress;
+
+	std::vector<TestCaseAddress> testCasesAddress{
+		{ { 0xE8, 0x64, 0x01, 0xCD, 0xAB, 0xC5 }, 0x62, 0xCD }, // Set stack pointer to 100, then BC to 0xABCD. Push 0xABCD to stack.
+		{ { 0xE8, 0x64, 0x01, 0xCD, 0xAB, 0xC5 }, 0x63, 0xAB }, // Set stack pointer to 100, then BC to 0xABCD. Push 0xABCD to stack. 
+	};
+
+	for (TestCaseAddress test : testCasesAddress)
+	{
+		rose_core::MMU mmu;
+		rose_core::CPU cpu(mmu, 0x0);
+
+		loadVectorToMemory(test.instructions, mmu);
+
+		while (cpu.viewRegisters().programCounter < test.instructions.size())
+		{
+			ASSERT_NO_FATAL_FAILURE(cpu.executeInstruction());
+		}
+		EXPECT_EQ(test.expected_value, mmu.getU8(test.address_to_check));
+	}
+
+	typedef struct TestCaseRegister
+	{
+		std::vector<rose_core::u8> instructions;
+		ERegister eRegister;
+		rose_core::u16 expected_value;
+	} TestCaseRegister;
+
+	std::vector<TestCaseRegister> testCasesRegister{
+		{ { 0xE8, 0x64, 0x01, 0xCD, 0xAB, 0xC5 }, SP, 0x62 }, // Set stack pointer to 100, then BC to 0xABCD. Push 0xABCD to stack. 
+
+		{ { 0xE8, 0x64, 0x01, 0xCD, 0xAB, 0xC5, 0xD1 }, DE, 0xABCD }, // Set stack pointer to 100, then BC to 0xABCD. Push 0xABCD to stack. Pop into DE.
+		{ { 0xE8, 0x64, 0x01, 0xCD, 0xAB, 0xC5, 0xD1 }, SP, 0x64 }, // Set stack pointer to 100, then BC to 0xABCD. Push 0xABCD to stack. Pop into DE.
+	};
+
+	for (TestCaseRegister test : testCasesRegister)
+	{
+		rose_core::MMU mmu;
+		rose_core::CPU cpu(mmu, 0x0);
+
+		loadVectorToMemory(test.instructions, mmu);
+
+		while (cpu.viewRegisters().programCounter < test.instructions.size())
+		{
+			ASSERT_NO_FATAL_FAILURE(cpu.executeInstruction());
+		}
+		EXPECT_EQ(test.expected_value, getERegister(cpu, test.eRegister));
+	}
+	
+}
+
 
 TEST(CPUTest, Miscellaneous)
 {
