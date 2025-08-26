@@ -438,17 +438,17 @@ namespace rose_core {
 	void CPU::SET_U3_HL(u3 p_u) { m_mmu.setU8(m_registers.hl, m_mmu.getU8(m_registers.hl) | (0b1 << p_u.value)); }
 
 	// Bit Shifts
-	void CPU::RL_R8(Register8& p_r) { u8 temp = p_r & 0x80; p_r = (p_r << 1) | (int)getFlagC(); setFlags(p_r, false, false, temp);  }
-	void CPU::RL_HL() { u8 temp = m_mmu.getU8(m_registers.hl) & 0x80; m_mmu.setU8(m_registers.hl, (m_mmu.getU8(m_registers.hl) << 1) | (int)getFlagC()); setFlags(m_mmu.getU8(m_registers.hl), false, false, temp); }
+	void CPU::RL_R8(Register8& p_r) { u8 temp = p_r & 0x80; p_r = (p_r << 1) | (int)getFlagC(); setFlags(!p_r, false, false, temp);  }
+	void CPU::RL_HL() { u8 temp = m_mmu.getU8(m_registers.hl) & 0x80; m_mmu.setU8(m_registers.hl, (m_mmu.getU8(m_registers.hl) << 1) | (int)getFlagC()); setFlags(!m_mmu.getU8(m_registers.hl), false, false, temp); }
 	void CPU::RL_A() { u8 temp = m_registers.a & 0x80; m_registers.a = (m_registers.a << 1) | (int)getFlagC(); setFlags(false, false, false, temp); }
-	void CPU::RL_C_R8(Register8& p_r) { u8 temp = p_r & 0x80; p_r = (p_r << 1) | (temp >> 7); setFlags(p_r, false, false, temp); }
-	void CPU::RL_C_HL() { u8 temp = m_mmu.getU8(m_registers.hl) & 0x80; m_mmu.setU8(m_registers.hl, (m_mmu.getU8(m_registers.hl) << 1) | (temp >> 7)); setFlags(m_mmu.getU8(m_registers.hl), false, false, temp); }
+	void CPU::RL_C_R8(Register8& p_r) { u8 temp = p_r & 0x80; p_r = (p_r << 1) | (temp >> 7); setFlags(!p_r, false, false, temp); }
+	void CPU::RL_C_HL() { u8 temp = m_mmu.getU8(m_registers.hl) & 0x80; m_mmu.setU8(m_registers.hl, (m_mmu.getU8(m_registers.hl) << 1) | (temp >> 7)); setFlags(!m_mmu.getU8(m_registers.hl), false, false, temp); }
 	void CPU::RL_C_A() { u8 temp = m_registers.a & 0x80; m_registers.a = (m_registers.a << 1) | (temp >> 7); setFlags(false, false, false, temp); }
-	void CPU::RR_R8(Register8& p_r) { u8 temp = p_r & 0x01; p_r = (p_r >> 1) | (getFlagC() << 7); setFlags(p_r, false, false, temp); }
-	void CPU::RR_HL() { u8 temp = m_mmu.getU8(m_registers.hl) & 0x01; m_mmu.setU8(m_registers.hl, (m_mmu.getU8(m_registers.hl) >> 1) | (getFlagC() << 7)); setFlags(m_mmu.getU8(m_registers.hl), false, false, temp); }
+	void CPU::RR_R8(Register8& p_r) { u8 temp = p_r & 0x01; p_r = (p_r >> 1) | (getFlagC() << 7); setFlags(!p_r, false, false, temp); }
+	void CPU::RR_HL() { u8 temp = m_mmu.getU8(m_registers.hl) & 0x01; m_mmu.setU8(m_registers.hl, (m_mmu.getU8(m_registers.hl) >> 1) | (getFlagC() << 7)); setFlags(!m_mmu.getU8(m_registers.hl), false, false, temp); }
 	void CPU::RR_A() { u8 temp = m_registers.a & 0x01; m_registers.a = (m_registers.a >> 1) | (getFlagC() << 7); setFlags(false, false, false, temp); }
-	void CPU::RR_C_R8(Register8& p_r) { u8 temp = p_r & 0x01; p_r = (p_r >> 1) | (temp << 7); setFlags(p_r, false, false, temp); }
-	void CPU::RR_C_HL() { u8 temp = m_mmu.getU8(m_registers.hl) & 0x01; m_mmu.setU8(m_registers.hl, (m_mmu.getU8(m_registers.hl) >> 1) | (temp << 7)); setFlags(m_mmu.getU8(m_registers.hl), false, false, temp); }
+	void CPU::RR_C_R8(Register8& p_r) { u8 temp = p_r & 0x01; p_r = (p_r >> 1) | (temp << 7); setFlags(!p_r, false, false, temp); }
+	void CPU::RR_C_HL() { u8 temp = m_mmu.getU8(m_registers.hl) & 0x01; m_mmu.setU8(m_registers.hl, (m_mmu.getU8(m_registers.hl) >> 1) | (temp << 7)); setFlags(!m_mmu.getU8(m_registers.hl), false, false, temp); }
 	void CPU::RR_C_A() { u8 temp = m_registers.a & 0x01; m_registers.a = (m_registers.a >> 1) | (temp << 7); setFlags(false, false, false, temp); }
 	void CPU::SLA_R8(Register8& p_r) { setFlags(0, 0, 0, p_r & 0x80); p_r = (p_r << 1); setFlagZ(p_r); }
 	void CPU::SLA_HL() { setFlags(0, 0, 0, m_mmu.getU8(m_registers.hl) & 0x80); m_mmu.setU8(m_registers.hl, m_mmu.getU8(m_registers.hl) << 1); setFlagZ(!m_mmu.getU8(m_registers.hl)); }
@@ -780,7 +780,7 @@ namespace rose_core {
 	void CPU::op_cb_04() { RL_C_R8(m_registers.h); }
 	void CPU::op_cb_05() { RL_C_R8(m_registers.l); }
 	void CPU::op_cb_06() { RL_C_HL(); }
-	void CPU::op_cb_07() { RL_C_A(); }
+	void CPU::op_cb_07() { RL_C_R8(m_registers.a); }
 	void CPU::op_cb_08() { RR_C_R8(m_registers.b); }
 	void CPU::op_cb_09() { RR_C_R8(m_registers.c); }
 	void CPU::op_cb_0A() { RR_C_R8(m_registers.d); }
@@ -788,7 +788,7 @@ namespace rose_core {
 	void CPU::op_cb_0C() { RR_C_R8(m_registers.h); }
 	void CPU::op_cb_0D() { RR_C_R8(m_registers.l); }
 	void CPU::op_cb_0E() { RR_C_HL(); }
-	void CPU::op_cb_0F() { RR_C_A(); }
+	void CPU::op_cb_0F() { RR_C_R8(m_registers.a); }
 
 	void CPU::op_cb_10() { RL_R8(m_registers.b); }
 	void CPU::op_cb_11() { RL_R8(m_registers.c); }
@@ -797,7 +797,7 @@ namespace rose_core {
 	void CPU::op_cb_14() { RL_R8(m_registers.h); }
 	void CPU::op_cb_15() { RL_R8(m_registers.l); }
 	void CPU::op_cb_16() { RL_HL(); }
-	void CPU::op_cb_17() { RL_A(); }
+	void CPU::op_cb_17() { RL_R8(m_registers.a); }
 	void CPU::op_cb_18() { RR_R8(m_registers.b); }
 	void CPU::op_cb_19() { RR_R8(m_registers.c); }
 	void CPU::op_cb_1A() { RR_R8(m_registers.d); }
@@ -805,7 +805,7 @@ namespace rose_core {
 	void CPU::op_cb_1C() { RR_R8(m_registers.h); }
 	void CPU::op_cb_1D() { RR_R8(m_registers.l); }
 	void CPU::op_cb_1E() { RR_HL(); }
-	void CPU::op_cb_1F() { RR_A(); }
+	void CPU::op_cb_1F() { RR_R8(m_registers.a); }
 
 	void CPU::op_cb_20() { SLA_R8(m_registers.b); }
 	void CPU::op_cb_21() { SLA_R8(m_registers.c); }

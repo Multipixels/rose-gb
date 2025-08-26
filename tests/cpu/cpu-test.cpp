@@ -531,30 +531,64 @@ TEST(CPUTest, RotateRegisters)
 	} TestCase;
 
 	std::vector<TestCase> testCases{
-		{ { 0x3E, 0b10101010, 0x07 }, A, 0b01010101}, // Set A to 0b1010 and then rotate left.
-		{ { 0x3E, 0b10101010, 0x07 }, F, 0b00010000}, // Set A to 0b1010 and then rotate left. Flag check.
+		{ { 0x3E, 0b10101010, 0x07 }, A, 0b01010101}, // Set A to 0b10101010 and then rotate left.
+		{ { 0x3E, 0b10101010, 0x07 }, F, 0b00010000}, // Set A to 0b10101010 and then rotate left. Flag check.
 
-		{ { 0x3E, 0b10101010, 0x07, 0x07 }, A, 0b10101010}, // Set A to 0b1010 and then rotate left twice.
-		{ { 0x3E, 0b10101010, 0x07, 0x07 }, F, 0b00000000}, // Set A to 0b1010 and then rotate left twice. Flag check.
+		{ { 0x3E, 0b10101010, 0x07, 0x07 }, A, 0b10101010}, // Set A to 0b10101010 and then rotate left twice.
+		{ { 0x3E, 0b10101010, 0x07, 0x07 }, F, 0b00000000}, // Set A to 0b10101010 and then rotate left twice. Flag check.
 
-		{ { 0x3E, 0b10101010, 0x17 }, A, 0b01010100}, // Set A to 0b1010 and then rotate left w/ carry.
-		{ { 0x3E, 0b10101010, 0x17 }, F, 0b00010000}, // Set A to 0b1010 and then rotate left w/ carry. Flag check.
+		{ { 0x3E, 0b10101010, 0x17 }, A, 0b01010100}, // Set A to 0b10101010 and then rotate left w/ carry.
+		{ { 0x3E, 0b10101010, 0x17 }, F, 0b00010000}, // Set A to 0b10101010 and then rotate left w/ carry. Flag check.
 
-		{ { 0x3E, 0b10101010, 0x17, 0x17 }, A, 0b10101001}, // Set A to 0b1010 and then rotate left w/ carry twice.
-		{ { 0x3E, 0b10101010, 0x17, 0x17 }, F, 0b00000000}, // Set A to 0b1010 and then rotate left w/ carry twice. Flag check.
+		{ { 0x3E, 0b10101010, 0x17, 0x17 }, A, 0b10101001}, // Set A to 0b10101010 and then rotate left w/ carry twice.
+		{ { 0x3E, 0b10101010, 0x17, 0x17 }, F, 0b00000000}, // Set A to 0b10101010 and then rotate left w/ carry twice. Flag check.
 
 
-		{ { 0x3E, 0b10101010, 0x0F }, A, 0b01010101}, // Set A to 0b1010 and then rotate left.
-		{ { 0x3E, 0b10101010, 0x0F }, F, 0b00000000}, // Set A to 0b1010 and then rotate left. Flag check.
+		{ { 0x3E, 0b10101010, 0x0F }, A, 0b01010101}, // Set A to 0b10101010 and then rotate left.
+		{ { 0x3E, 0b10101010, 0x0F }, F, 0b00000000}, // Set A to 0b10101010 and then rotate left. Flag check.
 
-		{ { 0x3E, 0b10101010, 0x0F, 0x0F }, A, 0b10101010}, // Set A to 0b1010 and then rotate left twice.
-		{ { 0x3E, 0b10101010, 0x0F, 0x0F }, F, 0b00010000}, // Set A to 0b1010 and then rotate left twice. Flag check.
+		{ { 0x3E, 0b10101010, 0x0F, 0x0F }, A, 0b10101010}, // Set A to 0b10101010 and then rotate left twice.
+		{ { 0x3E, 0b10101010, 0x0F, 0x0F }, F, 0b00010000}, // Set A to 0b10101010 and then rotate left twice. Flag check.
 
-		{ { 0x3E, 0b10101010, 0x1F }, A, 0b01010101}, // Set A to 0b1010 and then rotate left w/ carry.
-		{ { 0x3E, 0b10101010, 0x1F }, F, 0b00000000}, // Set A to 0b1010 and then rotate left w/ carry. Flag check.
+		{ { 0x3E, 0b10101010, 0x1F }, A, 0b01010101}, // Set A to 0b10101010 and then rotate left w/ carry.
+		{ { 0x3E, 0b10101010, 0x1F }, F, 0b00000000}, // Set A to 0b10101010 and then rotate left w/ carry. Flag check.
 
-		{ { 0x3E, 0b10101010, 0x1F, 0x1F }, A, 0b00101010}, // Set A to 0b1010 and then rotate left w/ carry twice.
-		{ { 0x3E, 0b10101010, 0x1F, 0x1F }, F, 0b00010000}, // Set A to 0b1010 and then rotate left w/ carry twice. Flag check.
+		{ { 0x3E, 0b10101010, 0x1F, 0x1F }, A, 0b00101010}, // Set A to 0b10101010 and then rotate left w/ carry twice.
+		{ { 0x3E, 0b10101010, 0x1F, 0x1F }, F, 0b00010000}, // Set A to 0b10101010 and then rotate left w/ carry twice. Flag check.
+
+		// CB test cases
+		{ { 0x3E, 0b10101010, 0xCB, 0x07 }, A, 0b01010101}, // Set A to 0b10101010 and then rotate left.
+		{ { 0x3E, 0b10101010, 0xCB, 0x07 }, F, 0b00010000}, // Set A to 0b10101010 and then rotate left. Flag check.
+
+		{ { 0x3E, 0b10101010, 0xCB, 0x07, 0xCB, 0x07 }, A, 0b10101010}, // Set A to 0b10101010 and then rotate left twice.
+		{ { 0x3E, 0b10101010, 0xCB, 0x07, 0xCB, 0x07 }, F, 0b00000000}, // Set A to 0b10101010 and then rotate left twice. Flag check.
+
+		{ { 0x3E, 0b10000000, 0xCB, 0x17 }, A, 0b00000000}, // Set A to 0b10101010 and then rotate left w/ carry.
+		{ { 0x3E, 0b10000000, 0xCB, 0x17 }, F, 0b10010000}, // Set A to 0b10101010 and then rotate left w/ carry. Flag check.
+
+		{ { 0x3E, 0b10101010, 0xCB, 0x17 }, A, 0b01010100}, // Set A to 0b10101010 and then rotate left w/ carry.
+		{ { 0x3E, 0b10101010, 0xCB, 0x17 }, F, 0b00010000}, // Set A to 0b10101010 and then rotate left w/ carry. Flag check.
+
+		{ { 0x3E, 0b10101010, 0xCB, 0x17, 0xCB, 0x17 }, A, 0b10101001}, // Set A to 0b10101010 and then rotate left w/ carry twice.
+		{ { 0x3E, 0b10101010, 0xCB, 0x17, 0xCB, 0x17 }, F, 0b00000000}, // Set A to 0b10101010 and then rotate left w/ carry twice. Flag check.
+
+
+		{ { 0x3E, 0b10101010, 0xCB, 0x0F }, A, 0b01010101}, // Set A to 0b10101010 and then rotate left.
+		{ { 0x3E, 0b10101010, 0xCB, 0x0F }, F, 0b00000000}, // Set A to 0b10101010 and then rotate left. Flag check.
+
+		{ { 0x3E, 0b10101010, 0xCB, 0x0F, 0xCB, 0x0F }, A, 0b10101010}, // Set A to 0b10101010 and then rotate left twice.
+		{ { 0x3E, 0b10101010, 0xCB, 0x0F, 0xCB, 0x0F }, F, 0b00010000}, // Set A to 0b10101010 and then rotate left twice. Flag check.
+
+		{ { 0x3E, 0b10101010, 0xCB, 0x1F }, A, 0b01010101}, // Set A to 0b10101010 and then rotate left w/ carry.
+		{ { 0x3E, 0b10101010, 0xCB, 0x1F }, F, 0b00000000}, // Set A to 0b10101010 and then rotate left w/ carry. Flag check.
+
+		{ { 0x3E, 0b10101010, 0xCB, 0x1F, 0xCB, 0x1F }, A, 0b00101010}, // Set A to 0b10101010 and then rotate left w/ carry twice.
+		{ { 0x3E, 0b10101010, 0xCB, 0x1F, 0xCB, 0x1F }, F, 0b00010000}, // Set A to 0b10101010 and then rotate left w/ carry twice. Flag check.
+
+
+		{ { 0x21, 0x00, 0x00, 0xCB, 0x06, 0xFA, 0x00, 0x00 }, A, 0b01000010 }, // Load 0x0000 into HL. Rotate contents of address 0x00 left. Copy contents of 0x0000 to A.
+		{ { 0x21, 0x00, 0x00, 0xCB, 0x06 }, F, 0x00 }, // Load 0x0000 into HL. Rotate contents of address 0x00 left. Copy contents of 0x0000 to A. sFlag check.
+		// Assuming 0x16, 0x0E, and 0x1E will also work.  
 	};
 
 	for (TestCase test : testCases)
@@ -697,8 +731,6 @@ TEST(CPUTest, BitResSet)
 
 		{ { 0xCB, 0xC0 }, B, 0x01 }, // Set bit 0 of B to 1
 		{ { 0x21, 0x01, 0x00, 0xCB, 0xE6, 0xFA, 0x01, 0x00 }, A, 0x11 }, // Set HL to 0x0001, set bit 4 of 0x0001 to 1, copy value at 0x1 to A
-
-		
 	};
 
 	for (TestCase test : testCases)
