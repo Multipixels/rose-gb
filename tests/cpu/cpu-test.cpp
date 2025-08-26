@@ -291,6 +291,83 @@ TEST(CPUTest, LogicalExclusiveOrWithFlags)
 	}
 }
 
+
+TEST(CPUTest, LogicalOrWithFlags)
+{
+	typedef struct TestCase
+	{
+		std::vector<rose_core::u8> instructions;
+		ERegister eRegister;
+		rose_core::u16 expected_value;
+	} TestCase;
+
+	std::vector<TestCase> testCases{
+		{ { 0x3E, 0b10101010, 0x06, 0b01010101, 0xB0 }, A, 0xFF }, // Load 0b10101010 to A, 0b01010101 to B, and OR them together.
+		{ { 0x3E, 0b10101010, 0x06, 0b01010101, 0xB0 }, F, 0b00000000 }, // Load 0b10101010 to A, 0b01010101 to B, and OR them together. Test flags.
+
+		{ { 0x3E, 0b11110000, 0x06, 0b01010101, 0xB0 }, A, 0b11110101 }, // Load 0b11110000 to A, 0b01010101 to B, and OR them together.
+		{ { 0x3E, 0b11110000, 0x06, 0b01010101, 0xB0 }, F, 0b00000000 }, // Load 0b11110000 to A, 0b01010101 to B, and OR them together. Test flags.
+
+		{ { 0xAF, 0x3E, 0b10101010, 0xB7 }, A, 0b10101010 }, // OR A with itself, load 0b10101010 into A, XOR A with itself
+		{ { 0xAF, 0x3E, 0b10101010, 0xB7 }, F, 0b00000000 }, // OR A with itself, load 0b10101010 into A, XOR A with itself, test flags
+
+		{ { 0x3E, 0xFF, 0xF6, 0x0F }, A, 0xFF}, // Load 0xFF into A, OR with constant 0x0F.
+		{ { 0x3E, 0xFF, 0xF6, 0x0F }, F, 0b00000000}, // Load 0xFF into A, OR with constant 0x0F. Test flags.
+	};
+
+	for (TestCase test : testCases)
+	{
+		rose_core::MMU mmu;
+		rose_core::CPU cpu(mmu, 0x0);
+
+		loadVectorToMemory(test.instructions, mmu);
+
+		while (cpu.viewRegisters().programCounter < test.instructions.size())
+		{
+			ASSERT_NO_FATAL_FAILURE(cpu.executeInstruction());
+		}
+		EXPECT_EQ(test.expected_value, getERegister(cpu, test.eRegister));
+	}
+}
+
+TEST(CPUTest, LogicalCmpWithFlags)
+{
+	typedef struct TestCase
+	{
+		std::vector<rose_core::u8> instructions;
+		ERegister eRegister;
+		rose_core::u16 expected_value;
+	} TestCase;
+
+	std::vector<TestCase> testCases{
+		{ { 0x3E, 0xFF, 0x06, 0xFF, 0xB8 }, A, 0xFF }, // Load 0xFF into A and B, and compare them.
+		{ { 0x3E, 0xFF, 0x06, 0xFF, 0xB8 }, F, 0b11000000 }, // Load 0xFF into A and B, and compare them. Test flags
+
+		{ { 0x3E, 0xFF, 0x06, 0xFE, 0xB8 }, A, 0xFF }, // Load 0xFF into A, 0xFE into B, and compare them.
+		{ { 0x3E, 0xFF, 0x06, 0xFE, 0xB8 }, F, 0b01000000 }, // Load 0xFF into A, 0xFE into B, and compare them. Test flags
+
+		{ { 0x3E, 0xFE, 0x06, 0xFF, 0xB8 }, A, 0xFE }, // Load 0xFE into A, 0xFF into B, and compare them.
+		{ { 0x3E, 0xFE, 0x06, 0xFF, 0xB8 }, F, 0b01110000 }, // Load 0xFE into A, 0xFF into B, and compare them. Test flags
+
+		{ { 0x3E, 0xFE, 0xFE, 0xFF }, A, 0xFE }, // Load 0xFE into A, compare to constant 0xFF
+		{ { 0x3E, 0xFE, 0xFE, 0xFF }, F, 0b01110000 }, // Load 0xFE into A, compare to constant 0xFF. Test flags
+	};
+
+	for (TestCase test : testCases)
+	{
+		rose_core::MMU mmu;
+		rose_core::CPU cpu(mmu, 0x0);
+
+		loadVectorToMemory(test.instructions, mmu);
+
+		while (cpu.viewRegisters().programCounter < test.instructions.size())
+		{
+			ASSERT_NO_FATAL_FAILURE(cpu.executeInstruction());
+		}
+		EXPECT_EQ(test.expected_value, getERegister(cpu, test.eRegister));
+	}
+}
+
 rose_core::u16 getERegister(rose_core::CPU& p_cpu, ERegister p_eRegister)
 {
 	const rose_core::CPU::Registers& registers = p_cpu.viewRegisters();
