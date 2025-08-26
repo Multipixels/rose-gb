@@ -361,9 +361,9 @@ namespace rose_core {
 	void CPU::DEC_HL() { if ((m_mmu.getU8(m_registers.hl) & 0xF) == 0b0000) { setFlagH(true); } else { setFlagH(false); } m_mmu.setU8(m_registers.hl, m_mmu.getU8(m_registers.hl) - 1); setFlagN(true); if (m_mmu.getU8(m_registers.hl) == 0) { setFlagZ(true); } else { setFlagZ(false); } }
 	void CPU::INC_R8(Register8& p_r) { if ((p_r & 0xF) == 0b1111) { setFlagH(true); } else { setFlagH(false); } (p_r)++; setFlagN(false); if (p_r == 0) { setFlagZ(true); } else { setFlagZ(false); } }
 	void CPU::INC_HL() { if ((m_registers.hl & 0xF) == 0b1111) { setFlagH(true); } else { setFlagH(false); } m_mmu.setU8(m_registers.hl, m_mmu.getU8(m_registers.hl) + 1); setFlagN(false); if (m_registers.hl == 0) { setFlagZ(true); } else { setFlagZ(false); } }
-	void CPU::SBC_A_R8(Register8& p_r) { setFlagsForU8Borrow(m_registers.a, p_r, getFlagC()); m_registers.a = m_registers.a - p_r - getFlagC();  }
-	void CPU::SBC_A_HL() { setFlagsForU8Borrow(m_registers.a, m_registers.hl, getFlagC()); m_registers.a = m_registers.a - m_mmu.getU8(m_registers.hl) - getFlagC(); }
-	void CPU::SBC_A_N8(u8 p_n) { setFlagsForU8Borrow(m_registers.a, p_n, getFlagC()); m_registers.a = m_registers.a - p_n - getFlagC(); }
+	void CPU::SBC_A_R8(Register8& p_r) { Flag isCarry = getFlagC(); setFlagsForU8Borrow(m_registers.a, p_r, getFlagC()); m_registers.a = m_registers.a - p_r - isCarry;  }
+	void CPU::SBC_A_HL() { Flag isCarry = getFlagC(); setFlagsForU8Borrow(m_registers.a, m_registers.hl, getFlagC()); m_registers.a = m_registers.a - m_mmu.getU8(m_registers.hl) - isCarry; }
+	void CPU::SBC_A_N8(u8 p_n) { Flag isCarry = getFlagC(); setFlagsForU8Borrow(m_registers.a, p_n, getFlagC()); m_registers.a = m_registers.a - p_n - isCarry; }
 	void CPU::SUB_A_R8(Register8& p_r) { setFlagsForU8Borrow(m_registers.a, p_r); m_registers.a = m_registers.a - p_r; }
 	void CPU::SUB_A_HL() { setFlagsForU8Borrow(m_registers.a, m_registers.hl); m_registers.a = m_registers.a - m_mmu.getU8(m_registers.hl); }
 	void CPU::SUB_A_N8(u8 p_n) { setFlagsForU8Borrow(m_registers.a, p_n); m_registers.a = m_registers.a - p_n; }

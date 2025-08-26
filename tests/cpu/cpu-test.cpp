@@ -253,6 +253,44 @@ TEST(CPUTest, LogicalAndWithFlags)
 	}
 }
 
+TEST(CPUTest, LogicalExclusiveOrWithFlags)
+{
+	typedef struct TestCase
+	{
+		std::vector<rose_core::u8> instructions;
+		ERegister eRegister;
+		rose_core::u16 expected_value;
+	} TestCase;
+
+	std::vector<TestCase> testCases{
+		{ { 0x3E, 0b10101010, 0x06, 0b01010101, 0xA8 }, A, 0xFF }, // Load 0b10101010 to A, 0b01010101 to B, and XOR them together.
+		{ { 0x3E, 0b10101010, 0x06, 0b01010101, 0xA8 }, F, 0b00000000 }, // Load 0b10101010 to A, 0b01010101 to B, and XOR them together. Test flags.
+
+		{ { 0x3E, 0b11110000, 0x06, 0b01010101, 0xA8 }, A, 0b10100101 }, // Load 0b11110000 to A, 0b01010101 to B, and XOR them together.
+		{ { 0x3E, 0b11110000, 0x06, 0b01010101, 0xA8 }, F, 0b00000000 }, // Load 0b11110000 to A, 0b01010101 to B, and XOR them together. Test flags.
+
+		{ { 0xAF, 0x3E, 0b10101010, 0xAF }, A, 0x00 }, // XOR A with itself, load 0b10101010 into A, XOR A with itself
+		{ { 0xAF, 0x3E, 0b10101010, 0xAF }, F, 0b10000000 }, // XOR A with itself, load 0b10101010 into A, XOR A with itself, test flags
+
+		{ { 0x3E, 0xFF, 0xEE, 0x0F }, A, 0xF0}, // Load 0xFF into A, AND with constant 0x0F.
+		{ { 0x3E, 0xFF, 0xEE, 0x0F }, F, 0b00000000}, // Load 0xFF into A, AND with constant 0x0F. Test flags.
+	};
+
+	for (TestCase test : testCases)
+	{
+		rose_core::MMU mmu;
+		rose_core::CPU cpu(mmu, 0x0);
+
+		loadVectorToMemory(test.instructions, mmu);
+
+		while (cpu.viewRegisters().programCounter < test.instructions.size())
+		{
+			ASSERT_NO_FATAL_FAILURE(cpu.executeInstruction());
+		}
+		EXPECT_EQ(test.expected_value, getERegister(cpu, test.eRegister));
+	}
+}
+
 rose_core::u16 getERegister(rose_core::CPU& p_cpu, ERegister p_eRegister)
 {
 	const rose_core::CPU::Registers& registers = p_cpu.viewRegisters();
