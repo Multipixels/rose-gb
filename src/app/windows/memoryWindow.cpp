@@ -27,6 +27,8 @@ void MemoryWindow::Draw()
     static ImGuiTableColumnFlags column_flags = ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoHide | ImGuiTableColumnFlags_NoReorder;
     const char* column_names[17] = { "Offset", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F" };
 
+    bool scrollToInstr = ImGui::Button("Scroll To Current Instruction");
+
     if (ImGui::BeginTable("MemoryTable", 17, table_flags))
     {
         ImGuiListClipper clipper;
@@ -37,6 +39,14 @@ void MemoryWindow::Draw()
 
         ImGui::TableSetupScrollFreeze(1, 1);
         ImGui::TableHeadersRow();
+
+        if (scrollToInstr)
+        {
+            scrollToInstr = true;
+            float row_height = ImGui::GetTextLineHeightWithSpacing(); // Or your actual row height
+            float target_scroll_pos = ((registers.programCounter >> 4) - 2) * row_height;
+            ImGui::SetScrollY(0);
+        }
 
         while (clipper.Step())
         {
