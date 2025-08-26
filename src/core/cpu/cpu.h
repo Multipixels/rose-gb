@@ -280,6 +280,14 @@ namespace rose_core
 		void setFlagsForU8Borrow(u8 a, u8 b);
 		void setFlagsForU8Borrow(u8 a, u8 b, u8 c);
 
+		bool willHalfCarry(u8 a, u8 b, bool add);
+		bool willHalfCarry(u16 a, u16 b, bool add);
+		bool willCarry(u8 a, u8 b, bool add);
+		bool willCarry(u16 a, u16 b, bool add);
+
+		u8 signedToPositiveUnsigned(s8 n);
+		u16 signedToPositiveUnsigned(s16 n);
+
 		bool ccStatus(ConditionCode cc);
 
 		// CPU Instruction Set: https://rgbds.gbdev.io/docs/v0.9.4/gbz80.7

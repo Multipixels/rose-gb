@@ -72,6 +72,98 @@ TEST(CPUTest, LoadRegistersIntoRegisters)
 		{ { 0x3E, 0xAB, 0x4F }, C, 0xAB },
 		{ { 0x01, 0xAB, 0xCD, 0x78 }, A, 0xCD },
 		{ { 0x01, 0xAB, 0xCD, 0x79 }, A, 0xAB },
+		
+		{ { 0x21, 0xCD, 0xAB, 0xF9 }, SP, 0xABCD }, // Load 0xABCD into HL, copy HL into SP
+		{ { 0x21, 0xCD, 0xAB, 0xF9, 0xF8, 0x08 }, HL, 0xABD5 }, // the above + (loading SP + constant signed 0x08 into HL)
+		{ { 0x21, 0xCD, 0xAB, 0xF9, 0xF8, 0x08 },  F, 0b00000000 }, // the above + (loading SP + constant signed 0x08 into HL), check flags
+		{ { 0x21, 0xCD, 0xAB, 0xF9, 0xF8, 0xFF }, HL, 0xABCC }, // the above + (loading SP - constant signed 0x01 into HL)  
+		{ { 0x21, 0xCD, 0xAB, 0xF9, 0xF8, 0xFF },  F, 0b00000000 }, // the above + (loading SP - constant signed 0x01 into HL), check flags
+	};
+
+	for (TestCase test : testCases)
+	{
+		rose_core::MMU mmu;
+		rose_core::CPU cpu(mmu, 0x0);
+
+		loadVectorToMemory(test.instructions, mmu);
+
+		while (cpu.viewRegisters().programCounter < test.instructions.size())
+		{
+			ASSERT_NO_FATAL_FAILURE(cpu.executeInstruction());
+		}
+		EXPECT_EQ(test.expected_value, getERegister(cpu, test.eRegister));
+	}
+}
+
+TEST(CPUTest, LoadRegistersIntoAddress)
+{
+	typedef struct TestCase
+	{
+		std::vector<rose_core::u8> instructions;
+		rose_core::u16 address_to_check;
+		rose_core::u16 expected_value;
+	} TestCase;
+
+	std::vector<TestCase> testCases{
+		{ { 0x01, 0xCD, 0xAB, 0x3E, 0x56, 0x02 }, 0xABCD, 0x56 }, // Load 0xABCD to BC, load 0x56 into A, copy A into address stored by B
+
+		{ { 0x21, 0xCD, 0xAB, 0x3E, 0x56, 0x22 }, 0xABCD, 0x56 }, // Load 0xABCD to HL, load 0x56 into A, copy A into address stored by HL and increment HL
+		{ { 0x21, 0xCD, 0xAB, 0x3E, 0x56, 0x22, 0x22 }, 0xABCE, 0x56 }, // Load 0xABCD to HL, load 0x56 into A, copy A into address stored by HL and increment HL twice
+	
+		{ { 0x21, 0xCD, 0xAB, 0x3E, 0x56, 0x32 }, 0xABCD, 0x56 }, // Load 0xABCD to HL, load 0x56 into A, copy A into address stored by HL and decrement HL
+		{ { 0x21, 0xCD, 0xAB, 0x3E, 0x56, 0x32, 0x32 }, 0xABCC, 0x56 }, // Load 0xABCD to HL, load 0x56 into A, copy A into address stored by HL and decrement HL twice
+
+		{ { 0x21, 0xCD, 0xAB, 0x3E, 0x56, 0x77 }, 0xABCD, 0x56 }, // Load 0xABCD to HL, load 0x56 into A, copy A into address stored by HL
+		{ { 0x21, 0xCD, 0xAB, 0x36, 0x77 }, 0xABCD, 0x77 }, // Load 0xABCD to HL, copy constant 0x77 to address of HL
+
+		{ { 0x3E, 0x56, 0xEA, 0x01, 0x23 }, 0x2301, 0x56 }, // Load 0x56 into A, then copy contents of A into constant address 0x2301
+
+		{ { 0x3E, 0x56, 0xE0, 0x67 }, 0xFF67, 0x56 }, // Load 0x56 into A, then copy contents of A into 0xFF00 + constant 0x0067
+		{ { 0x3E, 0x56, 0x0E, 0x67, 0xE2 }, 0xFF67, 0x56 }, // Load 0x56 into A, Load 0x67 into C, then copy contents of A into 0xFF00 + C
+
+		{ { 0x21, 0xCD, 0xAB, 0xF9, 0x08, 0x00, 0x00 }, 0x0000, 0xCD }, // Load 0xABCD into HL, copy HL into SP, copy SP into address 0x0000
+		{ { 0x21, 0xCD, 0xAB, 0xF9, 0x08, 0x00, 0x00 }, 0x0001, 0xAB }, // Load 0xABCD into HL, copy HL into SP, copy SP into address 0x0000
+	};
+
+	for (TestCase test : testCases)
+	{
+		rose_core::MMU mmu;
+		rose_core::CPU cpu(mmu, 0x0);
+
+		loadVectorToMemory(test.instructions, mmu);
+
+		while (cpu.viewRegisters().programCounter < test.instructions.size())
+		{
+			ASSERT_NO_FATAL_FAILURE(cpu.executeInstruction());
+		}
+		EXPECT_EQ(test.expected_value, mmu.getU8(test.address_to_check));
+	}
+}
+
+TEST(CPUTest, LoadAddressIntoRegister)
+{
+	typedef struct TestCase
+	{
+		std::vector<rose_core::u8> instructions;
+		ERegister eRegister;
+		rose_core::u16 expected_value;
+	} TestCase;
+
+	std::vector<TestCase> testCases{
+		{ { 0x01, 0x03, 0x00, 0x0A }, A, 0x0A }, // Load 0x0003 to BC, copy value in address stored by BC into A
+
+		{ { 0x21, 0x03, 0x00, 0x2A }, A, 0x2A }, // Load 0x0003 to HL, copy value in address stored by HL into A and increment HL
+		{ { 0x21, 0x03, 0x00, 0x2A }, HL, 0x0004 }, // Load 0x0003 to HL, copy value in address stored by HL into A and increment HL
+		{ { 0x21, 0x03, 0x00, 0x3A }, HL, 0x0002 }, // Load 0x0003 to HL, copy value in address stored by HL into A and decrement HL
+
+		{ { 0x21, 0x03, 0x00, 0x46 }, B, 0x46 }, // Load 0x0003 to HL, copy value in address stored by HL into B
+
+		{ { 0xFA, 0x00, 0x00 }, A, 0xFA }, // Load contents of address 0x0000 into A
+		{ { 0xFA, 0x01, 0x00 }, A, 0x01 }, // Load contents of address 0x0001 into A
+		{ { 0xFA, 0x02, 0x00 }, A, 0x00 }, // Load contents of address 0x0002 into A
+
+		{ { 0x3E, 0x56, 0xE0, 0x67, 0x3E, 0x00, 0xF0, 0x67 }, A, 0x56 }, // Load 0x56 into A, then copy contents of A into 0xFF00 + constant 0x0067, load 0x00 into A, then load contents of 0xFF67 back into A
+		{ { 0x3E, 0x56, 0x0E, 0x67, 0xE2, 0x3E, 0x00, 0xF2 }, A, 0x56 }, // Load 0x56 into A, Load 0x67 into C, then copy contents of A into 0xFF00 + C, load 0x00 into A, then load contents of 0xFF00 + C back into A
 	};
 
 	for (TestCase test : testCases)

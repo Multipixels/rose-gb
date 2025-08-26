@@ -316,6 +316,50 @@ namespace rose_core {
 		else setFlagC(false);
 	}
 
+	bool CPU::willHalfCarry(u8 p_a, u8 p_b, bool p_add)
+	{
+		if (p_add)
+			return (p_a & 0xF) + (p_b & 0xF) > 0x10;
+		else
+			return (p_a & 0xF) < (p_b & 0xF);
+	}
+
+	bool CPU::willHalfCarry(u16 p_a, u16 p_b, bool p_add)
+	{
+		if (p_add)
+			return (p_a & 0xFFF) + (p_b & 0xFFF) > 0x1000;
+		else
+			return p_a < p_b;
+	}
+
+	bool CPU::willCarry(u8 p_a, u8 p_b, bool p_add)
+	{
+		if (p_add)
+			return (u16)p_a + (u16)p_b > 0x100;
+		else
+			return p_a < p_b;
+	}
+
+	bool CPU::willCarry(u16 p_a, u16 p_b, bool p_add)
+	{
+		if (p_add)
+			return (u32)p_a + (u32)p_b > 0x10000;
+		else
+			return p_a < p_b;
+	}
+
+	u8 CPU::signedToPositiveUnsigned(s8 n)
+	{
+		if (n >= 0) return n;
+		return ~n + 1;
+	}
+
+	u16 CPU::signedToPositiveUnsigned(s16 n)
+	{
+		if (n >= 0) return n;
+		return ~n + 1;
+	}
+
 	bool CPU::ccStatus(ConditionCode p_cc)
 	{
 		switch (p_cc) {
@@ -441,7 +485,9 @@ namespace rose_core {
 	void CPU::INC_SP() { m_registers.stackPointer++; }
 	void CPU::LD_SP_N16(u16 p_n) { m_mmu.setU16(m_registers.stackPointer, p_n); }
 	void CPU::LD_N16_SP(u16 p_n) { m_mmu.setU16(p_n, ((m_registers.stackPointer & 0xFF) << 8) | (m_registers.stackPointer >> 8)); }
-	void CPU::LD_HL_SP_S8(s8 p_s) { m_registers.stackPointer += p_s; m_registers.hl = m_registers.stackPointer; setFlagsForU8Overflow(m_registers.stackPointer, p_s); }
+	
+	void CPU::LD_HL_SP_S8(s8 p_s) { setFlagZ(false); setFlagN(false); setFlagH(willHalfCarry(m_registers.stackPointer, (u16)signedToPositiveUnsigned(p_s), p_s >= 0)); setFlagC(willCarry(m_registers.stackPointer, (u16)signedToPositiveUnsigned(p_s), p_s >= 0)); m_registers.stackPointer += p_s; m_registers.hl = m_registers.stackPointer; }
+	
 	void CPU::LD_SP_HL() { m_registers.stackPointer = m_registers.hl; }
 	void CPU::POP_AF() { m_registers.af = m_mmu.getU16(m_registers.stackPointer); m_registers.stackPointer += 2; }
 	void CPU::POP_R16(Register16& p_r) { p_r = m_mmu.getU16(m_registers.stackPointer); m_registers.stackPointer += 2; }
