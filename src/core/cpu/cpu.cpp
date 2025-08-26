@@ -464,7 +464,7 @@ namespace rose_core {
 	// Jumps and Subroutines
 	void CPU::CALL_N16(u16 p_n) { m_registers.stackPointer -= 2; m_mmu.setU16(m_registers.stackPointer, ((p_n & 0xFF) << 8) | (p_n >> 8)); JP_N16(p_n); }
 	void CPU::CALL_CC_N16(ConditionCode cc, u16 n) { if (ccStatus(cc)) CALL_N16(n); }
-	void CPU::JP_HL() { m_registers.programCounter = m_mmu.getU16(m_registers.hl); }
+	void CPU::JP_HL() { m_registers.programCounter = m_registers.hl; }
 	void CPU::JP_N16(s16 p_n) { m_registers.programCounter = p_n; }
 	void CPU::JP_CC_N16(ConditionCode cc, s16 n) { if (ccStatus(cc)) m_registers.programCounter = n; }
 	void CPU::JR_N8(s8 p_n) { m_registers.programCounter += p_n; }

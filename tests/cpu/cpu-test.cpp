@@ -629,6 +629,47 @@ TEST(CPUTest, StackControl)
 }
 
 
+TEST(CPUTest, Jumps)
+{
+	typedef struct TestCase
+	{
+		std::vector<rose_core::u8> instructions;
+		ERegister eRegister;
+		rose_core::u16 expected_value;
+	} TestCase;
+
+	std::vector<TestCase> testCases{
+		{ { 0x18, 0x10 }, PC, 0x12}, // Jump forward 10
+		{ { 0x18, 0x02, 0x18, 0x02, 0x18, 0xFC }, PC, 0x06}, // Jump forward 2, then jump back 4, then jump forward 4
+
+		{ { 0x20, 0x10 }, PC, 0x12}, // Jump forward 10 if Z is 0
+		{ { 0x28, 0x10 }, PC, 0x02}, // Jump forward 10 if Z is 1
+
+
+		{ { 0xC3, 0xCD, 0xAB }, PC, 0xABCD}, // Jump to 0xABCD
+		{ { 0xC2, 0xCD, 0xAB }, PC, 0xABCD}, // Jump to 0xABCD if Z is 0
+		{ { 0xCA, 0xCD, 0xAB }, PC, 0x3},    // Jump to 0xABCD if Z is 1
+
+		{ { 0x21, 0xCD, 0xAB, 0xE9 }, PC, 0xABCD},    // Set HL to 0xABCD and then jump to the value of HL.
+		
+	};
+
+	for (TestCase test : testCases)
+	{
+		rose_core::MMU mmu;
+		rose_core::CPU cpu(mmu, 0x0);
+
+		loadVectorToMemory(test.instructions, mmu);
+
+		while (cpu.viewRegisters().programCounter < test.instructions.size())
+		{
+			ASSERT_NO_FATAL_FAILURE(cpu.executeInstruction());
+		}
+		EXPECT_EQ(test.expected_value, getERegister(cpu, test.eRegister));
+	}
+}
+
+
 TEST(CPUTest, Miscellaneous)
 {
 	typedef struct TestCase
