@@ -221,10 +221,10 @@ namespace rose_core {
 		return 0x00;
 	}
 
-	CPU::Flag CPU::getFlagZ() { return (m_registers.f & 0b10000000) >> 4; }
-	CPU::Flag CPU::getFlagN() { return (m_registers.f & 0b01000000) >> 5; }
-	CPU::Flag CPU::getFlagH() { return (m_registers.f & 0b00100000) >> 6; }
-	CPU::Flag CPU::getFlagC() { return (m_registers.f & 0b00010000) >> 7; }
+	CPU::Flag CPU::getFlagZ() { return (m_registers.f & 0b10000000) >> 7; }
+	CPU::Flag CPU::getFlagN() { return (m_registers.f & 0b01000000) >> 6; }
+	CPU::Flag CPU::getFlagH() { return (m_registers.f & 0b00100000) >> 5; }
+	CPU::Flag CPU::getFlagC() { return (m_registers.f & 0b00010000) >> 4; }
 
 	// https://stackoverflow.com/questions/47981/how-to-set-clear-and-toggle-a-single-bit
 	void CPU::setFlagZ(bool p_value) { m_registers.f = (m_registers.f & ~(1 << 7)) | (p_value << 7); }
@@ -348,9 +348,9 @@ namespace rose_core {
 	void CPU::LD_A_HLD() { m_registers.a = m_mmu.getU8(m_registers.hl); m_registers.hl--; }
 
 	// 8-bit Arithmetic
-	void CPU::ADC_A_R8(Register8& p_r) { setFlagsForU8Overflow(m_registers.a, p_r, getFlagC()); m_registers.a += p_r + getFlagC();  }
-	void CPU::ADC_A_HL() { setFlagsForU8Overflow(m_registers.a, m_registers.hl, getFlagC()); m_registers.a += m_mmu.getU8(m_registers.hl) + getFlagC();  }
-	void CPU::ADC_A_N8(u8 p_n) { setFlagsForU8Overflow(m_registers.a, p_n, getFlagC()); m_registers.a += p_n + getFlagC();  }
+	void CPU::ADC_A_R8(Register8& p_r) { Flag isCarry = getFlagC(); setFlagsForU8Overflow(m_registers.a, p_r, getFlagC()); m_registers.a += p_r + isCarry; }
+	void CPU::ADC_A_HL() { Flag isCarry = getFlagC();  setFlagsForU8Overflow(m_registers.a, m_registers.hl, getFlagC()); m_registers.a += m_mmu.getU8(m_registers.hl) + isCarry;  }
+	void CPU::ADC_A_N8(u8 p_n) { Flag isCarry = getFlagC(); setFlagsForU8Overflow(m_registers.a, p_n, getFlagC()); m_registers.a += p_n + isCarry;  }
 	void CPU::ADD_A_R8(Register8& p_r) { setFlagsForU8Overflow(m_registers.a, p_r); m_registers.a += p_r;  }
 	void CPU::ADD_A_HL() { setFlagsForU8Overflow(m_registers.a, m_registers.hl); m_registers.a += m_mmu.getU8(m_registers.hl);  }
 	void CPU::ADD_A_N8(u8 p_n) { setFlagsForU8Overflow(m_registers.a, p_n); m_registers.a += p_n;  }

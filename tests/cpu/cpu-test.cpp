@@ -138,7 +138,7 @@ TEST(CPUTest, AddingAndFlags)
 		{ { 0x06, 0x02, 0x80, 0x80, 0x87 }, A, 0x08 }, // set B to 0x02, add B to A, add B to A, then add A to A.
 
 		{ { 0x87 }, F, 0b10000000 }, // Add A to A (0), test 0 flag
-		{ { 0x06, 0xAB, 0x80 }, F, 0b00000000 }, // Set B to 0x02, add B to A, test 0 flag
+		{ { 0x06, 0xAB, 0x80 }, F, 0b00000000 }, // Set B to 0xAB, add B to A, test 0 flag
 
 		{ { 0x06, 0xFF, 0x80, 0x06, 0x01, 0x80 }, A, 0x00 }, // Set B to 0xFF, add B to A, set B to 0x01, add B to A, test A
 		{ { 0x06, 0xFF, 0x80, 0x06, 0x01, 0x80 }, F, 0b10110000 }, // Set B to 0xFF, add B to A, set B to 0x01, add B to A, test flags
@@ -146,7 +146,74 @@ TEST(CPUTest, AddingAndFlags)
 		{ { 0x06, 0x0F, 0x80, 0x80 }, A, 0x1E }, // Set B to 0x0F, add B to A, add B to A, test A
 		{ { 0x06, 0x0F, 0x80, 0x80 }, F, 0b00100000 }, // Set B to 0xFF, add B to A, add B to A, test flags
 
-		{ { 0xC6, 0xAB }, A, 0xAB } // Add constant AB to A
+		{ { 0xC6, 0xAB }, A, 0xAB }, // Add constant 0xAB to A
+
+		{ { 0x87, 0x06, 0xAB, 0x80  }, F, 0b00000000 }, // Add A to A (0), set B to 0xAB, add B to A, test 0 flag
+
+		{ { 0xC6, 0xFF, 0xC6, 0x01, 0x8F }, A, 0x01 }, // Add 0xFF to A, Ad 0x01 to A, add A to itself and then add carry bit
+		{ { 0xC6, 0xFF, 0xC6, 0x01, 0x8F }, F, 0b00000000 }, // Add 0xFF to A, Add 0x01 to A, add A to itself and then add carry bit
+	};
+
+	for (TestCase test : testCases)
+	{
+		rose_core::MMU mmu;
+		rose_core::CPU cpu(mmu, 0x0);
+
+		loadVectorToMemory(test.instructions, mmu);
+
+		while (cpu.viewRegisters().programCounter < test.instructions.size())
+		{
+			ASSERT_NO_FATAL_FAILURE(cpu.executeInstruction());
+		}
+		EXPECT_EQ(test.expected_value, getERegister(cpu, test.eRegister));
+	}
+}
+
+TEST(CPUTest, SubtractingAndFlags)
+{
+	typedef struct TestCase
+	{
+		std::vector<rose_core::u8> instructions;
+		ERegister eRegister;
+		rose_core::u16 expected_value;
+	} TestCase;
+
+	std::vector<TestCase> testCases{
+		{ { 0x06, 0xAB, 0x90 }, A, 0x55 }, // set B to 0xAB and subtract B from A
+		{ { 0x06, 0x02, 0x80, 0x90 }, A, 0x00 }, // set B to 0x02, add B to A, subtract B from A
+		{ { 0x06, 0x02, 0x80, 0x80, 0x97 }, A, 0x00 }, // set B to 0x02, add B to A, add B to A, then subtract A from A.
+
+		{ { 0x97 }, F, 0b11000000 }, // Subtract A from A (0), test flags
+		{ { 0x06, 0xAB, 0x90 }, F, 0b01110000 }, // Set B to 0xAB, subtract B from A, test flags
+
+		{ { 0x06, 0xFF, 0x90, 0x06, 0x01, 0x90 }, A, 0x00 }, // Set B to 0xFF, subtract B from A, set B to 0x01, subtract B from A, test A
+		{ { 0x06, 0xFF, 0x90, 0x06, 0x01, 0x90 }, F, 0b11000000 }, // Set B to 0xFF, subtract B from A, set B to 0x01, subtract B from A, test flags
+
+		{ { 0xC6, 0x10, 0x06, 0x01, 0x90}, A, 0x0F }, // Set A to 0x10, Set B to 0x01, Subtract B from A, test A
+		{ { 0xC6, 0x10, 0x06, 0x01, 0x90}, F, 0b01100000 }, // Set A to 0x10, Set B to 0x01, Subtract B from A, test flags
+
+		{ { 0xD6, 0xAB }, A, 0x55 }, // Subtract constant 0xAB from A
+
+		{ { 0x97, 0x06, 0xAB, 0x90  }, F, 0b01110000 }, // Subtract A from A (0), set B to 0xAB, subtract B from A, test 0 flag
+
+		{ { 0xC6, 0xFF, 0xC6, 0x01, 0x9F }, A, 0xFF }, // Add 0xFF to A, Add 0x01 to A, subtract A from itself and then subtract carry bit
+		{ { 0xC6, 0xFF, 0xC6, 0x01, 0x9F }, F, 0b01110000 }, // Add 0xFF to A, Add 0x01 to A, subtract A from itself and then subtract carry bit
+	};
+
+	for (TestCase test : testCases)
+	{
+		rose_core::MMU mmu;
+		rose_core::CPU cpu(mmu, 0x0);
+
+		loadVectorToMemory(test.instructions, mmu);
+
+		while (cpu.viewRegisters().programCounter < test.instructions.size())
+		{
+			ASSERT_NO_FATAL_FAILURE(cpu.executeInstruction());
+		}
+		EXPECT_EQ(test.expected_value, getERegister(cpu, test.eRegister));
+	}
+}
 	};
 
 	for (TestCase test : testCases)
