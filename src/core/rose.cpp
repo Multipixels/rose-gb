@@ -17,7 +17,7 @@ namespace rose_core
 
 	int Rose::loadGame()
 	{
-		if (loadCartridge("../resources/blargg/cpu_instrs.gb") == 1)
+		if (loadCartridge("../resources/blargg/cpu_instrs/01-special.gb") == 1)
 		{
 			return 1;
 		};

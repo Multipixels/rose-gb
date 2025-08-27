@@ -37,7 +37,7 @@ TEST(CPUTest, LoadConstsIntoRegisters)
 	{
 		std::vector<rose_core::u8> instructions;
 		ERegister eRegister;
-		rose_core::u16 expected_value;
+		rose_core::u16 expectedValue;
 	} TestCase;
 
 	std::vector<TestCase> testCases {
@@ -66,7 +66,7 @@ TEST(CPUTest, LoadConstsIntoRegisters)
 		{
 			ASSERT_NO_FATAL_FAILURE(cpu.executeInstruction());
 		}
-		EXPECT_EQ(test.expected_value, getERegister(cpu, test.eRegister));
+		EXPECT_EQ(test.expectedValue, getERegister(cpu, test.eRegister));
 	}
 
 }
@@ -77,7 +77,7 @@ TEST(CPUTest, LoadRegistersIntoRegisters)
 	{
 		std::vector<rose_core::u8> instructions;
 		ERegister eRegister;
-		rose_core::u16 expected_value;
+		rose_core::u16 expectedValue;
 	} TestCase;
 
 	std::vector<TestCase> testCases{
@@ -105,7 +105,7 @@ TEST(CPUTest, LoadRegistersIntoRegisters)
 		{
 			ASSERT_NO_FATAL_FAILURE(cpu.executeInstruction());
 		}
-		EXPECT_EQ(test.expected_value, getERegister(cpu, test.eRegister));
+		EXPECT_EQ(test.expectedValue, getERegister(cpu, test.eRegister));
 	}
 }
 
@@ -114,8 +114,8 @@ TEST(CPUTest, LoadRegistersIntoAddress)
 	typedef struct TestCase
 	{
 		std::vector<rose_core::u8> instructions;
-		rose_core::u16 address_to_check;
-		rose_core::u16 expected_value;
+		rose_core::u16 addressToCheck;
+		rose_core::u16 expectedValue;
 	} TestCase;
 
 	std::vector<TestCase> testCases{
@@ -150,7 +150,7 @@ TEST(CPUTest, LoadRegistersIntoAddress)
 		{
 			ASSERT_NO_FATAL_FAILURE(cpu.executeInstruction());
 		}
-		EXPECT_EQ(test.expected_value, mmu.getU8(test.address_to_check));
+		EXPECT_EQ(test.expectedValue, mmu.getU8(test.addressToCheck));
 	}
 }
 
@@ -160,7 +160,7 @@ TEST(CPUTest, LoadAddressIntoRegister)
 	{
 		std::vector<rose_core::u8> instructions;
 		ERegister eRegister;
-		rose_core::u16 expected_value;
+		rose_core::u16 expectedValue;
 	} TestCase;
 
 	std::vector<TestCase> testCases{
@@ -191,7 +191,7 @@ TEST(CPUTest, LoadAddressIntoRegister)
 		{
 			ASSERT_NO_FATAL_FAILURE(cpu.executeInstruction());
 		}
-		EXPECT_EQ(test.expected_value, getERegister(cpu, test.eRegister));
+		EXPECT_EQ(test.expectedValue, getERegister(cpu, test.eRegister));
 	}
 }
 
@@ -201,7 +201,7 @@ TEST(CPUTest, IncrementDecrement)
 	{
 		std::vector<rose_core::u8> instructions;
 		ERegister eRegister;
-		rose_core::u16 expected_value;
+		rose_core::u16 expectedValue;
 	} TestCase;
 
 	std::vector<TestCase> testCases{
@@ -231,7 +231,7 @@ TEST(CPUTest, IncrementDecrement)
 		{
 			ASSERT_NO_FATAL_FAILURE(cpu.executeInstruction());
 		}
-		EXPECT_EQ(test.expected_value, getERegister(cpu, test.eRegister));
+		EXPECT_EQ(test.expectedValue, getERegister(cpu, test.eRegister));
 	}
 }
 
@@ -241,7 +241,7 @@ TEST(CPUTest, AddingAndFlags)
 	{
 		std::vector<rose_core::u8> instructions;
 		ERegister eRegister;
-		rose_core::u16 expected_value;
+		rose_core::u16 expectedValue;
 	} TestCase;
 
 	std::vector<TestCase> testCases{
@@ -298,7 +298,7 @@ TEST(CPUTest, AddingAndFlags)
 		{
 			ASSERT_NO_FATAL_FAILURE(cpu.executeInstruction());
 		}
-		EXPECT_EQ(test.expected_value, getERegister(cpu, test.eRegister));
+		EXPECT_EQ(test.expectedValue, getERegister(cpu, test.eRegister));
 	}
 }
 
@@ -308,7 +308,7 @@ TEST(CPUTest, SubtractingAndFlags)
 	{
 		std::vector<rose_core::u8> instructions;
 		ERegister eRegister;
-		rose_core::u16 expected_value;
+		rose_core::u16 expectedValue;
 	} TestCase;
 
 	std::vector<TestCase> testCases{
@@ -351,7 +351,7 @@ TEST(CPUTest, SubtractingAndFlags)
 		{
 			ASSERT_NO_FATAL_FAILURE(cpu.executeInstruction());
 		}
-		EXPECT_EQ(test.expected_value, getERegister(cpu, test.eRegister));
+		EXPECT_EQ(test.expectedValue, getERegister(cpu, test.eRegister));
 	}
 }
 
@@ -361,7 +361,7 @@ TEST(CPUTest, LogicalAndWithFlags)
 	{
 		std::vector<rose_core::u8> instructions;
 		ERegister eRegister;
-		rose_core::u16 expected_value;
+		rose_core::u16 expectedValue;
 	} TestCase;
 
 	std::vector<TestCase> testCases {
@@ -392,7 +392,7 @@ TEST(CPUTest, LogicalAndWithFlags)
 		{
 			ASSERT_NO_FATAL_FAILURE(cpu.executeInstruction());
 		}
-		EXPECT_EQ(test.expected_value, getERegister(cpu, test.eRegister));
+		EXPECT_EQ(test.expectedValue, getERegister(cpu, test.eRegister));
 	}
 }
 
@@ -402,7 +402,7 @@ TEST(CPUTest, LogicalExclusiveOrWithFlags)
 	{
 		std::vector<rose_core::u8> instructions;
 		ERegister eRegister;
-		rose_core::u16 expected_value;
+		rose_core::u16 expectedValue;
 	} TestCase;
 
 	std::vector<TestCase> testCases{
@@ -433,7 +433,7 @@ TEST(CPUTest, LogicalExclusiveOrWithFlags)
 		{
 			ASSERT_NO_FATAL_FAILURE(cpu.executeInstruction());
 		}
-		EXPECT_EQ(test.expected_value, getERegister(cpu, test.eRegister));
+		EXPECT_EQ(test.expectedValue, getERegister(cpu, test.eRegister));
 	}
 }
 
@@ -444,7 +444,7 @@ TEST(CPUTest, LogicalOrWithFlags)
 	{
 		std::vector<rose_core::u8> instructions;
 		ERegister eRegister;
-		rose_core::u16 expected_value;
+		rose_core::u16 expectedValue;
 	} TestCase;
 
 	std::vector<TestCase> testCases{
@@ -475,7 +475,7 @@ TEST(CPUTest, LogicalOrWithFlags)
 		{
 			ASSERT_NO_FATAL_FAILURE(cpu.executeInstruction());
 		}
-		EXPECT_EQ(test.expected_value, getERegister(cpu, test.eRegister));
+		EXPECT_EQ(test.expectedValue, getERegister(cpu, test.eRegister));
 	}
 }
 
@@ -485,7 +485,7 @@ TEST(CPUTest, LogicalCmpWithFlags)
 	{
 		std::vector<rose_core::u8> instructions;
 		ERegister eRegister;
-		rose_core::u16 expected_value;
+		rose_core::u16 expectedValue;
 	} TestCase;
 
 	std::vector<TestCase> testCases{
@@ -516,7 +516,7 @@ TEST(CPUTest, LogicalCmpWithFlags)
 		{
 			ASSERT_NO_FATAL_FAILURE(cpu.executeInstruction());
 		}
-		EXPECT_EQ(test.expected_value, getERegister(cpu, test.eRegister));
+		EXPECT_EQ(test.expectedValue, getERegister(cpu, test.eRegister));
 	}
 }
 
@@ -527,7 +527,7 @@ TEST(CPUTest, RotateRegisters)
 	{
 		std::vector<rose_core::u8> instructions;
 		ERegister eRegister;
-		rose_core::u16 expected_value;
+		rose_core::u16 expectedValue;
 	} TestCase;
 
 	std::vector<TestCase> testCases{
@@ -602,7 +602,7 @@ TEST(CPUTest, RotateRegisters)
 		{
 			ASSERT_NO_FATAL_FAILURE(cpu.executeInstruction());
 		}
-		EXPECT_EQ(test.expected_value, getERegister(cpu, test.eRegister));
+		EXPECT_EQ(test.expectedValue, getERegister(cpu, test.eRegister));
 	}
 }
 
@@ -613,7 +613,7 @@ TEST(CPUTest, ShiftRegisters)
 	{
 		std::vector<rose_core::u8> instructions;
 		ERegister eRegister;
-		rose_core::u16 expected_value;
+		rose_core::u16 expectedValue;
 	} TestCase;
 
 	std::vector<TestCase> testCases{
@@ -648,7 +648,7 @@ TEST(CPUTest, ShiftRegisters)
 		{
 			ASSERT_NO_FATAL_FAILURE(cpu.executeInstruction());
 		}
-		EXPECT_EQ(test.expected_value, getERegister(cpu, test.eRegister));
+		EXPECT_EQ(test.expectedValue, getERegister(cpu, test.eRegister));
 	}
 }
 
@@ -660,7 +660,7 @@ TEST(CPUTest, SwapRegisters)
 	{
 		std::vector<rose_core::u8> instructions;
 		ERegister eRegister;
-		rose_core::u16 expected_value;
+		rose_core::u16 expectedValue;
 	} TestCase;
 
 	std::vector<TestCase> testCases{
@@ -682,7 +682,7 @@ TEST(CPUTest, SwapRegisters)
 		{
 			ASSERT_NO_FATAL_FAILURE(cpu.executeInstruction());
 		}
-		EXPECT_EQ(test.expected_value, getERegister(cpu, test.eRegister));
+		EXPECT_EQ(test.expectedValue, getERegister(cpu, test.eRegister));
 	}
 }
 
@@ -692,8 +692,8 @@ TEST(CPUTest, StackControl)
 	typedef struct TestCaseAddress
 	{
 		std::vector<rose_core::u8> instructions;
-		rose_core::u16 address_to_check;
-		rose_core::u16 expected_value;
+		rose_core::u16 addressToCheck;
+		rose_core::u16 expectedValue;
 	} TestCaseAddress;
 
 	std::vector<TestCaseAddress> testCasesAddress{
@@ -712,14 +712,14 @@ TEST(CPUTest, StackControl)
 		{
 			ASSERT_NO_FATAL_FAILURE(cpu.executeInstruction());
 		}
-		EXPECT_EQ(test.expected_value, mmu.getU8(test.address_to_check));
+		EXPECT_EQ(test.expectedValue, mmu.getU8(test.addressToCheck));
 	}
 
 	typedef struct TestCaseRegister
 	{
 		std::vector<rose_core::u8> instructions;
 		ERegister eRegister;
-		rose_core::u16 expected_value;
+		rose_core::u16 expectedValue;
 	} TestCaseRegister;
 
 	std::vector<TestCaseRegister> testCasesRegister{
@@ -740,7 +740,7 @@ TEST(CPUTest, StackControl)
 		{
 			ASSERT_NO_FATAL_FAILURE(cpu.executeInstruction());
 		}
-		EXPECT_EQ(test.expected_value, getERegister(cpu, test.eRegister));
+		EXPECT_EQ(test.expectedValue, getERegister(cpu, test.eRegister));
 	}
 	
 }
@@ -752,7 +752,7 @@ TEST(CPUTest, Jumps)
 	{
 		std::vector<rose_core::u8> instructions;
 		ERegister eRegister;
-		rose_core::u16 expected_value;
+		rose_core::u16 expectedValue;
 	} TestCase;
 
 	std::vector<TestCase> testCases{
@@ -782,7 +782,7 @@ TEST(CPUTest, Jumps)
 		{
 			ASSERT_NO_FATAL_FAILURE(cpu.executeInstruction());
 		}
-		EXPECT_EQ(test.expected_value, getERegister(cpu, test.eRegister));
+		EXPECT_EQ(test.expectedValue, getERegister(cpu, test.eRegister));
 	}
 }
 
@@ -795,7 +795,7 @@ TEST(CPUTest, BitResSet)
 	{
 		std::vector<rose_core::u8> instructions;
 		ERegister eRegister;
-		rose_core::u16 expected_value;
+		rose_core::u16 expectedValue;
 	} TestCase;
 
 	std::vector<TestCase> testCases{
@@ -824,7 +824,7 @@ TEST(CPUTest, BitResSet)
 		{
 			ASSERT_NO_FATAL_FAILURE(cpu.executeInstruction());
 		}
-		EXPECT_EQ(test.expected_value, getERegister(cpu, test.eRegister));
+		EXPECT_EQ(test.expectedValue, getERegister(cpu, test.eRegister));
 	}
 }
 
@@ -835,7 +835,7 @@ TEST(CPUTest, Miscellaneous)
 	{
 		std::vector<rose_core::u8> instructions;
 		ERegister eRegister;
-		rose_core::u16 expected_value;
+		rose_core::u16 expectedValue;
 	} TestCase;
 
 	std::vector<TestCase> testCases{
@@ -861,7 +861,83 @@ TEST(CPUTest, Miscellaneous)
 		{
 			ASSERT_NO_FATAL_FAILURE(cpu.executeInstruction());
 		}
-		EXPECT_EQ(test.expected_value, getERegister(cpu, test.eRegister));
+		EXPECT_EQ(test.expectedValue, getERegister(cpu, test.eRegister));
+	}
+}
+
+
+
+TEST(CPUTest, TemporaryDebug)
+{
+	typedef struct TestCase
+	{
+		std::vector<rose_core::u8> instructions;
+		ERegister eRegister;
+		rose_core::u16 expectedValue;
+	} TestCase;
+
+	std::vector<TestCase> testCases{
+	};
+
+	for (TestCase test : testCases)
+	{
+		rose_core::MMU mmu;
+		rose_core::CPU cpu(mmu, 0x0);
+
+		loadVectorToMemory(test.instructions, mmu);
+
+		while (cpu.viewRegisters().programCounter < test.instructions.size())
+		{
+			ASSERT_NO_FATAL_FAILURE(cpu.executeInstruction());
+		}
+		EXPECT_EQ(test.expectedValue, getERegister(cpu, test.eRegister));
+	}
+}
+
+
+TEST(CPUTest, BlarggTests)
+{
+	typedef struct TestCase
+	{
+		std::string romFile;
+		int maxInstructions;
+	} TestCase;
+
+	std::vector<TestCase> testCases {
+		{ "../resources/blargg/cpu_instrs/01-special.gb", 1000000 },
+		/*{ "../resources/blargg/cpu_instrs/02-interrupts.gb", 1000000 },
+		{ "../resources/blargg/cpu_instrs/03-op sp,hl.gb", 2000000 },
+		{ "../resources/blargg/cpu_instrs/04-op r,imm.gb", 2000000 },
+		{ "../resources/blargg/cpu_instrs/05-op rp.gb", 2000000 },
+		{ "../resources/blargg/cpu_instrs/06-ld r,r.gb", 1000000 },
+		{ "../resources/blargg/cpu_instrs/07-jr,jp,call,ret,rst.gb", 1000000 },
+		{ "../resources/blargg/cpu_instrs/08-misc instrs.gb", 1000000 },
+		{ "../resources/blargg/cpu_instrs/09-op r,r.gb", 10000000 },
+		{ "../resources/blargg/cpu_instrs/10-bit ops.gb", 7500000 },
+		{ "../resources/blargg/cpu_instrs/11-op a,(hl).gb", 7500000 },*/
+	};
+
+	for (TestCase test : testCases)
+	{
+		rose_core::MMU mmu;
+		rose_core::CPU cpu(mmu);
+		ASSERT_NO_FATAL_FAILURE(loadTestCartridge(test.romFile, mmu));
+
+		int instructionsRan = 0;
+		rose_core::u8 console = mmu.getU8(0xFF01);
+		while (instructionsRan < test.maxInstructions)
+		{
+			if (mmu.getU8(0xFF01) != console)
+			{
+				console = mmu.getU8(0xFF01);
+				std::cout << console;
+			}
+
+			ASSERT_NO_FATAL_FAILURE(cpu.executeInstruction());
+			instructionsRan++;
+		}
+
+		std::cout << std::endl;
 	}
 }
 
