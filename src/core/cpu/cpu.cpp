@@ -450,12 +450,12 @@ namespace rose_core {
 	void CPU::RR_C_R8(Register8& p_r) { u8 temp = p_r & 0x01; p_r = (p_r >> 1) | (temp << 7); setFlags(!p_r, false, false, temp); }
 	void CPU::RR_C_HL() { u8 temp = m_mmu.getU8(m_registers.hl) & 0x01; m_mmu.setU8(m_registers.hl, (m_mmu.getU8(m_registers.hl) >> 1) | (temp << 7)); setFlags(!m_mmu.getU8(m_registers.hl), false, false, temp); }
 	void CPU::RR_C_A() { u8 temp = m_registers.a & 0x01; m_registers.a = (m_registers.a >> 1) | (temp << 7); setFlags(false, false, false, temp); }
-	void CPU::SLA_R8(Register8& p_r) { setFlags(0, 0, 0, p_r & 0x80); p_r = (p_r << 1); setFlagZ(p_r); }
+	void CPU::SLA_R8(Register8& p_r) { setFlags(0, 0, 0, p_r & 0x80); p_r = (p_r << 1); setFlagZ(!p_r); }
 	void CPU::SLA_HL() { setFlags(0, 0, 0, m_mmu.getU8(m_registers.hl) & 0x80); m_mmu.setU8(m_registers.hl, m_mmu.getU8(m_registers.hl) << 1); setFlagZ(!m_mmu.getU8(m_registers.hl)); }
 	void CPU::SRA_R8(Register8& p_r) { setFlags(0, 0, 0, p_r & 0x01);  p_r = (p_r & 0x80) | (p_r >> 1); setFlagZ(!p_r); }
 	void CPU::SRA_HL() { setFlags(0, 0, 0, m_mmu.getU8(m_registers.hl) & 0x01); m_mmu.setU8(m_registers.hl, (m_mmu.getU8(m_registers.hl) & 0x80) | (m_mmu.getU8(m_registers.hl) >> 1)); setFlagZ(!m_mmu.getU8(m_registers.hl)); }
 	void CPU::SRL_R8(Register8& p_r) { setFlags(0, 0, 0, p_r & 0x01); p_r = p_r >> 1; setFlagZ(!p_r);}
-	void CPU::SRL_HL() { setFlags(0, 0, 0, m_mmu.getU8(m_registers.hl) & 0x01); m_mmu.setU8(m_registers.hl, m_mmu.getU8(m_registers.hl) & 0x80); setFlagZ(!m_mmu.getU8(m_registers.hl));}
+	void CPU::SRL_HL() { setFlags(0, 0, 0, m_mmu.getU8(m_registers.hl) & 0x01); m_mmu.setU8(m_registers.hl, m_mmu.getU8(m_registers.hl) >> 1); setFlagZ(!m_mmu.getU8(m_registers.hl));}
 	void CPU::SWAP_R8(Register8& p_r) { p_r = (p_r << 4) | (p_r >> 4); setFlags(!p_r, false, false, false); }
 	void CPU::SWAP_HL() { m_mmu.setU8(m_registers.hl, (m_mmu.getU8(m_registers.hl) << 4) | (m_mmu.getU8(m_registers.hl) >> 4)); setFlags(!m_mmu.getU8(m_registers.hl), false, false, false); }
 
@@ -832,14 +832,14 @@ namespace rose_core {
 	void CPU::op_cb_35() { SWAP_R8(m_registers.l); }
 	void CPU::op_cb_36() { SWAP_HL(); }
 	void CPU::op_cb_37() { SWAP_R8(m_registers.a); }
-	void CPU::op_cb_38() { SWAP_R8(m_registers.b); }
-	void CPU::op_cb_39() { SWAP_R8(m_registers.c); }
-	void CPU::op_cb_3A() { SWAP_R8(m_registers.d); }
-	void CPU::op_cb_3B() { SWAP_R8(m_registers.e); }
-	void CPU::op_cb_3C() { SWAP_R8(m_registers.h); }
-	void CPU::op_cb_3D() { SWAP_R8(m_registers.l); }
-	void CPU::op_cb_3E() { SWAP_HL(); }
-	void CPU::op_cb_3F() { SWAP_R8(m_registers.a); }
+	void CPU::op_cb_38() { SRL_R8(m_registers.b); }
+	void CPU::op_cb_39() { SRL_R8(m_registers.c); }
+	void CPU::op_cb_3A() { SRL_R8(m_registers.d); }
+	void CPU::op_cb_3B() { SRL_R8(m_registers.e); }
+	void CPU::op_cb_3C() { SRL_R8(m_registers.h); }
+	void CPU::op_cb_3D() { SRL_R8(m_registers.l); }
+	void CPU::op_cb_3E() { SRL_HL(); }
+	void CPU::op_cb_3F() { SRL_R8(m_registers.a); }
 	
 	void CPU::op_cb_40() { BIT_U3_R8({0}, m_registers.b); }
 	void CPU::op_cb_41() { BIT_U3_R8({0}, m_registers.c); }

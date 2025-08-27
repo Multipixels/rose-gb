@@ -607,6 +607,86 @@ TEST(CPUTest, RotateRegisters)
 }
 
 
+TEST(CPUTest, ShiftRegisters)
+{
+	typedef struct TestCase
+	{
+		std::vector<rose_core::u8> instructions;
+		ERegister eRegister;
+		rose_core::u16 expected_value;
+	} TestCase;
+
+	std::vector<TestCase> testCases{
+		{ { 0x3E, 0b10101010, 0xCB, 0x27 }, A, 0b01010100}, // Set A to 0b10101010 and then shift left.
+		{ { 0x3E, 0b10101010, 0xCB, 0x27 }, F, 0b00010000}, // Set A to 0b10101010 and then shift left. Flag check.
+
+		{ { 0x21, 0x00, 0x00, 0xCB, 0x26, 0x7E }, A, 0b01000010}, // Set HL to 0x0000, shift left value in address of HL, copy to A.
+		{ { 0x21, 0x00, 0x00, 0xCB, 0x26 }, F, 0b00000000}, // Set HL to 0x0000, shift left value in address of HL, copy to A. Flag check.
+
+		{ { 0x3E, 0b10101010, 0xCB, 0x2F }, A, 0b11010101}, // Set A to 0b10101010 and then shift right arithmetically.
+		{ { 0x3E, 0b10101010, 0xCB, 0x2F }, F, 0b00000000}, // Set A to 0b10101010 and then shift right arithmetically. Flag check.
+
+		{ { 0x21, 0x00, 0x00, 0xCB, 0x2E, 0x7E }, A, 0b00010000}, // Set HL to 0x0000, shift right arithmetically value in address of HL, copy to A.
+		{ { 0x21, 0x00, 0x00, 0xCB, 0x2E }, F, 0b00010000}, // Set HL to 0x0000, shift right arithmetically value in address of HL, copy to A. Flag check.
+
+		{ { 0x3E, 0b10101010, 0xCB, 0x3F }, A, 0b01010101}, // Set A to 0b10101010 and then shift right logically.
+		{ { 0x3E, 0b10101010, 0xCB, 0x3F }, F, 0b00000000}, // Set A to 0b10101010 and then shift right logically. Flag check.
+
+		{ { 0x21, 0x00, 0x00, 0xCB, 0x3E, 0x7E }, A, 0b00010000}, // Set HL to 0x0000, shift right logically value in address of HL, copy to A.
+		{ { 0x21, 0x00, 0x00, 0xCB, 0x3E }, F, 0b00010000}, // Set HL to 0x0000, shift right logically value in address of HL, copy to A. Flag check.
+
+	};
+
+	for (TestCase test : testCases)
+	{
+		rose_core::MMU mmu;
+		rose_core::CPU cpu(mmu, 0x0);
+
+		loadVectorToMemory(test.instructions, mmu);
+
+		while (cpu.viewRegisters().programCounter < test.instructions.size())
+		{
+			ASSERT_NO_FATAL_FAILURE(cpu.executeInstruction());
+		}
+		EXPECT_EQ(test.expected_value, getERegister(cpu, test.eRegister));
+	}
+}
+
+
+
+TEST(CPUTest, SwapRegisters)
+{
+	typedef struct TestCase
+	{
+		std::vector<rose_core::u8> instructions;
+		ERegister eRegister;
+		rose_core::u16 expected_value;
+	} TestCase;
+
+	std::vector<TestCase> testCases{
+		{ { 0x3E, 0xAB, 0xCB, 0x37 }, A, 0xBA}, // Set A to 0xAB and then swap high and low.
+		{ { 0x3E, 0xAB, 0xCB, 0x37 }, F, 0b00000000}, // Set A to 0xAB and then swap high and low. Flag check.
+
+		{ { 0x21, 0x00, 0x00, 0xCB, 0x36, 0x7E }, A, 0x12}, // Set HL to 0x0000 and then swap high and low of address stored in HL.
+
+	};
+
+	for (TestCase test : testCases)
+	{
+		rose_core::MMU mmu;
+		rose_core::CPU cpu(mmu, 0x0);
+
+		loadVectorToMemory(test.instructions, mmu);
+
+		while (cpu.viewRegisters().programCounter < test.instructions.size())
+		{
+			ASSERT_NO_FATAL_FAILURE(cpu.executeInstruction());
+		}
+		EXPECT_EQ(test.expected_value, getERegister(cpu, test.eRegister));
+	}
+}
+
+
 TEST(CPUTest, StackControl)
 {
 	typedef struct TestCaseAddress
