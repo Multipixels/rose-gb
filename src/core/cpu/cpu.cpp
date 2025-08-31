@@ -363,12 +363,12 @@ namespace rose_core {
 	bool CPU::ccStatus(ConditionCode p_cc)
 	{
 		switch (p_cc) {
-		case Z: return getFlagZ();
+		case Z: return  getFlagZ();
 		case NZ: return !getFlagZ();
 		case C: return getFlagC();
 		case NC: return !getFlagC();
 		}
-		return false;
+		//return false;
 	}
 
 	// Loads
@@ -461,12 +461,12 @@ namespace rose_core {
 
 	// Jumps and Subroutines
 	void CPU::CALL_N16(u16 p_n) { m_registers.stackPointer -= 2; m_mmu.setU16(m_registers.stackPointer, ((m_registers.programCounter & 0xFF) << 8) | (m_registers.programCounter >> 8)); JP_N16(p_n); }
-	void CPU::CALL_CC_N16(ConditionCode cc, u16 n) { if (ccStatus(cc)) CALL_N16(n); }
+	void CPU::CALL_CC_N16(ConditionCode p_cc, u16 p_n) { if (ccStatus(p_cc)) CALL_N16(p_n); }
 	void CPU::JP_HL() { m_registers.programCounter = m_registers.hl; }
 	void CPU::JP_N16(s16 p_n) { m_registers.programCounter = p_n; }
-	void CPU::JP_CC_N16(ConditionCode cc, s16 n) { if (ccStatus(cc)) m_registers.programCounter = n; }
+	void CPU::JP_CC_N16(ConditionCode p_cc, s16 p_n) { if (ccStatus(p_cc)) m_registers.programCounter = p_n; }
 	void CPU::JR_N8(s8 p_n) { m_registers.programCounter += p_n; }
-	void CPU::JR_CC_N8(ConditionCode cc, s8 n) { if (ccStatus(cc)) m_registers.programCounter += n; }
+	void CPU::JR_CC_N8(ConditionCode p_cc, s8 p_n) { if (ccStatus(p_cc)) m_registers.programCounter += p_n; }
 	void CPU::RET() { POP_R16(m_registers.programCounter); }
 	void CPU::RET_CC(ConditionCode p_cc) { if (ccStatus(p_cc)) POP_R16(m_registers.programCounter); }
 	void CPU::RETI() { EI(); RET(); }
@@ -485,7 +485,7 @@ namespace rose_core {
 	void CPU::LD_N16_SP(u16 p_n) { m_mmu.setU16(p_n, ((m_registers.stackPointer & 0xFF) << 8) | (m_registers.stackPointer >> 8)); }
 	void CPU::LD_HL_SP_S8(s8 p_s) { setFlagZ(false); setFlagN(false); setFlagH(willHalfCarry(m_registers.stackPointer, (u16)signedToPositiveUnsigned(p_s), p_s >= 0)); setFlagC(willCarry(m_registers.stackPointer, (u16)signedToPositiveUnsigned(p_s), p_s >= 0)); m_registers.stackPointer += p_s; m_registers.hl = m_registers.stackPointer; }
 	void CPU::LD_SP_HL() { m_registers.stackPointer = m_registers.hl; }
-	void CPU::POP_AF() { m_registers.af = m_mmu.getU16(m_registers.stackPointer); m_registers.stackPointer += 2; }
+	void CPU::POP_AF() { m_registers.af = m_mmu.getU16(m_registers.stackPointer) & 0xFFF0; m_registers.stackPointer += 2; }
 	void CPU::POP_R16(Register16& p_r) { p_r = m_mmu.getU16(m_registers.stackPointer); m_registers.stackPointer += 2; }
 	void CPU::PUSH_AF() { m_registers.stackPointer -= 2; m_mmu.setU16(m_registers.stackPointer, ((m_registers.af & 0xFF) << 8) | (m_registers.af >> 8)); }
 	void CPU::PUSH_R16(Register16& p_r) { m_registers.stackPointer -= 2; m_mmu.setU16(m_registers.stackPointer, ((p_r & 0xFF) << 8) | (p_r >> 8)); }
@@ -496,7 +496,7 @@ namespace rose_core {
 	void CPU::HALT() { /* TODO: https://rgbds.gbdev.io/docs/v0.9.4/gbz80.7#HALT */ }
 
 	// Miscellaneous
-	void CPU::DAA() { u8 adjustment = 0; if (getFlagN()) { if (getFlagH()) { adjustment += 0x06; } if (getFlagC()) { adjustment += 0x60; } m_registers.a -= adjustment; } else { if (getFlagH() || ((m_registers.a & 0xF) > 0x9)) { adjustment += 0x6; } if (getFlagC() || m_registers.a > 0x99) { adjustment += 0x60; setFlagC(true); } m_registers.a += adjustment; }; setFlagC(m_registers.a == 0); setFlagH(0); }
+	void CPU::DAA() { u8 adjustment = 0; if (getFlagN()) { if (getFlagH()) { adjustment += 0x06; } if (getFlagC()) { adjustment += 0x60; } m_registers.a -= adjustment; } else { if (getFlagH() || ((m_registers.a & 0xF) > 0x9)) { adjustment += 0x6; } if (getFlagC() || m_registers.a > 0x99) { adjustment += 0x60; setFlagC(true); } m_registers.a += adjustment; }; setFlagZ(m_registers.a == 0); setFlagH(0); }
 	void CPU::NOP() { ; } // Do nothing
 	void CPU::STOP() { /* TODO: https://rgbds.gbdev.io/docs/v0.9.4/gbz80.7#STOP */ }
 
@@ -757,11 +757,11 @@ namespace rose_core {
 	void CPU::op_EF() { RST_VEC(x28); }
 
 	void CPU::op_F0() { LDH_A_N16(getByte()); }
-	void CPU::op_F1() { POP_R16(m_registers.af); }
+	void CPU::op_F1() { POP_AF(); }
 	void CPU::op_F2() { LDH_A_C(); }
 	void CPU::op_F3() { DI(); }
 	void CPU::op_F4() { throw; }
-	void CPU::op_F5() { PUSH_R16(m_registers.af); }
+	void CPU::op_F5() { PUSH_AF(); }
 	void CPU::op_F6() { OR_A_N8(getByte()); }
 	void CPU::op_F7() { RST_VEC(x30); }
 	void CPU::op_F8() { LD_HL_SP_S8(getByte()); }

@@ -867,7 +867,7 @@ TEST(CPUTest, Miscellaneous)
 
 
 
-TEST(CPUTest, TemporaryDebug)
+TEST(CPUTest, EdgeCases)
 {
 	typedef struct TestCase
 	{
@@ -876,7 +876,9 @@ TEST(CPUTest, TemporaryDebug)
 		rose_core::u16 expectedValue;
 	} TestCase;
 
-	std::vector<TestCase> testCases{
+	std::vector<TestCase> testCases {
+		// POP AF should not affect lower 4 bits. This is from 01-special of BLARGG.
+		{ { 0x01, 0x00, 0x12,   0xC5, 0xF1, 0xF5, 0xD1,    0x79,   0xE6,   0xF0,    0xBB,   0xC2, 0xF0, 0xFF,   0x04, 0x0C, 0x20, 0xF1 }, PC, 0x12}
 	};
 
 	for (TestCase test : testCases)
@@ -904,8 +906,8 @@ TEST(CPUTest, BlarggTests)
 	} TestCase;
 
 	std::vector<TestCase> testCases {
-		{ "../resources/blargg/cpu_instrs/01-special.gb", 1000000 },
-		/*{ "../resources/blargg/cpu_instrs/02-interrupts.gb", 1000000 },
+		{ "../resources/blargg/cpu_instrs/01-special.gb", 2000000 },
+		/*{"../resources/blargg/cpu_instrs/02-interrupts.gb", 1000000},
 		{ "../resources/blargg/cpu_instrs/03-op sp,hl.gb", 2000000 },
 		{ "../resources/blargg/cpu_instrs/04-op r,imm.gb", 2000000 },
 		{ "../resources/blargg/cpu_instrs/05-op rp.gb", 2000000 },
