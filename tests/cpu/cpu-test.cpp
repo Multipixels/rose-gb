@@ -913,9 +913,9 @@ TEST(CPUTest, BlarggTests)
 		//{ "../resources/blargg/cpu_instrs/01-special.gb", 2000000 }, // passed
 		// {"../resources/blargg/cpu_instrs/02-interrupts.gb", 1000000}, // requires timer set up
 		// { "../resources/blargg/cpu_instrs/03-op sp,hl.gb", 2000000 }, // confused
-		{ "../resources/blargg/cpu_instrs/04-op r,imm.gb", 2000000 },
-		/* {"../resources/blargg/cpu_instrs/05-op rp.gb", 2000000},
-		{ "../resources/blargg/cpu_instrs/06-ld r,r.gb", 1000000 },
+		//{ "../resources/blargg/cpu_instrs/04-op r,imm.gb", 2000000 }, // passed
+		//{"../resources/blargg/cpu_instrs/05-op rp.gb", 2000000}, // passed
+		/*{"../resources/blargg/cpu_instrs/06-ld r,r.gb", 1000000},
 		{ "../resources/blargg/cpu_instrs/07-jr,jp,call,ret,rst.gb", 1000000 },
 		{ "../resources/blargg/cpu_instrs/08-misc instrs.gb", 1000000 },
 		{ "../resources/blargg/cpu_instrs/09-op r,r.gb", 10000000 },

@@ -340,7 +340,7 @@ namespace rose_core {
 	bool CPU::willHalfCarry(u8 p_a, u8 p_b, bool p_add)
 	{
 		if (p_add)
-			return (p_a & 0xF) + (p_b & 0xF) > 0x10;
+			return (p_a & 0xF) + (p_b & 0xF) >= 0x10;
 		else
 			return (p_a & 0xF) < (p_b & 0xF);
 	}
@@ -348,7 +348,7 @@ namespace rose_core {
 	bool CPU::willHalfCarry(u16 p_a, u16 p_b, bool p_add)
 	{
 		if (p_add)
-			return (p_a & 0xFFF) + (p_b & 0xFFF) > 0x1000;
+			return ((p_a & 0xFFF) + (p_b & 0xFFF)) >= 0x1000;
 		else
 			return p_a < p_b;
 	}
@@ -356,7 +356,7 @@ namespace rose_core {
 	bool CPU::willCarry(u8 p_a, u8 p_b, bool p_add)
 	{
 		if (p_add)
-			return (u16)p_a + (u16)p_b > 0x100;
+			return ((u16)p_a + (u16)p_b) >= 0x100;
 		else
 			return p_a < p_b;
 	}
@@ -364,7 +364,7 @@ namespace rose_core {
 	bool CPU::willCarry(u16 p_a, u16 p_b, bool p_add)
 	{
 		if (p_add)
-			return (u32)p_a + (u32)p_b > 0x10000;
+			return ((u32)p_a + (u32)p_b) >= 0x10000;
 		else
 			return p_a < p_b;
 	}
