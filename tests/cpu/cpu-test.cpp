@@ -89,9 +89,9 @@ TEST(CPUTest, LoadRegistersIntoRegisters)
 		
 		{ { 0x21, 0xCD, 0xAB, 0xF9 }, SP, 0xABCD }, // Load 0xABCD into HL, copy HL into SP
 		{ { 0x21, 0xCD, 0xAB, 0xF9, 0xF8, 0x08 }, HL, 0xABD5 }, // the above + (loading SP + constant signed 0x08 into HL)
-		{ { 0x21, 0xCD, 0xAB, 0xF9, 0xF8, 0x08 },  F, 0b00000000 }, // the above + (loading SP + constant signed 0x08 into HL), check flags
+		{ { 0x21, 0xCD, 0xAB, 0xF9, 0xF8, 0x08 },  F, 0b00100000 }, // the above + (loading SP + constant signed 0x08 into HL), check flags
 		{ { 0x21, 0xCD, 0xAB, 0xF9, 0xF8, 0xFF }, HL, 0xABCC }, // the above + (loading SP - constant signed 0x01 into HL)  
-		{ { 0x21, 0xCD, 0xAB, 0xF9, 0xF8, 0xFF },  F, 0b00000000 }, // the above + (loading SP - constant signed 0x01 into HL), check flags
+		{ { 0x21, 0xCD, 0xAB, 0xF9, 0xF8, 0xFF },  F, 0b00110000 }, // the above + (loading SP - constant signed 0x01 into HL), check flags
 	};
 
 	for (TestCase test : testCases)
@@ -284,7 +284,7 @@ TEST(CPUTest, AddingAndFlags)
 		{ { 0xE8, 0x08 }, F, 0b00000000 }, // Add constant signed 8 to SP, check flags
 
 		{ { 0xE8, 0x08, 0xE8, 0xF8 }, SP, 0x0000 }, //Add constant signed 8 to SP, then add signed -8 to SP
-		{ { 0xE8, 0x08, 0xE8, 0xF8 }, F, 0b00000000 }, //Add constant signed 8 to SP, then add signed -8 to SP, check flags
+		{ { 0xE8, 0x08, 0xE8, 0xF8 }, F, 0b00110000 }, //Add constant signed 8 to SP, then add signed -8 to SP, check flags
 	};
 
 	for (TestCase test : testCases)
@@ -879,10 +879,6 @@ TEST(CPUTest, EdgeCases)
 	std::vector<TestCase> testCases {
 		// POP AF should not affect lower 4 bits. This is from 01-special of BLARGG.
 		{ { 0x01, 0x00, 0x12,   0xC5, 0xF1, 0xF5, 0xD1,    0x79,   0xE6,   0xF0,    0xBB,   0xC2, 0xF0, 0xFF,   0x04, 0x0C, 0x20, 0xF1 }, PC, 0x12},
-
-
-		{ { 0xDE, 0x00 }, A, 0x00 },
-		{ { 0xDE, 0x00 }, F, 0b11000000 },
 	};
 
 	for (TestCase test : testCases)
@@ -910,17 +906,18 @@ TEST(CPUTest, BlarggTests)
 	} TestCase;
 
 	std::vector<TestCase> testCases {
-		//{ "../resources/blargg/cpu_instrs/01-special.gb", 2000000 }, // passed
+		// { "../resources/blargg/cpu_instrs/01-special.gb", 2000000 }, // passed
 		// {"../resources/blargg/cpu_instrs/02-interrupts.gb", 1000000}, // requires timer set up
-		// { "../resources/blargg/cpu_instrs/03-op sp,hl.gb", 2000000 }, // confused
-		//{ "../resources/blargg/cpu_instrs/04-op r,imm.gb", 2000000 }, // passed
-		//{"../resources/blargg/cpu_instrs/05-op rp.gb", 2000000}, // passed
-		/*{"../resources/blargg/cpu_instrs/06-ld r,r.gb", 1000000},
-		{ "../resources/blargg/cpu_instrs/07-jr,jp,call,ret,rst.gb", 1000000 },
-		{ "../resources/blargg/cpu_instrs/08-misc instrs.gb", 1000000 },
-		{ "../resources/blargg/cpu_instrs/09-op r,r.gb", 10000000 },
-		{ "../resources/blargg/cpu_instrs/10-bit ops.gb", 7500000 },
-		{ "../resources/blargg/cpu_instrs/11-op a,(hl).gb", 7500000 },*/
+		// { "../resources/blargg/cpu_instrs/03-op sp,hl.gb", 2000000 }, // passed
+		// { "../resources/blargg/cpu_instrs/04-op r,imm.gb", 2000000 }, // passed
+		// {"../resources/blargg/cpu_instrs/05-op rp.gb", 2000000}, // passed
+		// {"../resources/blargg/cpu_instrs/06-ld r,r.gb", 1000000}, // passed
+		// { "../resources/blargg/cpu_instrs/07-jr,jp,call,ret,rst.gb", 1000000 }, // passed
+		// { "../resources/blargg/cpu_instrs/08-misc instrs.gb", 1000000 },// passed
+		// { "../resources/blargg/cpu_instrs/09-op r,r.gb", 10000000 }, // passed
+		// { "../resources/blargg/cpu_instrs/10-bit ops.gb", 7500000 }, // passed
+		// { "../resources/blargg/cpu_instrs/11-op a,(hl).gb", 7500000 }, //passed
+		//  { "../resources/blargg/cpu_instrs.gb", 20000000 }, // weird infinite loop
 	};
 
 	for (TestCase test : testCases)

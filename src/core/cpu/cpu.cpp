@@ -425,12 +425,10 @@ namespace rose_core {
 	void CPU::DEC_R8(Register8& p_r) { if ((p_r & 0xF) == 0b0000) { setFlagH(true); } else { setFlagH(false); } p_r--; setFlagN(true);  if (p_r == 0) { setFlagZ(true); } else { setFlagZ(false); } }
 	void CPU::DEC_HL() { if ((m_mmu.getU8(m_registers.hl) & 0xF) == 0b0000) { setFlagH(true); } else { setFlagH(false); } m_mmu.setU8(m_registers.hl, m_mmu.getU8(m_registers.hl) - 1); setFlagN(true); if (m_mmu.getU8(m_registers.hl) == 0) { setFlagZ(true); } else { setFlagZ(false); } }
 	void CPU::INC_R8(Register8& p_r) { if ((p_r & 0xF) == 0b1111) { setFlagH(true); } else { setFlagH(false); } (p_r)++; setFlagN(false); if (p_r == 0) { setFlagZ(true); } else { setFlagZ(false); } }
-	void CPU::INC_HL() { if ((m_registers.hl & 0xF) == 0b1111) { setFlagH(true); } else { setFlagH(false); } m_mmu.setU8(m_registers.hl, m_mmu.getU8(m_registers.hl) + 1); setFlagN(false); if (m_registers.hl == 0) { setFlagZ(true); } else { setFlagZ(false); } }
+	void CPU::INC_HL() { if ((m_mmu.getU8(m_registers.hl) & 0xF) == 0b1111) { setFlagH(true); } else { setFlagH(false); } m_mmu.setU8(m_registers.hl, m_mmu.getU8(m_registers.hl) + 1); setFlagN(false); if (m_mmu.getU8(m_registers.hl) == 0) { setFlagZ(true); } else { setFlagZ(false); } }
 	void CPU::SBC_A_R8(Register8& p_r) { Flag isCarry = getFlagC(); setFlagsForU8Borrow(m_registers.a, p_r, getFlagC()); m_registers.a = m_registers.a - p_r - isCarry;  }
 	void CPU::SBC_A_HL() { Flag isCarry = getFlagC(); setFlagsForU8Borrow(m_registers.a, m_mmu.getU8(m_registers.hl), getFlagC()); m_registers.a = m_registers.a - m_mmu.getU8(m_registers.hl) - isCarry; }
-	void CPU::SBC_A_N8(u8 p_n) {
-		Flag isCarry = getFlagC(); setFlagsForU8Borrow((u16)m_registers.a, (u16)p_n, (u16)getFlagC()); m_registers.a = m_registers.a - p_n - isCarry;
-	}
+	void CPU::SBC_A_N8(u8 p_n) { Flag isCarry = getFlagC(); setFlagsForU8Borrow((u16)m_registers.a, (u16)p_n, (u16)getFlagC()); m_registers.a = m_registers.a - p_n - isCarry; }
 	void CPU::SUB_A_R8(Register8& p_r) { setFlagsForU8Borrow(m_registers.a, p_r); m_registers.a = m_registers.a - p_r; }
 	void CPU::SUB_A_HL() { setFlagsForU8Borrow(m_registers.a, m_mmu.getU8(m_registers.hl)); m_registers.a = m_registers.a - m_mmu.getU8(m_registers.hl); }
 	void CPU::SUB_A_N8(u8 p_n) { setFlagsForU8Borrow(m_registers.a, p_n); m_registers.a = m_registers.a - p_n; }
@@ -501,12 +499,12 @@ namespace rose_core {
 
 	// Stack Manipulation
 	void CPU::ADD_HL_SP() { setFlagsForU16Overflow(m_registers.stackPointer, m_registers.hl); m_registers.hl += m_registers.stackPointer; }
-	void CPU::ADD_SP_S8(s8 p_s) { setFlagZ(false); setFlagN(false); setFlagH(willHalfCarry(m_registers.stackPointer, (u16)signedToPositiveUnsigned(p_s), p_s >= 0)); setFlagC(willCarry(m_registers.stackPointer, (u16)signedToPositiveUnsigned(p_s), p_s >= 0)); m_registers.stackPointer += p_s;  }
+	void CPU::ADD_SP_S8(s8 p_s) { setFlagZ(false); setFlagN(false); setFlagH(willHalfCarry((u8)m_registers.stackPointer, p_s, true)); setFlagC(willCarry((u8)m_registers.stackPointer, p_s, true)); m_registers.stackPointer += p_s; }
 	void CPU::DEC_SP() { m_registers.stackPointer--; }
 	void CPU::INC_SP() { m_registers.stackPointer++; }
 	void CPU::LD_SP_N16(u16 p_n) { m_mmu.setU16(m_registers.stackPointer, p_n); }
 	void CPU::LD_N16_SP(u16 p_n) { m_mmu.setU16(p_n, ((m_registers.stackPointer & 0xFF) << 8) | (m_registers.stackPointer >> 8)); }
-	void CPU::LD_HL_SP_S8(s8 p_s) { setFlagZ(false); setFlagN(false); setFlagH(willHalfCarry(m_registers.stackPointer, (u16)signedToPositiveUnsigned(p_s), p_s >= 0)); setFlagC(willCarry(m_registers.stackPointer, (u16)signedToPositiveUnsigned(p_s), p_s >= 0)); m_registers.stackPointer += p_s; m_registers.hl = m_registers.stackPointer; }
+	void CPU::LD_HL_SP_S8(s8 p_s) { setFlagZ(false);  setFlagN(false); setFlagH(willHalfCarry((u8)m_registers.stackPointer, p_s, true)); setFlagC(willCarry((u8)m_registers.stackPointer, p_s, true)); m_registers.hl = m_registers.stackPointer + p_s; } // https://discord.com/channels/465585922579103744/465586075830845475/1324915448193617984, "rather than having a separate case based on the sign of the argument, you just need to calculate the carries as if the argument was unsigned"
 	void CPU::LD_SP_HL() { m_registers.stackPointer = m_registers.hl; }
 	void CPU::POP_AF() { m_registers.af = m_mmu.getU16(m_registers.stackPointer) & 0xFFF0; m_registers.stackPointer += 2; }
 	void CPU::POP_R16(Register16& p_r) { p_r = m_mmu.getU16(m_registers.stackPointer); m_registers.stackPointer += 2; }
