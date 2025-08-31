@@ -878,7 +878,11 @@ TEST(CPUTest, EdgeCases)
 
 	std::vector<TestCase> testCases {
 		// POP AF should not affect lower 4 bits. This is from 01-special of BLARGG.
-		{ { 0x01, 0x00, 0x12,   0xC5, 0xF1, 0xF5, 0xD1,    0x79,   0xE6,   0xF0,    0xBB,   0xC2, 0xF0, 0xFF,   0x04, 0x0C, 0x20, 0xF1 }, PC, 0x12}
+		{ { 0x01, 0x00, 0x12,   0xC5, 0xF1, 0xF5, 0xD1,    0x79,   0xE6,   0xF0,    0xBB,   0xC2, 0xF0, 0xFF,   0x04, 0x0C, 0x20, 0xF1 }, PC, 0x12},
+
+
+		{ { 0xDE, 0x00 }, A, 0x00 },
+		{ { 0xDE, 0x00 }, F, 0b11000000 },
 	};
 
 	for (TestCase test : testCases)
@@ -906,11 +910,11 @@ TEST(CPUTest, BlarggTests)
 	} TestCase;
 
 	std::vector<TestCase> testCases {
-		//{ "../resources/blargg/cpu_instrs/01-special.gb", 2000000 },
+		//{ "../resources/blargg/cpu_instrs/01-special.gb", 2000000 }, // passed
 		// {"../resources/blargg/cpu_instrs/02-interrupts.gb", 1000000}, // requires timer set up
-		/*{ "../resources/blargg/cpu_instrs/03-op sp,hl.gb", 2000000 },
+		// { "../resources/blargg/cpu_instrs/03-op sp,hl.gb", 2000000 }, // confused
 		{ "../resources/blargg/cpu_instrs/04-op r,imm.gb", 2000000 },
-		{ "../resources/blargg/cpu_instrs/05-op rp.gb", 2000000 },
+		/* {"../resources/blargg/cpu_instrs/05-op rp.gb", 2000000},
 		{ "../resources/blargg/cpu_instrs/06-ld r,r.gb", 1000000 },
 		{ "../resources/blargg/cpu_instrs/07-jr,jp,call,ret,rst.gb", 1000000 },
 		{ "../resources/blargg/cpu_instrs/08-misc instrs.gb", 1000000 },

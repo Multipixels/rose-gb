@@ -330,10 +330,10 @@ namespace rose_core {
 
 		setFlagN(true);
 
-		if ((p_a & 0x0F) < ((p_b + p_c) & 0x0F)) setFlagH(true);
+		if ((p_a & 0x0F) < ((p_b & 0x0F) + p_c)) setFlagH(true); // fixed https://github.com/LIJI32/SameBoy/blob/8a234a25a3c34cf98581152c474ec62711861605/Core/sm83_cpu.c#L962
 		else setFlagH(false);
 
-		if (p_a < p_b + p_c) setFlagC(true);
+		if (p_a < (p_b + p_c)) setFlagC(true);
 		else setFlagC(false);
 	}
 
@@ -428,7 +428,9 @@ namespace rose_core {
 	void CPU::INC_HL() { if ((m_registers.hl & 0xF) == 0b1111) { setFlagH(true); } else { setFlagH(false); } m_mmu.setU8(m_registers.hl, m_mmu.getU8(m_registers.hl) + 1); setFlagN(false); if (m_registers.hl == 0) { setFlagZ(true); } else { setFlagZ(false); } }
 	void CPU::SBC_A_R8(Register8& p_r) { Flag isCarry = getFlagC(); setFlagsForU8Borrow(m_registers.a, p_r, getFlagC()); m_registers.a = m_registers.a - p_r - isCarry;  }
 	void CPU::SBC_A_HL() { Flag isCarry = getFlagC(); setFlagsForU8Borrow(m_registers.a, m_mmu.getU8(m_registers.hl), getFlagC()); m_registers.a = m_registers.a - m_mmu.getU8(m_registers.hl) - isCarry; }
-	void CPU::SBC_A_N8(u8 p_n) { Flag isCarry = getFlagC(); setFlagsForU8Borrow(m_registers.a, p_n, getFlagC()); m_registers.a = m_registers.a - p_n - isCarry; }
+	void CPU::SBC_A_N8(u8 p_n) {
+		Flag isCarry = getFlagC(); setFlagsForU8Borrow((u16)m_registers.a, (u16)p_n, (u16)getFlagC()); m_registers.a = m_registers.a - p_n - isCarry;
+	}
 	void CPU::SUB_A_R8(Register8& p_r) { setFlagsForU8Borrow(m_registers.a, p_r); m_registers.a = m_registers.a - p_r; }
 	void CPU::SUB_A_HL() { setFlagsForU8Borrow(m_registers.a, m_mmu.getU8(m_registers.hl)); m_registers.a = m_registers.a - m_mmu.getU8(m_registers.hl); }
 	void CPU::SUB_A_N8(u8 p_n) { setFlagsForU8Borrow(m_registers.a, p_n); m_registers.a = m_registers.a - p_n; }
