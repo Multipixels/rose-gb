@@ -255,6 +255,13 @@ namespace rose_core
 	private:
 		Registers m_registers;
 
+		// Can only be set, not read. When set, set with a delay of 1 instruction.
+		Flag ime = false;
+		bool setIMENextInstrPhase1 = false; // Set in EI
+		bool setIMENextInstrPhase2 = false; // Set in instruction call.
+
+		void setIME(bool value);
+
 		// Flags
 			// bit 7 "z": zero flag. used for conditional jumps, set if result of operation is 0
 			// bit 6 "n": subtraction flag

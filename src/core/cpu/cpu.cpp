@@ -99,6 +99,18 @@ namespace rose_core {
 		case 0xF8: op_F8(); break; case 0xF9: op_F9(); break; case 0xFA: op_FA(); break; case 0xFB: op_FB(); break;
 		case 0xFC: op_FC(); break; case 0xFD: op_FD(); break; case 0xFE: op_FE(); break; case 0xFF: op_FF(); break;
 		}
+
+		// IME control
+		if (setIMENextInstrPhase1 && setIMENextInstrPhase2)
+		{
+			setIME(true);
+			setIMENextInstrPhase1 = false;
+			setIMENextInstrPhase2 = false;
+		}
+		else if (setIMENextInstrPhase1)
+		{
+			setIMENextInstrPhase2 = true;
+		}
 	}
 
 	void CPU::executeCBInstruction()
@@ -219,6 +231,15 @@ namespace rose_core {
 		case x38: return 0x38;
 		}
 		return 0x00;
+	}
+
+	void CPU::setIME(bool p_value) 
+	{ 
+		ime = p_value;
+		if (!p_value)
+		{
+			setIMENextInstrPhase1 = false;
+		}
 	}
 
 	CPU::Flag CPU::getFlagZ() { return (m_registers.f & 0b10000000) >> 7; }
@@ -491,8 +512,8 @@ namespace rose_core {
 	void CPU::PUSH_R16(Register16& p_r) { m_registers.stackPointer -= 2; m_mmu.setU16(m_registers.stackPointer, ((p_r & 0xFF) << 8) | (p_r >> 8)); }
 
 	// Interrupt Related
-	void CPU::DI() { /* TODO: https://rgbds.gbdev.io/docs/v0.9.4/gbz80.7#DI */ }
-	void CPU::EI() { /* TODO: https://rgbds.gbdev.io/docs/v0.9.4/gbz80.7#EI */ }
+	void CPU::DI() { setIME(false);  }
+	void CPU::EI() { setIMENextInstrPhase1 = true; }
 	void CPU::HALT() { /* TODO: https://rgbds.gbdev.io/docs/v0.9.4/gbz80.7#HALT */ }
 
 	// Miscellaneous
