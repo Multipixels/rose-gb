@@ -62,9 +62,9 @@ TEST(CPUTest, LoadConstsIntoRegisters)
 
 		loadVectorToMemory(test.instructions, mmu);
 
-		while (cpu.viewRegisters().programCounter < test.instructions.size())
+		while (cpu.viewRegisters().programCounter <= test.instructions.size())
 		{
-			ASSERT_NO_FATAL_FAILURE(cpu.executeInstruction());
+			ASSERT_NO_FATAL_FAILURE(cpu.tickUntilNextInstruction());
 		}
 		EXPECT_EQ(test.expectedValue, getERegister(cpu, test.eRegister));
 	}
@@ -101,9 +101,9 @@ TEST(CPUTest, LoadRegistersIntoRegisters)
 
 		loadVectorToMemory(test.instructions, mmu);
 
-		while (cpu.viewRegisters().programCounter < test.instructions.size())
+		while (cpu.viewRegisters().programCounter <= test.instructions.size())
 		{
-			ASSERT_NO_FATAL_FAILURE(cpu.executeInstruction());
+			ASSERT_NO_FATAL_FAILURE(cpu.tickUntilNextInstruction());
 		}
 		EXPECT_EQ(test.expectedValue, getERegister(cpu, test.eRegister));
 	}
@@ -146,9 +146,9 @@ TEST(CPUTest, LoadRegistersIntoAddress)
 
 		loadVectorToMemory(test.instructions, mmu);
 
-		while (cpu.viewRegisters().programCounter < test.instructions.size())
+		while (cpu.viewRegisters().programCounter <= test.instructions.size())
 		{
-			ASSERT_NO_FATAL_FAILURE(cpu.executeInstruction());
+			ASSERT_NO_FATAL_FAILURE(cpu.tickUntilNextInstruction());
 		}
 		EXPECT_EQ(test.expectedValue, mmu.getU8(test.addressToCheck));
 	}
@@ -187,9 +187,9 @@ TEST(CPUTest, LoadAddressIntoRegister)
 
 		loadVectorToMemory(test.instructions, mmu);
 
-		while (cpu.viewRegisters().programCounter < test.instructions.size())
+		while (cpu.viewRegisters().programCounter <= test.instructions.size())
 		{
-			ASSERT_NO_FATAL_FAILURE(cpu.executeInstruction());
+			ASSERT_NO_FATAL_FAILURE(cpu.tickUntilNextInstruction());
 		}
 		EXPECT_EQ(test.expectedValue, getERegister(cpu, test.eRegister));
 	}
@@ -227,9 +227,9 @@ TEST(CPUTest, IncrementDecrement)
 
 		loadVectorToMemory(test.instructions, mmu);
 
-		while (cpu.viewRegisters().programCounter < test.instructions.size())
+		while (cpu.viewRegisters().programCounter <= test.instructions.size())
 		{
-			ASSERT_NO_FATAL_FAILURE(cpu.executeInstruction());
+			ASSERT_NO_FATAL_FAILURE(cpu.tickUntilNextInstruction());
 		}
 		EXPECT_EQ(test.expectedValue, getERegister(cpu, test.eRegister));
 	}
@@ -283,7 +283,7 @@ TEST(CPUTest, AddingAndFlags)
 		{ { 0xE8, 0x08 }, SP, 0x0008 }, // Add constant signed 8 to SP
 		{ { 0xE8, 0x08 }, F, 0b00000000 }, // Add constant signed 8 to SP, check flags
 
-		{ { 0xE8, 0x08, 0xE8, 0xF8 }, SP, 0x0000 }, //Add constant signed 8 to SP, then add signed -8 to SP
+		{ { 0xE8, 0x08, 0xE8, 0xF8 }, SP, 0x0000 }, // Add constant signed 8 to SP, then add signed -8 to SP
 		{ { 0xE8, 0x08, 0xE8, 0xF8 }, F, 0b00110000 }, //Add constant signed 8 to SP, then add signed -8 to SP, check flags
 	};
 
@@ -294,9 +294,9 @@ TEST(CPUTest, AddingAndFlags)
 
 		loadVectorToMemory(test.instructions, mmu);
 
-		while (cpu.viewRegisters().programCounter < test.instructions.size())
+		while (cpu.viewRegisters().programCounter <= test.instructions.size())
 		{
-			ASSERT_NO_FATAL_FAILURE(cpu.executeInstruction());
+			ASSERT_NO_FATAL_FAILURE(cpu.tickUntilNextInstruction());
 		}
 		EXPECT_EQ(test.expectedValue, getERegister(cpu, test.eRegister));
 	}
@@ -347,9 +347,9 @@ TEST(CPUTest, SubtractingAndFlags)
 
 		loadVectorToMemory(test.instructions, mmu);
 
-		while (cpu.viewRegisters().programCounter < test.instructions.size())
+		while (cpu.viewRegisters().programCounter <= test.instructions.size())
 		{
-			ASSERT_NO_FATAL_FAILURE(cpu.executeInstruction());
+			ASSERT_NO_FATAL_FAILURE(cpu.tickUntilNextInstruction());
 		}
 		EXPECT_EQ(test.expectedValue, getERegister(cpu, test.eRegister));
 	}
@@ -388,9 +388,9 @@ TEST(CPUTest, LogicalAndWithFlags)
 
 		loadVectorToMemory(test.instructions, mmu);
 
-		while (cpu.viewRegisters().programCounter < test.instructions.size())
+		while (cpu.viewRegisters().programCounter <= test.instructions.size())
 		{
-			ASSERT_NO_FATAL_FAILURE(cpu.executeInstruction());
+			ASSERT_NO_FATAL_FAILURE(cpu.tickUntilNextInstruction());
 		}
 		EXPECT_EQ(test.expectedValue, getERegister(cpu, test.eRegister));
 	}
@@ -429,9 +429,9 @@ TEST(CPUTest, LogicalExclusiveOrWithFlags)
 
 		loadVectorToMemory(test.instructions, mmu);
 
-		while (cpu.viewRegisters().programCounter < test.instructions.size())
+		while (cpu.viewRegisters().programCounter <= test.instructions.size())
 		{
-			ASSERT_NO_FATAL_FAILURE(cpu.executeInstruction());
+			ASSERT_NO_FATAL_FAILURE(cpu.tickUntilNextInstruction());
 		}
 		EXPECT_EQ(test.expectedValue, getERegister(cpu, test.eRegister));
 	}
@@ -471,9 +471,9 @@ TEST(CPUTest, LogicalOrWithFlags)
 
 		loadVectorToMemory(test.instructions, mmu);
 
-		while (cpu.viewRegisters().programCounter < test.instructions.size())
+		while (cpu.viewRegisters().programCounter <= test.instructions.size())
 		{
-			ASSERT_NO_FATAL_FAILURE(cpu.executeInstruction());
+			ASSERT_NO_FATAL_FAILURE(cpu.tickUntilNextInstruction());
 		}
 		EXPECT_EQ(test.expectedValue, getERegister(cpu, test.eRegister));
 	}
@@ -512,9 +512,9 @@ TEST(CPUTest, LogicalCmpWithFlags)
 
 		loadVectorToMemory(test.instructions, mmu);
 
-		while (cpu.viewRegisters().programCounter < test.instructions.size())
+		while (cpu.viewRegisters().programCounter <= test.instructions.size())
 		{
-			ASSERT_NO_FATAL_FAILURE(cpu.executeInstruction());
+			ASSERT_NO_FATAL_FAILURE(cpu.tickUntilNextInstruction());
 		}
 		EXPECT_EQ(test.expectedValue, getERegister(cpu, test.eRegister));
 	}
@@ -564,12 +564,12 @@ TEST(CPUTest, RotateRegisters)
 		{ { 0x3E, 0b10101010, 0xCB, 0x07, 0xCB, 0x07 }, F, 0b00000000}, // Set A to 0b10101010 and then rotate left twice. Flag check.
 
 		{ { 0x3E, 0b10000000, 0xCB, 0x17 }, A, 0b00000000}, // Set A to 0b10101010 and then rotate left w/ carry.
-		{ { 0x3E, 0b10000000, 0xCB, 0x17 }, F, 0b10010000}, // Set A to 0b10101010 and then rotate left w/ carry. Flag check.
+			{ { 0x3E, 0b10000000, 0xCB, 0x17 }, F, 0b10010000}, // Set A to 0b10101010 and then rotate left w/ carry. Flag check.
 
 		{ { 0x3E, 0b10101010, 0xCB, 0x17 }, A, 0b01010100}, // Set A to 0b10101010 and then rotate left w/ carry.
 		{ { 0x3E, 0b10101010, 0xCB, 0x17 }, F, 0b00010000}, // Set A to 0b10101010 and then rotate left w/ carry. Flag check.
 
-		{ { 0x3E, 0b10101010, 0xCB, 0x17, 0xCB, 0x17 }, A, 0b10101001}, // Set A to 0b10101010 and then rotate left w/ carry twice.
+					{ { 0x3E, 0b10101010, 0xCB, 0x17, 0xCB, 0x17 }, A, 0b10101001}, // Set A to 0b10101010 and then rotate left w/ carry twice.
 		{ { 0x3E, 0b10101010, 0xCB, 0x17, 0xCB, 0x17 }, F, 0b00000000}, // Set A to 0b10101010 and then rotate left w/ carry twice. Flag check.
 
 
@@ -598,9 +598,9 @@ TEST(CPUTest, RotateRegisters)
 
 		loadVectorToMemory(test.instructions, mmu);
 
-		while (cpu.viewRegisters().programCounter < test.instructions.size())
+		while (cpu.viewRegisters().programCounter <= test.instructions.size())
 		{
-			ASSERT_NO_FATAL_FAILURE(cpu.executeInstruction());
+			ASSERT_NO_FATAL_FAILURE(cpu.tickUntilNextInstruction());
 		}
 		EXPECT_EQ(test.expectedValue, getERegister(cpu, test.eRegister));
 	}
@@ -644,9 +644,9 @@ TEST(CPUTest, ShiftRegisters)
 
 		loadVectorToMemory(test.instructions, mmu);
 
-		while (cpu.viewRegisters().programCounter < test.instructions.size())
+		while (cpu.viewRegisters().programCounter <= test.instructions.size())
 		{
-			ASSERT_NO_FATAL_FAILURE(cpu.executeInstruction());
+			ASSERT_NO_FATAL_FAILURE(cpu.tickUntilNextInstruction());
 		}
 		EXPECT_EQ(test.expectedValue, getERegister(cpu, test.eRegister));
 	}
@@ -678,9 +678,9 @@ TEST(CPUTest, SwapRegisters)
 
 		loadVectorToMemory(test.instructions, mmu);
 
-		while (cpu.viewRegisters().programCounter < test.instructions.size())
+		while (cpu.viewRegisters().programCounter <= test.instructions.size())
 		{
-			ASSERT_NO_FATAL_FAILURE(cpu.executeInstruction());
+			ASSERT_NO_FATAL_FAILURE(cpu.tickUntilNextInstruction());
 		}
 		EXPECT_EQ(test.expectedValue, getERegister(cpu, test.eRegister));
 	}
@@ -708,9 +708,9 @@ TEST(CPUTest, StackControl)
 
 		loadVectorToMemory(test.instructions, mmu);
 
-		while (cpu.viewRegisters().programCounter < test.instructions.size())
+		while (cpu.viewRegisters().programCounter <= test.instructions.size())
 		{
-			ASSERT_NO_FATAL_FAILURE(cpu.executeInstruction());
+			ASSERT_NO_FATAL_FAILURE(cpu.tickUntilNextInstruction());
 		}
 		EXPECT_EQ(test.expectedValue, mmu.getU8(test.addressToCheck));
 	}
@@ -736,9 +736,9 @@ TEST(CPUTest, StackControl)
 
 		loadVectorToMemory(test.instructions, mmu);
 
-		while (cpu.viewRegisters().programCounter < test.instructions.size())
+		while (cpu.viewRegisters().programCounter <= test.instructions.size())
 		{
-			ASSERT_NO_FATAL_FAILURE(cpu.executeInstruction());
+			ASSERT_NO_FATAL_FAILURE(cpu.tickUntilNextInstruction());
 		}
 		EXPECT_EQ(test.expectedValue, getERegister(cpu, test.eRegister));
 	}
@@ -778,9 +778,9 @@ TEST(CPUTest, Jumps)
 
 		loadVectorToMemory(test.instructions, mmu);
 
-		while (cpu.viewRegisters().programCounter < test.instructions.size())
+		while (cpu.viewRegisters().programCounter <= test.instructions.size())
 		{
-			ASSERT_NO_FATAL_FAILURE(cpu.executeInstruction());
+			ASSERT_NO_FATAL_FAILURE(cpu.tickUntilNextInstruction());
 		}
 		EXPECT_EQ(test.expectedValue, getERegister(cpu, test.eRegister));
 	}
@@ -820,9 +820,9 @@ TEST(CPUTest, BitResSet)
 
 		loadVectorToMemory(test.instructions, mmu);
 
-		while (cpu.viewRegisters().programCounter < test.instructions.size())
+		while (cpu.viewRegisters().programCounter <= test.instructions.size())
 		{
-			ASSERT_NO_FATAL_FAILURE(cpu.executeInstruction());
+			ASSERT_NO_FATAL_FAILURE(cpu.tickUntilNextInstruction());
 		}
 		EXPECT_EQ(test.expectedValue, getERegister(cpu, test.eRegister));
 	}
@@ -857,9 +857,9 @@ TEST(CPUTest, Miscellaneous)
 
 		loadVectorToMemory(test.instructions, mmu);
 
-		while (cpu.viewRegisters().programCounter < test.instructions.size())
+		while (cpu.viewRegisters().programCounter <= test.instructions.size())
 		{
-			ASSERT_NO_FATAL_FAILURE(cpu.executeInstruction());
+			ASSERT_NO_FATAL_FAILURE(cpu.tickUntilNextInstruction());
 		}
 		EXPECT_EQ(test.expectedValue, getERegister(cpu, test.eRegister));
 	}
@@ -888,9 +888,9 @@ TEST(CPUTest, EdgeCases)
 
 		loadVectorToMemory(test.instructions, mmu);
 
-		while (cpu.viewRegisters().programCounter < test.instructions.size())
+		while (cpu.viewRegisters().programCounter <= test.instructions.size())
 		{
-			ASSERT_NO_FATAL_FAILURE(cpu.executeInstruction());
+			ASSERT_NO_FATAL_FAILURE(cpu.tickUntilNextInstruction());
 		}
 		EXPECT_EQ(test.expectedValue, getERegister(cpu, test.eRegister));
 	}
@@ -936,7 +936,7 @@ TEST(CPUTest, BlarggTests)
 				std::cout << console;
 			}
 
-			ASSERT_NO_FATAL_FAILURE(cpu.executeInstruction());
+			ASSERT_NO_FATAL_FAILURE(cpu.tickUntilNextInstruction());
 			instructionsRan++;
 		}
 

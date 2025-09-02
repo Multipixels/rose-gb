@@ -19,7 +19,8 @@ namespace rose_core
 		CPU(MMU& mmu, u16 programCounterStart);
 
 		// Simulates a single m-cycle.
-		void tick();
+		bool tick();
+		void tickUntilNextInstruction();
 
 		const Registers& viewRegisters() const;
 
@@ -218,14 +219,14 @@ namespace rose_core
 		u8 m_currentOperationCB = 0x00; // Used when currentOp is CB
 
 		u16 m_wz = 0x0000;
-		u8& m_w = *((u8*)(&m_zw) + 1);
-		u8& m_z = *(u8*)(&m_zw);
+		u8& m_w = *((u8*)(&m_wz) + 1);
+		u8& m_z = *(u8*)(&m_wz);
 
 		void executeInstruction();
 		void executeCBInstruction();
 		u8 readByte();
-		u8 readByte(u8 addr);
-		void writeByte(u8 addr, u8 value);
+		u8 readByte(u16 addr);
+		void writeByte(u16 addr, u8 value);
 
 		// Typedefs and Enums
 		typedef u16 Register16;
@@ -427,13 +428,6 @@ namespace rose_core
 		void DI();
 		void EI();
 		void NOP();
-
-			// Stack Manipulation
-		void ADD_HL_SP();
-		void DEC_SP();
-		void INC_SP();
-		void POP_AF();
-		void PUSH_AF();
 
 
 		// OP Codes

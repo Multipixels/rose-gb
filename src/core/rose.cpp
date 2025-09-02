@@ -21,6 +21,7 @@ namespace rose_core
 		{
 			return 1;
 		};
+		return 0;
 	}
 
 	// Loads the cartridge and boots up the Game Boy
@@ -40,7 +41,7 @@ namespace rose_core
 	// Executes a single instruction
 	int Rose::stepForward()
 	{
-		m_cpu.executeInstruction();
+		m_cpu.tickUntilNextInstruction();
 		m_tempInstrHistory[m_tempInstrHistoryHead] = m_cpu.viewRegisters().programCounter;
 		m_tempInstrHistoryHead = (m_tempInstrHistoryHead + 1) % 10;
 		m_tempInstrRan++;

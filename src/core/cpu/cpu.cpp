@@ -15,7 +15,7 @@ namespace rose_core {
 		m_registers.programCounter = p_programCounterStart;
 	}
 
-	void CPU::tick()
+	bool CPU::tick()
 	{
 		if (m_executingInstruction)
 		{
@@ -34,7 +34,20 @@ namespace rose_core {
 
 			// IME control
 			if (setIMENextCycle) setIME(true);
+
+			return true;
 		}
+		return false;
+	}
+
+	void CPU::tickUntilNextInstruction()
+	{
+		if (!m_executingInstruction)
+		{
+			tick();
+		}
+
+		while (!tick());
 	}
 
 	void CPU::executeInstruction()
@@ -124,8 +137,12 @@ namespace rose_core {
 
 	void CPU::executeCBInstruction()
 	{
-		if(m_mCycle == 2)
+		if (m_mCycle == 2)
+		{
 			m_cbMode = true;
+			m_currentOperationCB = readByte();
+			m_registers.programCounter++;
+		}
 		else if(m_mCycle > 2)
 			switch (m_currentOperationCB) {
 			case 0x00: op_cb_00(); break; case 0x01: op_cb_01(); break; case 0x02: op_cb_02(); break; case 0x03: op_cb_03(); break;
@@ -215,12 +232,12 @@ namespace rose_core {
 		return m_mmu.getU8(m_registers.programCounter);
 	}
 
-	u8 CPU::readByte(u8 p_addr)
+	u8 CPU::readByte(u16 p_addr)
 	{
 		return m_mmu.getU8(p_addr);
 	}
 
-	void CPU::writeByte(u8 p_addr, u8 p_value)
+	void CPU::writeByte(u16 p_addr, u8 p_value)
 	{
 		m_mmu.setU8(p_addr, p_value);
 	}
@@ -407,8 +424,8 @@ namespace rose_core {
 		case NZ: return !getFlagZ();
 		case C: return getFlagC();
 		case NC: return !getFlagC();
+		default: return false;
 		}
-		//return false;
 	}
 
 	// Loads
@@ -894,11 +911,13 @@ namespace rose_core {
 		switch (m_mCycle)
 		{
 		case 2:
+		{
 			Flag isCarry = getFlagC();
 			setFlagsForU8Overflow(m_registers.a, p_r, getFlagC());
 			m_registers.a += p_r + isCarry;
 			m_executingInstruction = false;
 			return;
+		}
 		default:
 			return;
 		}
@@ -912,11 +931,13 @@ namespace rose_core {
 			m_z = readByte(m_registers.hl);
 			return;
 		case 3:
+		{
 			Flag isCarry = getFlagC();
 			setFlagsForU8Overflow(m_registers.a, m_z, getFlagC());
 			m_registers.a += m_z + isCarry;
 			m_executingInstruction = false;
 			return;
+		}
 		default:
 			return;
 		}
@@ -931,11 +952,13 @@ namespace rose_core {
 			m_registers.programCounter++;
 			return;
 		case 3:
+		{
 			Flag isCarry = getFlagC();
 			setFlagsForU8Overflow(m_registers.a, m_z, getFlagC());
 			m_registers.a += m_z + isCarry;
 			m_executingInstruction = false;
 			return;
+		}
 		default:
 			return;
 		} 
@@ -995,11 +1018,13 @@ namespace rose_core {
 		switch (m_mCycle)
 		{
 		case 2:
+		{
 			Flag isCarry = getFlagC();
 			setFlagsForU8Borrow(m_registers.a, p_r, getFlagC());
 			m_registers.a -= p_r + isCarry;
 			m_executingInstruction = false;
 			return;
+		}
 		default:
 			return;
 		}
@@ -1013,11 +1038,13 @@ namespace rose_core {
 			m_z = readByte(m_registers.hl);
 			return;
 		case 3:
+		{
 			Flag isCarry = getFlagC();
 			setFlagsForU8Borrow(m_registers.a, m_z, getFlagC());
 			m_registers.a -= m_z + isCarry;
 			m_executingInstruction = false;
 			return;
+		}
 		default:
 			return;
 		}
@@ -1032,11 +1059,13 @@ namespace rose_core {
 			m_registers.programCounter++;
 			return;
 		case 3:
+		{
 			Flag isCarry = getFlagC();
 			setFlagsForU8Borrow(m_registers.a, m_z, getFlagC());
-			m_registers.a -= m_z + isCarry;
+			m_registers.a -= m_z + (int)isCarry;
 			m_executingInstruction = false;
 			return;
+		}
 		default:
 			return;
 		} 
@@ -1453,12 +1482,14 @@ namespace rose_core {
 			setFlagN(0);
 			return;
 		case 3:
+		{
 			Flag isCarry = getFlagC();
 			setFlagH(willHalfCarry(m_registers.h, (p_r >> 8) + isCarry, true));
 			setFlagC(willCarry(m_registers.h, (p_r >> 8) + isCarry, true));
 			m_registers.h += (p_r >> 8) + isCarry;
 			m_executingInstruction = false;
 			return;
+		}
 		default:
 			return;
 		}
@@ -1469,18 +1500,18 @@ namespace rose_core {
 		switch (m_mCycle)
 		{
 		case 2:
-			m_z = readByte();
+			m_w = readByte();
 			m_registers.programCounter++;
 			return;
 		case 3:
-			setFlagH(willHalfCarry((u8)m_registers.stackPointer, m_z, true)); 
-			setFlagC(willCarry((u8)m_registers.stackPointer, m_z, true));
-			m_z += m_registers.stackPointer & 0xFF; 
+			setFlagH(willHalfCarry((u8)m_registers.stackPointer, m_w, true)); 
+			setFlagC(willCarry((u8)m_registers.stackPointer, m_w, true));
+			m_z = m_w + (m_registers.stackPointer & 0xFF); 
 			setFlagZ(0); 
 			setFlagN(0);
 			return;
 		case 4:
-			m_w = (m_registers.stackPointer >> 8) + (0xFF * ((m_z >> 7) & 0b1)) + getFlagC();
+			m_w = (m_registers.stackPointer >> 8) + (0xFF * ((m_w >> 7) & 0b1)) + getFlagC();
 			return;
 		case 5:
 			m_registers.stackPointer = m_wz;
@@ -1532,7 +1563,7 @@ namespace rose_core {
 		case 2:
 		{
 			u8 b7 = m_registers.a & 0x80;
-			m_registers.a = (m_registers.a << 1) | getFlagC();
+			m_registers.a = (m_registers.a << 1) | (int)getFlagC();
 			setFlags(0, 0, 0, b7 >> 7);
 			m_executingInstruction = false;
 			return;
@@ -1644,7 +1675,7 @@ namespace rose_core {
 		case 3:
 		{
 			u8 b7 = p_r & 0x80;
-			p_r = (p_r << 1) | getFlagC();
+			p_r = (p_r << 1) | (int)getFlagC();
 			setFlags(!p_r, 0, 0, b7);
 			m_executingInstruction = false;
 			return;
@@ -1664,7 +1695,7 @@ namespace rose_core {
 		case 4:
 		{
 			u8 b7 = m_z & 0x80;
-			writeByte(m_registers.hl, (m_z << 1) | getFlagC());
+			writeByte(m_registers.hl, (m_z << 1) | (int)getFlagC());
 			setFlags(readByte(m_registers.hl), 0, 0, b7);
 			return;
 		}
@@ -2550,11 +2581,11 @@ namespace rose_core {
 	void CPU::op_EF() { RST_VEC(x28); }
 
 	void CPU::op_F0() { LDH_A_N16(); }
-	void CPU::op_F1() { POP_AF(); }
+	void CPU::op_F1() { POP_R16(m_registers.af); }
 	void CPU::op_F2() { LDH_A_C(); }
 	void CPU::op_F3() { DI(); }
 	void CPU::op_F4() { throw; }
-	void CPU::op_F5() { PUSH_AF(); }
+	void CPU::op_F5() { PUSH_R16(m_registers.af); }
 	void CPU::op_F6() { OR_A_N8(); }
 	void CPU::op_F7() { RST_VEC(x30); }
 	void CPU::op_F8() { LD_HL_SP_S8(); }
