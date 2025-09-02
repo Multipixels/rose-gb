@@ -217,8 +217,15 @@ namespace rose_core
 		u8 m_currentOperation = 0x00;
 		u8 m_currentOperationCB = 0x00; // Used when currentOp is CB
 
+		u16 m_wz = 0x0000;
+		u8& m_w = *((u8*)(&m_zw) + 1);
+		u8& m_z = *(u8*)(&m_zw);
+
 		void executeInstruction();
 		void executeCBInstruction();
+		u8 readByte();
+		u8 readByte(u8 addr);
+		void writeByte(u8 addr, u8 value);
 
 		// Typedefs and Enums
 		typedef u16 Register16;
@@ -266,8 +273,7 @@ namespace rose_core
 
 		// Can only be set, not read. When set, set with a delay of 1 instruction.
 		Flag ime = false;
-		bool setIMENextInstrPhase1 = false; // Set in EI
-		bool setIMENextInstrPhase2 = false; // Set in instruction call.
+		bool setIMENextCycle = false; // Set in EI
 
 		void setIME(bool value);
 
@@ -306,66 +312,95 @@ namespace rose_core
 
 		bool ccStatus(ConditionCode cc);
 
-		// CPU Instruction Set: https://rgbds.gbdev.io/docs/v0.9.4/gbz80.7
-			// Loads
+		// CPU Instruction Set: https://rgbds.gbdev.io/docs/v0.9.4/gbz80.7 and https://gekkio.fi/files/gb-docs/gbctr.pdf
+			// 8-bit Loads
 		void LD_R8_R8(Register8& ra, Register8& rb);
-		void LD_R8_N8(Register8& r, u8 n);
-		void LD_R16_N16(Register16& r, u16 n);
-		void LD_HL_R8(Register8& r);
-		void LD_HL_N8(u8 n);
+		void LD_R8_N8(Register8& r);
 		void LD_R8_HL(Register8& r);
-		void LD_R16_A(Register16& r);
-		void LD_N16_A(u16 n);
-		void LDH_N16_A(u8 n);
-		void LDH_C_A();
+		void LD_HL_R8(Register8& r);
+		void LD_HL_N8();
 		void LD_A_R16(Register16& r);
-		void LD_A_N16(u16 n);
-		void LDH_A_N16(u8 n);
+		void LD_R16_A(Register16& r);
+		void LD_A_N16();
+		void LD_N16_A();
 		void LDH_A_C();
-		void LD_HLI_A();
+		void LDH_C_A();
+		void LDH_A_N16();
+		void LDH_N16_A();
+		void LD_A_HLD();
 		void LD_HLD_A();
 		void LD_A_HLI();
-		void LD_A_HLD();
+		void LD_HLI_A();
 
-			// 8-bit Arithmetic
-		void ADC_A_R8(CPU::Register8& r);
-		void ADC_A_HL();
-		void ADC_A_N8(u8 n);
+			// 16-bit Loads
+		void LD_R16_N16(Register16& r);
+		void LD_N16_SP();
+		void LD_SP_HL();
+		void PUSH_R16(Register16& r);
+		void POP_R16(Register16& r);
+		void LD_HL_SP_S8();
+
+			// 8-bit Arithmetic and Logic
 		void ADD_A_R8(CPU::Register8& r);
 		void ADD_A_HL();
-		void ADD_A_N8(u8 n);
-		void CP_A_R8(CPU::Register8&);
-		void CP_A_HL();
-		void CP_A_N8(u8 n);
-		void DEC_R8(CPU::Register8& r);
-		void DEC_HL();
-		void INC_R8(CPU::Register8& r);
-		void INC_HL();
-		void SBC_A_R8(CPU::Register8& r);
-		void SBC_A_HL();
-		void SBC_A_N8(u8 n);
+		void ADD_A_N8();
+		void ADC_A_R8(CPU::Register8& r);
+		void ADC_A_HL();
+		void ADC_A_N8();
 		void SUB_A_R8(CPU::Register8& r);
 		void SUB_A_HL();
-		void SUB_A_N8(u8 n);
-
-			// 16-bit Arithmetic
-		void ADD_HL_R16(CPU::Register16& r);
-		void DEC_R16(CPU::Register16& r);
-		void INC_R16(CPU::Register16& r);
-
-			// Bitwise Logic
+		void SUB_A_N8();
+		void SBC_A_R8(CPU::Register8& r);
+		void SBC_A_HL();
+		void SBC_A_N8();
+		void CP_A_R8(CPU::Register8&);
+		void CP_A_HL();
+		void CP_A_N8();
+		void INC_R8(CPU::Register8& r);
+		void INC_HL();
+		void DEC_R8(CPU::Register8& r);
+		void DEC_HL();
 		void AND_A_R8(CPU::Register8& r);
 		void AND_A_HL();
-		void AND_A_N8(u8 n);
-		void CPL();
+		void AND_A_N8();
 		void OR_A_R8(CPU::Register8& r);
 		void OR_A_HL();
-		void OR_A_N8(u8 n);
+		void OR_A_N8();
 		void XOR_A_R8(CPU::Register8& r);
 		void XOR_A_HL();
-		void XOR_A_N8(u8 n);
+		void XOR_A_N8();
+		void CCF();
+		void SCF();
+		void DAA();
+		void CPL();
 
-			// Bit Flags
+			// 16-bit Arithmetic and Logic
+		void INC_R16(CPU::Register16& r);
+		void DEC_R16(CPU::Register16& r);
+		void ADD_HL_R16(CPU::Register16& r);
+		void ADD_SP_S8();
+
+			// Rotate, Shift, Bit Operations
+		void RL_C_A();
+		void RR_C_A();
+		void RL_A();
+		void RR_A();
+		void RL_C_R8(CPU::Register8& r);
+		void RL_C_HL();
+		void RR_C_R8(CPU::Register8& r);
+		void RR_C_HL();
+		void RL_R8(CPU::Register8& r);
+		void RL_HL();
+		void RR_R8(CPU::Register8& r);
+		void RR_HL();
+		void SLA_R8(CPU::Register8& r);
+		void SLA_HL();
+		void SRA_R8(CPU::Register8& r);
+		void SRA_HL();
+		void SWAP_R8(CPU::Register8& r);
+		void SWAP_HL();
+		void SRL_R8(CPU::Register8& r);
+		void SRL_HL();
 		void BIT_U3_R8(u3 u, CPU::Register8& r);
 		void BIT_U3_HL(u3 u);
 		void RES_U3_R8(u3 u, CPU::Register8& r);
@@ -373,68 +408,33 @@ namespace rose_core
 		void SET_U3_R8(u3 u, CPU::Register8& r);
 		void SET_U3_HL(u3 u);
 
-			// Bit Shifts
-		void RL_R8(CPU::Register8& r);
-		void RL_HL();
-		void RL_A();
-		void RL_C_R8(CPU::Register8& r);
-		void RL_C_HL();
-		void RL_C_A();
-		void RR_R8(CPU::Register8& r);
-		void RR_HL();
-		void RR_A();
-		void RR_C_R8(CPU::Register8& r);
-		void RR_C_HL();
-		void RR_C_A();
-		void SLA_R8(CPU::Register8& r);
-		void SLA_HL();
-		void SRA_R8(CPU::Register8& r);
-		void SRA_HL();
-		void SRL_R8(CPU::Register8& r);
-		void SRL_HL();
-		void SWAP_R8(CPU::Register8& r);
-		void SWAP_HL();
-
-			// Jumps and Subroutines
-		void CALL_N16(u16 n);
-		void CALL_CC_N16(ConditionCode cc, u16 n);
+			// Control Flow
+		void JP_N16();
 		void JP_HL();
-		void JP_N16(s16 n);
-		void JP_CC_N16(ConditionCode cc, s16 n);
-		void JR_N8(s8 n);
-		void JR_CC_N8(ConditionCode cc, s8 n);
+		void JP_CC_N16(ConditionCode cc);
+		void JR_N8();
+		void JR_CC_N8(ConditionCode p_cc);
+		void CALL_N16();
+		void CALL_CC_N16(ConditionCode cc);
 		void RET();
 		void RET_CC(ConditionCode cc);
 		void RETI();
 		void RST_VEC(RSTVec vec);
 
-			// Carry Flag
-		void CCF();
-		void SCF();
+		// Miscellaneous
+		void HALT();
+		void STOP();
+		void DI();
+		void EI();
+		void NOP();
 
 			// Stack Manipulation
 		void ADD_HL_SP();
-		void ADD_SP_S8(s8 s);
 		void DEC_SP();
 		void INC_SP();
-		void LD_SP_N16(u16 n);
-		void LD_N16_SP(u16 n);
-		void LD_HL_SP_S8(s8 s);
-		void LD_SP_HL();
 		void POP_AF();
-		void POP_R16(Register16& r);
 		void PUSH_AF();
-		void PUSH_R16(Register16& r);
 
-			// Interrupt Related
-		void DI();
-		void EI();
-		void HALT();
-
-			// Miscellaneous
-		void DAA();
-		void NOP();
-		void STOP();
 
 		// OP Codes
 			// 8 bit opcodes

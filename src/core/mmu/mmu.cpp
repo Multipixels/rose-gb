@@ -13,7 +13,7 @@ namespace rose_core
 		return 0;
 	}
 
-	u16 MMU::getU16(int p_address)
+	u16 MMU::getU16(u16 p_address)
 	{
 		if (p_address > 0xFFFE)
 		{
@@ -23,7 +23,7 @@ namespace rose_core
 		return (m_memory.at(p_address + 1) << 8) | m_memory.at(p_address);
 	}
 
-	int MMU::setU16(int p_address, u16 p_value)
+	int MMU::setU16(u16 p_address, u16 p_value)
 	{
 		if (p_address > 0xFFFE)
 		{
@@ -34,7 +34,7 @@ namespace rose_core
 		return 0;
 	}
 
-	u8 MMU::getU8(int p_address)
+	u8 MMU::getU8(u16 p_address)
 	{
 		if (p_address > 0xFFFF)
 		{
@@ -44,7 +44,7 @@ namespace rose_core
 		return m_memory.at(p_address);
 	}
 
-	int MMU::setU8(int p_address, u8 p_value)
+	int MMU::setU8(u16 p_address, u8 p_value)
 	{ 
 		if (p_address > 0xFFFF)
 		{

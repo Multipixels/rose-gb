@@ -53,7 +53,7 @@ void InstructionWindow::Draw()
             currentInstr = cpu.instr_data[opcode];
 
             ImGui::TableSetColumnIndex(1);
-            ImGui::Text(currentInstr.human_readable.c_str());
+            ImGui::Text(currentInstr.humanReadable.c_str());
 
             ImGui::TableSetColumnIndex(2);
             if (!isCB)

@@ -14,11 +14,11 @@ namespace rose_core
 
 		int loadCartridgeData(std::filebuf* cartData);
 
-		u16 getU16(int address);
-		int setU16(int address, u16 value);
+		u16 getU16(u16 address);
+		int setU16(u16 address, u16 value);
 
-		u8 getU8(int address);
-		int setU8(int address, u8 value);
+		u8 getU8(u16 address);
+		int setU8(u16 address, u8 value);
 
 		const std::vector<u8>& getMemory() const;
 	private:

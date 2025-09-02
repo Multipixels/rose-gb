@@ -18,7 +18,6 @@ namespace rose_core {
 	void CPU::tick()
 	{
 		if (m_executingInstruction)
-
 		{
 			executeInstruction();
 			m_mCycle++;
@@ -27,9 +26,14 @@ namespace rose_core {
 		// Run M1 as the previous instruction finishes
 		if (!m_executingInstruction)
 		{
-			m_currentOperation = m_mmu.getU8(m_registers.programCounter);
+			m_currentOperation = readByte();
+			m_registers.programCounter++;
+
 			m_executingInstruction = true;
 			m_mCycle = 2;
+
+			// IME control
+			if (setIMENextCycle) setIME(true);
 		}
 	}
 
@@ -115,18 +119,6 @@ namespace rose_core {
 		case 0xF4: op_F4(); break; case 0xF5: op_F5(); break; case 0xF6: op_F6(); break; case 0xF7: op_F7(); break;
 		case 0xF8: op_F8(); break; case 0xF9: op_F9(); break; case 0xFA: op_FA(); break; case 0xFB: op_FB(); break;
 		case 0xFC: op_FC(); break; case 0xFD: op_FD(); break; case 0xFE: op_FE(); break; case 0xFF: op_FF(); break;
-		}
-
-		// IME control, TODO
-		if (setIMENextInstrPhase1 && setIMENextInstrPhase2)
-		{
-			setIME(true);
-			setIMENextInstrPhase1 = false;
-			setIMENextInstrPhase2 = false;
-		}
-		else if (setIMENextInstrPhase1)
-		{
-			setIMENextInstrPhase2 = true;
 		}
 	}
 
@@ -218,19 +210,27 @@ namespace rose_core {
 			}
 	}
 
-	u8 CPU::getByte()
+	u8 CPU::readByte()
 	{
-		u8 returnValue = m_mmu.getU8(m_registers.programCounter);
-		m_registers.programCounter++;
-		return returnValue;
+		return m_mmu.getU8(m_registers.programCounter);
 	}
 
-	u16 CPU::getBytePair()
+	u8 CPU::readByte(u8 p_addr)
+	{
+		return m_mmu.getU8(p_addr);
+	}
+
+	void CPU::writeByte(u8 p_addr, u8 p_value)
+	{
+		m_mmu.setU8(p_addr, p_value);
+	}
+
+	/* u16 CPU::getBytePair()
 	{
 		u16 returnValue = m_mmu.getU16(m_registers.programCounter);
 		m_registers.programCounter += 2;
 		return returnValue;
-	}
+	}*/
 
 	const CPU::Registers& CPU::viewRegisters() const
 	{
@@ -257,7 +257,7 @@ namespace rose_core {
 		ime = p_value;
 		if (!p_value)
 		{
-			setIMENextInstrPhase1 = false;
+			setIMENextCycle = false;
 		}
 	}
 
@@ -412,201 +412,1954 @@ namespace rose_core {
 	}
 
 	// Loads
-	void CPU::LD_R8_R8(Register8& p_ra, Register8& p_rb) { p_ra = p_rb; }
-	void CPU::LD_R8_N8(Register8& p_r, u8 p_n) { p_r = p_n; }
-	void CPU::LD_R16_N16(Register16& p_r, u16 p_n) { p_r = p_n; }
-	void CPU::LD_HL_R8(Register8& p_r) { m_mmu.setU8(m_registers.hl, p_r); }
-	void CPU::LD_HL_N8(u8 p_n) { m_mmu.setU8(m_registers.hl, p_n); }
-	void CPU::LD_R8_HL(Register8& p_r) { p_r = m_mmu.getU8(m_registers.hl); }
-	void CPU::LD_R16_A(Register16& p_r) { m_mmu.setU8(p_r, m_registers.a); }
-	void CPU::LD_N16_A(u16 p_n) { m_mmu.setU8(p_n, m_registers.a); }
-	void CPU::LDH_N16_A(u8 p_n) { m_mmu.setU8(0xFF00 + p_n, m_registers.a); }
-	void CPU::LDH_C_A() { m_mmu.setU8(0xFF00 + m_registers.c, m_registers.a); }
-	void CPU::LD_A_R16(Register16& p_r) { m_registers.a = m_mmu.getU8(p_r); }
-	void CPU::LD_A_N16(u16 p_n) { m_registers.a = m_mmu.getU8(p_n); }
-	void CPU::LDH_A_N16(u8 p_n) { m_registers.a = m_mmu.getU8(0xFF00 + p_n); }
-	void CPU::LDH_A_C() { m_registers.a = m_mmu.getU8(0xFF00 + m_registers.c); }
-	void CPU::LD_HLI_A() { m_mmu.setU8(m_registers.hl, m_registers.a); m_registers.hl++; }
-	void CPU::LD_HLD_A() { m_mmu.setU8(m_registers.hl, m_registers.a); m_registers.hl--; }
-	void CPU::LD_A_HLI() { m_registers.a = m_mmu.getU8(m_registers.hl); m_registers.hl++; }
-	void CPU::LD_A_HLD() { m_registers.a = m_mmu.getU8(m_registers.hl); m_registers.hl--; }
+	void CPU::LD_R8_R8(Register8& p_ra, Register8& p_rb)
+	{
+		switch (m_mCycle)
+		{
+		case 2:
+			m_registers.programCounter++;
+			p_ra = p_rb;
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+	}
 
-	// 8-bit Arithmetic
-	void CPU::ADC_A_R8(Register8& p_r) { Flag isCarry = getFlagC(); setFlagsForU8Overflow(m_registers.a, p_r, getFlagC()); m_registers.a += p_r + isCarry; }
-	void CPU::ADC_A_HL() { Flag isCarry = getFlagC();  setFlagsForU8Overflow(m_registers.a, m_mmu.getU8(m_registers.hl), getFlagC()); m_registers.a += m_mmu.getU8(m_registers.hl) + isCarry;  }
-	void CPU::ADC_A_N8(u8 p_n) { Flag isCarry = getFlagC(); setFlagsForU8Overflow(m_registers.a, p_n, getFlagC()); m_registers.a += p_n + isCarry;  }
-	void CPU::ADD_A_R8(Register8& p_r) { setFlagsForU8Overflow(m_registers.a, p_r); m_registers.a += p_r;  }
-	void CPU::ADD_A_HL() { setFlagsForU8Overflow(m_registers.a, m_mmu.getU8(m_registers.hl)); m_registers.a += m_mmu.getU8(m_registers.hl);  }
-	void CPU::ADD_A_N8(u8 p_n) { setFlagsForU8Overflow(m_registers.a, p_n); m_registers.a += p_n;  }
-	void CPU::CP_A_R8(Register8& p_r) { setFlagsForU8Borrow(m_registers.a, p_r); }
-	void CPU::CP_A_HL() { setFlagsForU8Borrow(m_registers.a, m_mmu.getU8(m_registers.hl)); }
-	void CPU::CP_A_N8(u8 p_n) { setFlagsForU8Borrow(m_registers.a, p_n); }
-	void CPU::DEC_R8(Register8& p_r) { if ((p_r & 0xF) == 0b0000) { setFlagH(true); } else { setFlagH(false); } p_r--; setFlagN(true);  if (p_r == 0) { setFlagZ(true); } else { setFlagZ(false); } }
-	void CPU::DEC_HL() { if ((m_mmu.getU8(m_registers.hl) & 0xF) == 0b0000) { setFlagH(true); } else { setFlagH(false); } m_mmu.setU8(m_registers.hl, m_mmu.getU8(m_registers.hl) - 1); setFlagN(true); if (m_mmu.getU8(m_registers.hl) == 0) { setFlagZ(true); } else { setFlagZ(false); } }
-	void CPU::INC_R8(Register8& p_r) { if ((p_r & 0xF) == 0b1111) { setFlagH(true); } else { setFlagH(false); } (p_r)++; setFlagN(false); if (p_r == 0) { setFlagZ(true); } else { setFlagZ(false); } }
-	void CPU::INC_HL() { if ((m_mmu.getU8(m_registers.hl) & 0xF) == 0b1111) { setFlagH(true); } else { setFlagH(false); } m_mmu.setU8(m_registers.hl, m_mmu.getU8(m_registers.hl) + 1); setFlagN(false); if (m_mmu.getU8(m_registers.hl) == 0) { setFlagZ(true); } else { setFlagZ(false); } }
-	void CPU::SBC_A_R8(Register8& p_r) { Flag isCarry = getFlagC(); setFlagsForU8Borrow(m_registers.a, p_r, getFlagC()); m_registers.a = m_registers.a - p_r - isCarry;  }
-	void CPU::SBC_A_HL() { Flag isCarry = getFlagC(); setFlagsForU8Borrow(m_registers.a, m_mmu.getU8(m_registers.hl), getFlagC()); m_registers.a = m_registers.a - m_mmu.getU8(m_registers.hl) - isCarry; }
-	void CPU::SBC_A_N8(u8 p_n) { Flag isCarry = getFlagC(); setFlagsForU8Borrow((u16)m_registers.a, (u16)p_n, (u16)getFlagC()); m_registers.a = m_registers.a - p_n - isCarry; }
-	void CPU::SUB_A_R8(Register8& p_r) { setFlagsForU8Borrow(m_registers.a, p_r); m_registers.a = m_registers.a - p_r; }
-	void CPU::SUB_A_HL() { setFlagsForU8Borrow(m_registers.a, m_mmu.getU8(m_registers.hl)); m_registers.a = m_registers.a - m_mmu.getU8(m_registers.hl); }
-	void CPU::SUB_A_N8(u8 p_n) { setFlagsForU8Borrow(m_registers.a, p_n); m_registers.a = m_registers.a - p_n; }
+	void CPU::LD_R8_N8(Register8& p_r) 
+	{
+		switch (m_mCycle)
+		{
+		case 2:
+			m_z = readByte();
+			m_registers.programCounter++;
+			return;
+		case 3:
+			p_r = m_z;
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+	}
 
-	// 16-bit Arithmetic
-	void CPU::ADD_HL_R16(Register16& p_r) { setFlagN(false); setFlagH(willHalfCarry(m_registers.hl, p_r, true)); setFlagC(willCarry(m_registers.hl, p_r, true)); m_registers.hl += p_r; }
-	void CPU::DEC_R16(Register16& p_r) { p_r--; }
-	void CPU::INC_R16(Register16& p_r) { p_r++; }
+	void CPU::LD_R8_HL(Register8& p_r) 
+	{
+		switch (m_mCycle)
+		{
+		case 2:
+			m_z = readByte(m_registers.hl);
+			return;
+		case 3:
+			p_r = m_z;
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+	}
 
-	// Bitwise Logic
-	void CPU::AND_A_R8(Register8& p_r) { setFlags(!(m_registers.a & p_r), false, true, false); m_registers.a &= p_r;  }
-	void CPU::AND_A_HL() { setFlags(!(m_registers.a & m_mmu.getU8(m_registers.hl)), false, 1, false); m_registers.a &= m_mmu.getU8(m_registers.hl);  }
-	void CPU::AND_A_N8(u8 p_n) { setFlags(!(m_registers.a & p_n), false, true, false); m_registers.a &= p_n;  }
-	void CPU::CPL() { m_registers.a = ~m_registers.a; setFlagN(true); setFlagH(true); }
-	void CPU::OR_A_R8(Register8& p_r) { m_registers.a |= p_r; setFlags(!m_registers.a, false, false, false); }
-	void CPU::OR_A_HL() { m_registers.a |= m_mmu.getU8(m_registers.hl); setFlags(!m_registers.a, false, false, false); }
-	void CPU::OR_A_N8(u8 p_n) { m_registers.a |= p_n; setFlags(!m_registers.a, false, false, false); }
-	void CPU::XOR_A_R8(Register8& p_r) { m_registers.a ^= p_r; setFlags(!m_registers.a, false, false, false); }
-	void CPU::XOR_A_HL() { m_registers.a ^= m_mmu.getU8(m_registers.hl); setFlags(!m_registers.a, false, false, false); }
-	void CPU::XOR_A_N8(u8 p_n) { m_registers.a ^= p_n; setFlags(!m_registers.a, false, false, false); }
+	void CPU::LD_HL_R8(Register8& p_r) 
+	{
+		switch (m_mCycle)
+		{
+		case 2:
+			writeByte(m_registers.hl, p_r);
+			return;
+		case 3:
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+	}
 
-	// Bit Flags
-	void CPU::BIT_U3_R8(u3 p_u, Register8& p_r) { setFlags(!((p_r >> p_u.value) & 0b1), false, true, getFlagC()); }
-	void CPU::BIT_U3_HL(u3 p_u) { setFlags(!((m_mmu.getU8(m_registers.hl) >> p_u.value) & 0x1), false, true, getFlagC()); }
-	void CPU::RES_U3_R8(u3 p_u, Register8& p_r) { p_r &= ~(0xFF & (0b1 << p_u.value)); }
-	void CPU::RES_U3_HL(u3 p_u) { m_mmu.setU8(m_registers.hl, m_mmu.getU8(m_registers.hl) & ~(0xFF & (0b1 << p_u.value))); }
-	void CPU::SET_U3_R8(u3 p_u, Register8& p_r) { p_r |= (0b1 << p_u.value); }
-	void CPU::SET_U3_HL(u3 p_u) { m_mmu.setU8(m_registers.hl, m_mmu.getU8(m_registers.hl) | (0b1 << p_u.value)); }
+	void CPU::LD_HL_N8() 
+	{
+		switch (m_mCycle)
+		{
+		case 2:
+			m_z = readByte();
+			m_registers.programCounter++;
+			return;
+		case 3:
+			writeByte(m_registers.hl, m_z);
+			return;
+		case 4:
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+	}
 
-	// Bit Shifts
-	void CPU::RL_R8(Register8& p_r) { u8 temp = p_r & 0x80; p_r = (p_r << 1) | (int)getFlagC(); setFlags(!p_r, false, false, temp);  }
-	void CPU::RL_HL() { u8 temp = m_mmu.getU8(m_registers.hl) & 0x80; m_mmu.setU8(m_registers.hl, (m_mmu.getU8(m_registers.hl) << 1) | (int)getFlagC()); setFlags(!m_mmu.getU8(m_registers.hl), false, false, temp); }
-	void CPU::RL_A() { u8 temp = m_registers.a & 0x80; m_registers.a = (m_registers.a << 1) | (int)getFlagC(); setFlags(false, false, false, temp); }
-	void CPU::RL_C_R8(Register8& p_r) { u8 temp = p_r & 0x80; p_r = (p_r << 1) | (temp >> 7); setFlags(!p_r, false, false, temp); }
-	void CPU::RL_C_HL() { u8 temp = m_mmu.getU8(m_registers.hl) & 0x80; m_mmu.setU8(m_registers.hl, (m_mmu.getU8(m_registers.hl) << 1) | (temp >> 7)); setFlags(!m_mmu.getU8(m_registers.hl), false, false, temp); }
-	void CPU::RL_C_A() { u8 temp = m_registers.a & 0x80; m_registers.a = (m_registers.a << 1) | (temp >> 7); setFlags(false, false, false, temp); }
-	void CPU::RR_R8(Register8& p_r) { u8 temp = p_r & 0x01; p_r = (p_r >> 1) | (getFlagC() << 7); setFlags(!p_r, false, false, temp); }
-	void CPU::RR_HL() { u8 temp = m_mmu.getU8(m_registers.hl) & 0x01; m_mmu.setU8(m_registers.hl, (m_mmu.getU8(m_registers.hl) >> 1) | (getFlagC() << 7)); setFlags(!m_mmu.getU8(m_registers.hl), false, false, temp); }
-	void CPU::RR_A() { u8 temp = m_registers.a & 0x01; m_registers.a = (m_registers.a >> 1) | (getFlagC() << 7); setFlags(false, false, false, temp); }
-	void CPU::RR_C_R8(Register8& p_r) { u8 temp = p_r & 0x01; p_r = (p_r >> 1) | (temp << 7); setFlags(!p_r, false, false, temp); }
-	void CPU::RR_C_HL() { u8 temp = m_mmu.getU8(m_registers.hl) & 0x01; m_mmu.setU8(m_registers.hl, (m_mmu.getU8(m_registers.hl) >> 1) | (temp << 7)); setFlags(!m_mmu.getU8(m_registers.hl), false, false, temp); }
-	void CPU::RR_C_A() { u8 temp = m_registers.a & 0x01; m_registers.a = (m_registers.a >> 1) | (temp << 7); setFlags(false, false, false, temp); }
-	void CPU::SLA_R8(Register8& p_r) { setFlags(0, 0, 0, p_r & 0x80); p_r = (p_r << 1); setFlagZ(!p_r); }
-	void CPU::SLA_HL() { setFlags(0, 0, 0, m_mmu.getU8(m_registers.hl) & 0x80); m_mmu.setU8(m_registers.hl, m_mmu.getU8(m_registers.hl) << 1); setFlagZ(!m_mmu.getU8(m_registers.hl)); }
-	void CPU::SRA_R8(Register8& p_r) { setFlags(0, 0, 0, p_r & 0x01);  p_r = (p_r & 0x80) | (p_r >> 1); setFlagZ(!p_r); }
-	void CPU::SRA_HL() { setFlags(0, 0, 0, m_mmu.getU8(m_registers.hl) & 0x01); m_mmu.setU8(m_registers.hl, (m_mmu.getU8(m_registers.hl) & 0x80) | (m_mmu.getU8(m_registers.hl) >> 1)); setFlagZ(!m_mmu.getU8(m_registers.hl)); }
-	void CPU::SRL_R8(Register8& p_r) { setFlags(0, 0, 0, p_r & 0x01); p_r = p_r >> 1; setFlagZ(!p_r);}
-	void CPU::SRL_HL() { setFlags(0, 0, 0, m_mmu.getU8(m_registers.hl) & 0x01); m_mmu.setU8(m_registers.hl, m_mmu.getU8(m_registers.hl) >> 1); setFlagZ(!m_mmu.getU8(m_registers.hl));}
-	void CPU::SWAP_R8(Register8& p_r) { p_r = (p_r << 4) | (p_r >> 4); setFlags(!p_r, false, false, false); }
-	void CPU::SWAP_HL() { m_mmu.setU8(m_registers.hl, (m_mmu.getU8(m_registers.hl) << 4) | (m_mmu.getU8(m_registers.hl) >> 4)); setFlags(!m_mmu.getU8(m_registers.hl), false, false, false); }
+	void CPU::LD_A_R16(Register16& p_r) 
+	{
+		switch (m_mCycle)
+		{
+		case 2:
+			m_z = readByte(p_r);
+			return;
+		case 3:
+			m_registers.a = m_z;
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+	}
 
-	// Jumps and Subroutines
-	void CPU::CALL_N16(u16 p_n) { m_registers.stackPointer -= 2; m_mmu.setU16(m_registers.stackPointer, ((m_registers.programCounter & 0xFF) << 8) | (m_registers.programCounter >> 8)); JP_N16(p_n); }
-	void CPU::CALL_CC_N16(ConditionCode p_cc, u16 p_n) { if (ccStatus(p_cc)) CALL_N16(p_n); }
-	void CPU::JP_HL() { m_registers.programCounter = m_registers.hl; }
-	void CPU::JP_N16(s16 p_n) { m_registers.programCounter = p_n; }
-	void CPU::JP_CC_N16(ConditionCode p_cc, s16 p_n) { if (ccStatus(p_cc)) m_registers.programCounter = p_n; }
-	void CPU::JR_N8(s8 p_n) { m_registers.programCounter += p_n; }
-	void CPU::JR_CC_N8(ConditionCode p_cc, s8 p_n) { if (ccStatus(p_cc)) m_registers.programCounter += p_n; }
-	void CPU::RET() { POP_R16(m_registers.programCounter); }
-	void CPU::RET_CC(ConditionCode p_cc) { if (ccStatus(p_cc)) POP_R16(m_registers.programCounter); }
-	void CPU::RETI() { EI(); RET(); }
-	void CPU::RST_VEC(RSTVec p_vec) { CALL_N16(convertRSTVec(p_vec)); }
+	void CPU::LD_R16_A(Register16& p_r) 
+	{
+		switch (m_mCycle)
+		{
+		case 2:
+			writeByte(p_r, m_registers.a);
+			return;
+		case 3:
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+	}
 
-	// Carry Flag
-	void CPU::CCF() { setFlagN(false); setFlagH(false); setFlagC(!getFlagC()); }
-	void CPU::SCF() { setFlagN(false); setFlagH(false); setFlagC(true); }
+	void CPU::LD_A_N16() 
+	{
+		switch (m_mCycle)
+		{
+		case 2:
+			m_z = readByte();
+			m_registers.programCounter++;
+			return;
+		case 3:
+			m_w = readByte();
+			m_registers.programCounter++;
+			return;
+		case 4:
+			m_z = readByte(m_wz);
+			return;
+		case 5:
+			m_registers.a = m_z;
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+	}
 
-	// Stack Manipulation
-	void CPU::ADD_HL_SP() { setFlagsForU16Overflow(m_registers.stackPointer, m_registers.hl); m_registers.hl += m_registers.stackPointer; }
-	void CPU::ADD_SP_S8(s8 p_s) { setFlagZ(false); setFlagN(false); setFlagH(willHalfCarry((u8)m_registers.stackPointer, p_s, true)); setFlagC(willCarry((u8)m_registers.stackPointer, p_s, true)); m_registers.stackPointer += p_s; }
-	void CPU::DEC_SP() { m_registers.stackPointer--; }
-	void CPU::INC_SP() { m_registers.stackPointer++; }
-	void CPU::LD_SP_N16(u16 p_n) { m_mmu.setU16(m_registers.stackPointer, p_n); }
-	void CPU::LD_N16_SP(u16 p_n) { m_mmu.setU16(p_n, ((m_registers.stackPointer & 0xFF) << 8) | (m_registers.stackPointer >> 8)); }
-	void CPU::LD_HL_SP_S8(s8 p_s) { setFlagZ(false);  setFlagN(false); setFlagH(willHalfCarry((u8)m_registers.stackPointer, p_s, true)); setFlagC(willCarry((u8)m_registers.stackPointer, p_s, true)); m_registers.hl = m_registers.stackPointer + p_s; } // https://discord.com/channels/465585922579103744/465586075830845475/1324915448193617984, "rather than having a separate case based on the sign of the argument, you just need to calculate the carries as if the argument was unsigned"
-	void CPU::LD_SP_HL() { m_registers.stackPointer = m_registers.hl; }
-	void CPU::POP_AF() { m_registers.af = m_mmu.getU16(m_registers.stackPointer) & 0xFFF0; m_registers.stackPointer += 2; }
-	void CPU::POP_R16(Register16& p_r) { p_r = m_mmu.getU16(m_registers.stackPointer); m_registers.stackPointer += 2; }
-	void CPU::PUSH_AF() { m_registers.stackPointer -= 2; m_mmu.setU16(m_registers.stackPointer, ((m_registers.af & 0xFF) << 8) | (m_registers.af >> 8)); }
-	void CPU::PUSH_R16(Register16& p_r) { m_registers.stackPointer -= 2; m_mmu.setU16(m_registers.stackPointer, ((p_r & 0xFF) << 8) | (p_r >> 8)); }
+	void CPU::LD_N16_A() 
+	{
+		switch (m_mCycle)
+		{
+		case 2:
+			m_z = readByte();
+			m_registers.programCounter++;
+			return;
+		case 3:
+			m_w = readByte();
+			m_registers.programCounter++;
+			return;
+		case 4:
+			writeByte(m_wz, m_registers.a);
+			return;
+		case 5:
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+	}
 
-	// Interrupt Related
-	void CPU::DI() { setIME(false);  }
-	void CPU::EI() { setIMENextInstrPhase1 = true; }
-	void CPU::HALT() { /* TODO: https://rgbds.gbdev.io/docs/v0.9.4/gbz80.7#HALT */ }
+	void CPU::LDH_A_C() 
+	{
+		switch (m_mCycle)
+		{
+		case 2:
+			m_z = readByte(0xFF00 + m_registers.c);
+			return;
+		case 3:
+			m_registers.a = m_z;
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+	}
 
-	// Miscellaneous
-	void CPU::DAA() { u8 adjustment = 0; if (getFlagN()) { if (getFlagH()) { adjustment += 0x06; } if (getFlagC()) { adjustment += 0x60; } m_registers.a -= adjustment; } else { if (getFlagH() || ((m_registers.a & 0xF) > 0x9)) { adjustment += 0x6; } if (getFlagC() || m_registers.a > 0x99) { adjustment += 0x60; setFlagC(true); } m_registers.a += adjustment; }; setFlagZ(m_registers.a == 0); setFlagH(0); }
-	void CPU::NOP() { ; } // Do nothing
-	void CPU::STOP() { /* TODO: https://rgbds.gbdev.io/docs/v0.9.4/gbz80.7#STOP */ }
+	void CPU::LDH_C_A() 
+	{
+		switch (m_mCycle)
+		{
+		case 2:
+			writeByte(0xFF00 + m_registers.c, m_registers.a);
+			return;
+		case 3:
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+		m_mmu.setU8(0xFF00 + m_registers.c, m_registers.a); 
+	}
+
+	void CPU::LDH_A_N16() 
+	{
+		switch (m_mCycle)
+		{
+		case 2:
+			m_z = readByte();
+			m_registers.programCounter++;
+			return;
+		case 3:
+			m_z = readByte(0xFF00 + m_z);
+			return;
+		case 4:
+			m_registers.a = m_z;
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+	}
+
+	void CPU::LDH_N16_A() 
+	{
+		switch (m_mCycle)
+		{
+		case 2:
+			m_z = readByte();
+			m_registers.programCounter++;
+			return;
+		case 3:
+			writeByte(0xFF00 + m_z, m_registers.a);
+			return;
+		case 4:
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+	}
+
+	void CPU::LD_A_HLD()
+	{
+		switch (m_mCycle)
+		{
+		case 2:
+			m_z = readByte(m_registers.hl);
+			m_registers.hl--;
+			return;
+		case 3:
+			m_registers.a = m_z;
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+	}
+
+	void CPU::LD_HLD_A()
+	{
+		switch (m_mCycle)
+		{
+		case 2:
+			writeByte(m_registers.hl, m_registers.a);
+			m_registers.hl--;
+			return;
+		case 3:
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+	}
+
+	void CPU::LD_A_HLI() 
+	{
+		switch (m_mCycle)
+		{
+		case 2:
+			m_z = readByte(m_registers.hl);
+			m_registers.hl++;
+			return;
+		case 3:
+			m_registers.a = m_z;
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+	}
+
+	void CPU::LD_HLI_A() 
+	{
+		switch (m_mCycle)
+		{
+		case 2:
+			writeByte(m_registers.hl, m_registers.a);
+			m_registers.hl++;
+			return;
+		case 3:
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+	}
+
+	void CPU::LD_R16_N16(Register16& p_r) 
+	{
+		switch (m_mCycle)
+		{
+		case 2:
+			m_z = readByte();
+			m_registers.programCounter++;
+			return;
+		case 3:
+			m_w = readByte();
+			m_registers.programCounter++;
+			return;
+		case 4:
+			p_r = m_wz;
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+	}
+
+	void CPU::LD_N16_SP() 
+	{
+		switch (m_mCycle)
+		{
+		case 2:
+			m_z = readByte();
+			m_registers.programCounter++;
+			return;
+		case 3:
+			m_w = readByte();
+			m_registers.programCounter++;
+			return;
+		case 4:
+			writeByte(m_wz, m_registers.stackPointer & 0xFF);
+			m_wz++;
+			return;
+		case 5:
+			writeByte(m_wz, m_registers.stackPointer >> 8);
+			return;
+		case 6:
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+	}
+	
+	void CPU::LD_SP_HL() 
+	{ 
+		switch (m_mCycle)
+		{
+		case 2:
+			m_registers.stackPointer = m_registers.hl;
+			return;
+		case 3:
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+	}
+
+	void CPU::PUSH_R16(Register16& p_r) 
+	{
+		switch (m_mCycle)
+		{
+		case 2:
+			m_registers.stackPointer--;
+			return;
+		case 3:
+			writeByte(m_registers.stackPointer, p_r >> 8);
+			m_registers.stackPointer--;
+			return;
+		case 4:
+			writeByte(m_registers.stackPointer, p_r && 0xFF);
+			return;
+		case 5:
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+	}
+
+
+	void CPU::POP_R16(Register16& p_r) 
+	{
+		switch (m_mCycle)
+		{
+		case 2:
+			m_z = readByte(m_registers.stackPointer);
+			m_registers.stackPointer++;
+			return;
+		case 3:
+			m_w = readByte(m_registers.stackPointer);
+			m_registers.stackPointer++;
+			return;
+		case 4:
+			p_r = m_wz;
+			m_registers.f &= 0xF0;
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+	}
+
+	void CPU::LD_HL_SP_S8() 
+	{
+		switch (m_mCycle)
+		{
+		case 2:
+			m_z = readByte();
+			m_registers.programCounter++;
+			return;
+		case 3:
+			m_registers.l = (m_registers.stackPointer & 0xFF) + m_z;
+			setFlagZ(0);
+			setFlagN(0);
+			setFlagH(willHalfCarry((u8)m_registers.stackPointer, m_z, true));
+			setFlagC(willCarry((u8)m_registers.stackPointer, m_z, true));
+			return;
+		case 4:
+			m_registers.h = (m_registers.stackPointer >> 8) + (0xFF * ((m_z >> 7) & 0b1)) + getFlagC();
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+	} 
+
+	void CPU::ADD_A_R8(Register8& p_r) 
+	{
+		switch (m_mCycle)
+		{
+		case 2:
+			setFlagsForU8Overflow(m_registers.a, p_r);
+			m_registers.a += p_r;
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+	}
+
+	void CPU::ADD_A_HL() 
+	{
+		switch (m_mCycle)
+		{
+		case 2:
+			m_z = readByte(m_registers.hl);
+			return;
+		case 3:
+			setFlagsForU8Overflow(m_registers.a, m_z);
+			m_registers.a += m_z;
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+	}
+
+	void CPU::ADD_A_N8() 
+	{
+		switch (m_mCycle)
+		{
+		case 2:
+			m_z = readByte();
+			m_registers.programCounter++;
+			return;
+		case 3:
+			setFlagsForU8Overflow(m_registers.a, m_z);
+			m_registers.a += m_z;
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+	}
+
+	void CPU::ADC_A_R8(Register8& p_r) 
+	{ 
+		switch (m_mCycle)
+		{
+		case 2:
+			Flag isCarry = getFlagC();
+			setFlagsForU8Overflow(m_registers.a, p_r, getFlagC());
+			m_registers.a += p_r + isCarry;
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+	}
+
+	void CPU::ADC_A_HL() 
+	{
+		switch (m_mCycle)
+		{
+		case 2:
+			m_z = readByte(m_registers.hl);
+			return;
+		case 3:
+			Flag isCarry = getFlagC();
+			setFlagsForU8Overflow(m_registers.a, m_z, getFlagC());
+			m_registers.a += m_z + isCarry;
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+	}
+
+	void CPU::ADC_A_N8() 
+	{
+		switch (m_mCycle)
+		{
+		case 2:
+			m_z = readByte();
+			m_registers.programCounter++;
+			return;
+		case 3:
+			Flag isCarry = getFlagC();
+			setFlagsForU8Overflow(m_registers.a, m_z, getFlagC());
+			m_registers.a += m_z + isCarry;
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		} 
+	}
+
+	void CPU::SUB_A_R8(Register8& p_r) 
+	{
+		switch (m_mCycle)
+		{
+		case 2:
+			setFlagsForU8Borrow(m_registers.a, p_r);
+			m_registers.a = m_registers.a - p_r;
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+	}
+
+	void CPU::SUB_A_HL() 
+	{
+		switch (m_mCycle)
+		{
+		case 2:
+			m_z = readByte(m_registers.hl);
+			return;
+		case 3:
+			setFlagsForU8Borrow(m_registers.a, m_z);
+			m_registers.a = m_registers.a - m_z;
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+	}
+
+	void CPU::SUB_A_N8() 
+	{
+		switch (m_mCycle)
+		{
+		case 2:
+			m_z = readByte();
+			m_registers.programCounter++;
+			return;
+		case 3:
+			setFlagsForU8Borrow(m_registers.a, m_z);
+			m_registers.a = m_registers.a - m_z;
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+	}
+
+	void CPU::SBC_A_R8(Register8& p_r) 
+	{
+		switch (m_mCycle)
+		{
+		case 2:
+			Flag isCarry = getFlagC();
+			setFlagsForU8Borrow(m_registers.a, p_r, getFlagC());
+			m_registers.a -= p_r + isCarry;
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+	}
+
+	void CPU::SBC_A_HL() 
+	{
+		switch (m_mCycle)
+		{
+		case 2:
+			m_z = readByte(m_registers.hl);
+			return;
+		case 3:
+			Flag isCarry = getFlagC();
+			setFlagsForU8Borrow(m_registers.a, m_z, getFlagC());
+			m_registers.a -= m_z + isCarry;
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+	}
+
+	void CPU::SBC_A_N8() 
+	{
+		switch (m_mCycle)
+		{
+		case 2:
+			m_z = readByte();
+			m_registers.programCounter++;
+			return;
+		case 3:
+			Flag isCarry = getFlagC();
+			setFlagsForU8Borrow(m_registers.a, m_z, getFlagC());
+			m_registers.a -= m_z + isCarry;
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		} 
+	}
+
+	void CPU::CP_A_R8(Register8& p_r) 
+	{
+		switch (m_mCycle)
+		{
+		case 2:
+			setFlagsForU8Borrow(m_registers.a, p_r);
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+	}
+
+	void CPU::CP_A_HL() 
+	{
+		switch (m_mCycle)
+		{
+		case 2:
+			m_z = readByte(m_registers.hl);
+			return;
+		case 3:
+			setFlagsForU8Borrow(m_registers.a, m_z);
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+	}
+
+	void CPU::CP_A_N8() 
+	{
+		switch (m_mCycle)
+		{
+		case 2:
+			m_z = readByte();
+			m_registers.programCounter++;
+			return;
+		case 3:
+			setFlagsForU8Borrow(m_registers.a, m_z);
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+	}
+	
+	void CPU::INC_R8(Register8& p_r) 
+	{
+		switch (m_mCycle)
+		{
+		case 2:
+			setFlagH((p_r & 0xF) == 0xF);
+			p_r++; 
+			setFlagN(0);
+			setFlagZ(p_r == 0);
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+	}
+
+	void CPU::INC_HL() 
+	{
+		switch (m_mCycle)
+		{
+		case 2:
+			m_z = readByte(m_registers.hl);
+			return;
+		case 3:
+			setFlagH((m_z & 0xF) == 0xF);
+			writeByte(m_registers.hl, m_z + 1);
+			setFlagN(0);
+			setFlagZ(m_z + 1 == 0);
+			return;
+		case 4:
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+	}
+
+	void CPU::DEC_R8(Register8& p_r) 
+	{
+		switch (m_mCycle)
+		{
+		case 2:
+			setFlagH((p_r & 0xF) == 0x0);
+			p_r--;
+			setFlagN(1);
+			setFlagZ(p_r == 0);
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+	}
+	void CPU::DEC_HL() 
+	{
+		switch (m_mCycle)
+		{
+		case 2:
+			m_z = readByte(m_registers.hl);
+			return;
+		case 3:
+			setFlagH((m_z & 0xF) == 0x0);
+			writeByte(m_registers.hl, m_z - 1);
+			setFlagN(1);
+			setFlagZ(m_z - 1 == 0);
+			return;
+		case 4:
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+	}
+
+	void CPU::AND_A_R8(Register8& p_r) 
+	{
+		switch (m_mCycle)
+		{
+		case 2:
+			m_registers.a &= p_r;
+			setFlagZ(!m_registers.a);
+			setFlagN(0);
+			setFlagH(1);
+			setFlagC(0);
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+	}
+
+	void CPU::AND_A_HL() 
+	{
+		switch (m_mCycle)
+		{
+		case 2:
+			m_z = readByte(m_registers.hl);
+			return;
+		case 3:
+			m_registers.a &= m_z;
+			setFlagZ(!m_registers.a);
+			setFlagN(0);
+			setFlagH(1);
+			setFlagC(0);
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		} 
+	}
+
+	void CPU::AND_A_N8() 
+	{
+		switch (m_mCycle)
+		{
+		case 2:
+			m_z = readByte();
+			m_registers.programCounter++;
+			return;
+		case 3:
+			m_registers.a &= m_z;
+			setFlagZ(!m_registers.a);
+			setFlagN(0);
+			setFlagH(1);
+			setFlagC(0);
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+	}
+
+	void CPU::OR_A_R8(Register8& p_r) 
+	{
+		switch (m_mCycle)
+		{
+		case 2:
+			m_registers.a |= p_r;
+			setFlagZ(!m_registers.a);
+			setFlagN(0);
+			setFlagH(0);
+			setFlagC(0);
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+	}
+
+	void CPU::OR_A_HL() 
+	{
+		switch (m_mCycle)
+		{
+		case 2:
+			m_z = readByte(m_registers.hl);
+			return;
+		case 3:
+			m_registers.a |= m_z;
+			setFlagZ(!m_registers.a);
+			setFlagN(0);
+			setFlagH(0);
+			setFlagC(0);
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+	}
+
+	void CPU::OR_A_N8() 
+	{
+		switch (m_mCycle)
+		{
+		case 2:
+			m_z = readByte();
+			m_registers.programCounter++;
+			return;
+		case 3:
+			m_registers.a |= m_z;
+			setFlagZ(!m_registers.a);
+			setFlagN(0);
+			setFlagH(0);
+			setFlagC(0);
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+	}
+
+	void CPU::XOR_A_R8(Register8& p_r) 
+	{
+		switch (m_mCycle)
+		{
+		case 2:
+			m_registers.a ^= p_r;
+			setFlagZ(!m_registers.a);
+			setFlagN(0);
+			setFlagH(0);
+			setFlagC(0);
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+	}
+
+	void CPU::XOR_A_HL() {
+		switch (m_mCycle)
+		{
+		case 2:
+			m_z = readByte(m_registers.hl);
+			return;
+		case 3:
+			m_registers.a ^= m_z;
+			setFlagZ(!m_registers.a);
+			setFlagN(0);
+			setFlagH(0);
+			setFlagC(0);
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+	}
+
+	void CPU::XOR_A_N8() 
+	{
+		switch (m_mCycle)
+		{
+		case 2:
+			m_z = readByte();
+			m_registers.programCounter++;
+			return;
+		case 3:
+			m_registers.a ^= m_z;
+			setFlagZ(!m_registers.a);
+			setFlagN(0);
+			setFlagH(0);
+			setFlagC(0);
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+	}
+
+	void CPU::CCF() 
+	{
+		switch (m_mCycle)
+		{
+		case 2:
+			setFlagN(0);
+			setFlagH(0);
+			setFlagC(!getFlagC());
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+	}
+
+	void CPU::SCF() 
+	{
+		switch (m_mCycle)
+		{
+		case 2:
+			setFlagN(0);
+			setFlagH(0);
+			setFlagC(1);
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+	}
+
+	void CPU::DAA() 
+	{
+		switch (m_mCycle)
+		{
+		case 2:
+		{
+			u8 adjustment = 0;
+			if (getFlagN())
+			{
+				if (getFlagH()) adjustment += 0x06;
+				if (getFlagC()) adjustment += 0x60;
+				m_registers.a -= adjustment;
+			}
+			else
+			{
+				if (getFlagH() || ((m_registers.a & 0xF) > 0x9)) adjustment += 0x6;
+				if (getFlagC() || m_registers.a > 0x99)
+				{
+					adjustment += 0x60;
+					setFlagC(1);
+				}
+				m_registers.a += adjustment;
+			}
+			setFlagZ(m_registers.a == 0);
+			setFlagH(0);
+			m_executingInstruction = false;
+			return;
+		}
+		default:
+			return;
+		}
+	}
+
+	void CPU::CPL() 
+	{
+		switch (m_mCycle)
+		{
+		case 2:
+			m_registers.a = ~m_registers.a; 
+			setFlagN(1); 
+			setFlagH(1);
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+	}
+
+	void CPU::INC_R16(Register16& p_r) 
+	{
+		switch (m_mCycle)
+		{
+		case 2:
+			p_r++;
+			return;
+		case 3:
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+	}
+
+	void CPU::DEC_R16(Register16& p_r) 
+	{
+		switch (m_mCycle)
+		{
+		case 2:
+			p_r--;
+			return;
+		case 3:
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+	}
+
+	void CPU::ADD_HL_R16(Register16& p_r) 
+	{
+		switch (m_mCycle)
+		{
+		case 2:
+			setFlagH(willHalfCarry(m_registers.l, p_r & 0xFF, true));
+			setFlagC(willCarry(m_registers.l, p_r & 0xFF, true));
+			m_registers.l += p_r & 0xFF;
+			setFlagN(0);
+			return;
+		case 3:
+			Flag isCarry = getFlagC();
+			setFlagH(willHalfCarry(m_registers.h, (p_r >> 8) + isCarry, true));
+			setFlagC(willCarry(m_registers.h, (p_r >> 8) + isCarry, true));
+			m_registers.h += (p_r >> 8) + isCarry;
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+	}
+
+	void CPU::ADD_SP_S8() 
+	{
+		switch (m_mCycle)
+		{
+		case 2:
+			m_z = readByte();
+			m_registers.programCounter++;
+			return;
+		case 3:
+			setFlagH(willHalfCarry((u8)m_registers.stackPointer, m_z, true)); 
+			setFlagC(willCarry((u8)m_registers.stackPointer, m_z, true));
+			m_z += m_registers.stackPointer & 0xFF; 
+			setFlagZ(0); 
+			setFlagN(0);
+			return;
+		case 4:
+			m_w = (m_registers.stackPointer >> 8) + (0xFF * ((m_z >> 7) & 0b1)) + getFlagC();
+			return;
+		case 5:
+			m_registers.stackPointer = m_wz;
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+	}
+
+	void CPU::RL_C_A() 
+	{
+		switch (m_mCycle)
+		{
+		case 2:
+		{
+			u8 b7 = m_registers.a & 0x80;
+			m_registers.a = (m_registers.a << 1) | (b7 >> 7);
+			setFlags(0, 0, 0, b7 >> 7);
+			m_executingInstruction = false;
+			return;
+		}
+		default:
+			return;
+		}
+	}
+
+	void CPU::RR_C_A() 
+	{
+		switch (m_mCycle)
+		{
+		case 2:
+		{
+			u8 b0 = m_registers.a & 0x01;
+			m_registers.a = (m_registers.a >> 1) | (b0 << 7);
+			setFlags(0, 0, 0, b0);
+			m_executingInstruction = false;
+			return;
+		}
+		default:
+			return;
+		}
+	}
+
+	void CPU::RL_A() 
+	{
+		switch (m_mCycle)
+		{
+		case 2:
+		{
+			u8 b7 = m_registers.a & 0x80;
+			m_registers.a = (m_registers.a << 1) | getFlagC();
+			setFlags(0, 0, 0, b7 >> 7);
+			m_executingInstruction = false;
+			return;
+		}
+		default:
+			return;
+		}
+	}
+
+	void CPU::RR_A() 
+	{
+		switch (m_mCycle)
+		{
+		case 2:
+		{
+			u8 b0 = m_registers.a & 0x01;
+			m_registers.a = (m_registers.a >> 1) | (getFlagC() << 7);
+			setFlags(0, 0, 0, b0);
+			m_executingInstruction = false;
+			return;
+		}
+		default:
+			return;
+		}
+	}
+
+	void CPU::RL_C_R8(Register8& p_r) 
+	{
+		switch (m_mCycle)
+		{
+		case 3:
+		{
+			u8 b7 = p_r & 0x80;
+			p_r = (p_r << 1) | (b7 >> 7);
+			setFlags(!p_r, 0, 0, b7);
+			m_executingInstruction = false;
+			return;
+		}
+		default:
+			return;
+		}
+	}
+
+	void CPU::RL_C_HL() 
+	{
+		switch (m_mCycle)
+		{
+		case 3:
+			m_z = readByte(m_registers.hl);
+			return;
+		case 4:
+		{
+			u8 b7 = m_z & 0x80;
+			writeByte(m_registers.hl, (m_z << 1) | (b7 >> 7));
+			setFlags(readByte(m_registers.hl), 0, 0, b7);
+			return;
+		}
+		case 5:
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+	}
+
+	void CPU::RR_C_R8(Register8& p_r) 
+	{
+		switch (m_mCycle)
+		{
+		case 3:
+		{
+			u8 b0 = p_r & 0x01;
+			p_r = (p_r >> 1) | (b0 << 7);
+			setFlags(!p_r, 0, 0, b0);
+			m_executingInstruction = false;
+			return;
+		}
+		default:
+			return;
+		}
+	}
+
+	void CPU::RR_C_HL() 
+	{
+		switch (m_mCycle)
+		{
+		case 3:
+			m_z = readByte(m_registers.hl);
+			return;
+		case 4:
+		{
+			u8 b0 = m_z & 0x01;
+			writeByte(m_registers.hl, (m_z >> 1) | (b0 << 7));
+			setFlags(readByte(m_registers.hl), 0, 0, b0);
+			return;
+		}
+		case 5:
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+	}
+
+	void CPU::RL_R8(Register8& p_r) 
+	{
+		switch (m_mCycle)
+		{
+		case 3:
+		{
+			u8 b7 = p_r & 0x80;
+			p_r = (p_r << 1) | getFlagC();
+			setFlags(!p_r, 0, 0, b7);
+			m_executingInstruction = false;
+			return;
+		}
+		default:
+			return;
+		} 
+	}
+
+	void CPU::RL_HL() 
+	{
+		switch (m_mCycle)
+		{
+		case 3:
+			m_z = readByte(m_registers.hl);
+			return;
+		case 4:
+		{
+			u8 b7 = m_z & 0x80;
+			writeByte(m_registers.hl, (m_z << 1) | getFlagC());
+			setFlags(readByte(m_registers.hl), 0, 0, b7);
+			return;
+		}
+		case 5:
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+	}
+
+	void CPU::RR_R8(Register8& p_r) 
+	{
+		switch (m_mCycle)
+		{
+		case 3:
+		{
+			u8 b0 = p_r & 0x01;
+			p_r = (p_r >> 1) | (getFlagC() << 7);
+			setFlags(!p_r, 0, 0, b0);
+			m_executingInstruction = false;
+			return;
+		}
+		default:
+			return;
+		}
+	}
+
+	void CPU::RR_HL() 
+	{
+		switch (m_mCycle)
+		{
+		case 3:
+			m_z = readByte(m_registers.hl);
+			return;
+		case 4:
+		{
+			u8 b0 = m_z & 0x01;
+			writeByte(m_registers.hl, (m_z >> 1) | (getFlagC() << 7));
+			setFlags(readByte(m_registers.hl), 0, 0, b0);
+			return;
+		}
+		case 5:
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+	}
+	
+	void CPU::SLA_R8(Register8& p_r) 
+	{
+		switch (m_mCycle)
+		{
+		case 3:
+		{
+			u8 b7 = p_r & 0x80;
+			p_r = (p_r << 1); 
+			setFlags(!p_r, 0, 0, b7);
+			m_executingInstruction = false;
+			return;
+		}
+		default:
+			return;
+		}
+		
+	}
+	void CPU::SLA_HL() 
+	{
+		switch (m_mCycle)
+		{
+		case 3:
+			m_z = readByte(m_registers.hl);
+			return;
+		case 4:
+		{
+			u8 b7 = m_z & 0x80;
+			writeByte(m_registers.hl, m_z << 1);
+			setFlags(!readByte(m_registers.hl), 0, 0, b7);
+			return;
+		}
+		case 5:
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+	}
+
+	void CPU::SRA_R8(Register8& p_r) 
+	{
+		switch (m_mCycle)
+		{
+		case 3:
+		{
+			u8 b0 = p_r & 0x01;
+			p_r = (p_r & 0x80) | (p_r >> 1);
+			setFlags(!p_r, 0, 0, b0);
+			m_executingInstruction = false;
+			return;
+		}
+		default:
+			return;
+		}
+	}
+
+	void CPU::SRA_HL() 
+	{ 
+		switch (m_mCycle)
+		{
+		case 3:
+			m_z = readByte(m_registers.hl);
+			return;
+		case 4:
+		{
+			u8 b0 = m_z & 0x01;
+			writeByte(m_registers.hl, (m_z & 0x80) | (m_z >> 1));
+			setFlags(!readByte(m_registers.hl), 0, 0, b0);
+			return;
+		}
+		case 5:
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		} 
+	}
+
+	void CPU::SWAP_R8(Register8& p_r) 
+	{
+		switch (m_mCycle)
+		{
+		case 3:
+			p_r = (p_r << 4) | (p_r >> 4); 
+			setFlags(!p_r, 0, 0, 0);
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+	}
+
+	void CPU::SWAP_HL() 
+	{
+		switch (m_mCycle)
+		{
+		case 3:
+			m_z = readByte(m_registers.hl);
+			return;
+		case 4:
+			writeByte(m_registers.hl, (m_z << 4) | (m_z >> 4));
+			setFlags(!readByte(m_registers.hl), 0, 0, 0);
+			return;
+		case 5:
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+	}
+
+	void CPU::SRL_R8(Register8& p_r) 
+	{
+		switch (m_mCycle)
+		{
+		case 3:
+		{
+			u8 b0 = p_r & 0x01;
+			p_r = p_r >> 1;
+			setFlags(!p_r, 0, 0, b0);
+			m_executingInstruction = false;
+			return;
+		}
+		default:
+			return;
+		}
+	}
+
+	void CPU::SRL_HL() 
+	{
+		switch (m_mCycle)
+		{
+		case 3:
+			m_z = readByte(m_registers.hl);
+			return;
+		case 4:
+		{
+			u8 b0 = m_z & 0x01;
+			writeByte(m_registers.hl, m_z >> 1);
+			setFlags(!readByte(m_registers.hl), 0, 0, b0);
+			return;
+		}
+		case 5:
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+	}
+
+	void CPU::BIT_U3_R8(u3 p_u, Register8& p_r) 
+	{
+		switch (m_mCycle)
+		{
+		case 3:
+			setFlags(!((p_r >> p_u.value) & 0b1), 0, 1, getFlagC());
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+	}
+
+	void CPU::BIT_U3_HL(u3 p_u) 
+	{
+		switch (m_mCycle)
+		{
+		case 3:
+			m_z = readByte(m_registers.hl);
+			return;
+		case 4:
+			setFlags(!((m_z >> p_u.value) & 0b1), 0, 1, getFlagC());
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+	}
+
+	void CPU::RES_U3_R8(u3 p_u, Register8& p_r) 
+	{
+		switch (m_mCycle)
+		{
+		case 3:
+			p_r &= ~(0xFF & (0b1 << p_u.value));
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+	}
+
+	void CPU::RES_U3_HL(u3 p_u) 
+	{
+		switch (m_mCycle)
+		{
+		case 3:
+			m_z = readByte(m_registers.hl);
+			return;
+		case 4:
+			writeByte(m_registers.hl, m_z & ~(0xFF & (0b1 << p_u.value)));
+			return;
+		case 5:
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+	}
+
+	void CPU::SET_U3_R8(u3 p_u, Register8& p_r) 
+	{
+		switch (m_mCycle)
+		{
+		case 3:
+			p_r |= 0b1 << p_u.value;
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+	}
+
+	void CPU::SET_U3_HL(u3 p_u) 
+	{
+		switch (m_mCycle)
+		{
+		case 3:
+			m_z = readByte(m_registers.hl);
+			return;
+		case 4:
+			writeByte(m_registers.hl, m_z | (0b1 << p_u.value));
+			return;
+		case 5:
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+	}
+
+	void CPU::JP_N16() 
+	{
+		switch (m_mCycle)
+		{
+		case 2:
+			m_z = readByte();
+			m_registers.programCounter++;
+			return;
+		case 3:
+			m_w = readByte();
+			m_registers.programCounter++;
+			return;
+		case 4:
+			m_registers.programCounter = m_wz;
+			return;
+		case 5:
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+	}
+
+	void CPU::JP_HL() 
+	{
+		switch (m_mCycle)
+		{
+		case 2:
+			m_registers.programCounter = m_registers.hl;
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+	}
+
+	void CPU::JP_CC_N16(ConditionCode p_cc) 
+	{ 
+		switch (m_mCycle)
+		{
+		case 2:
+			m_z = readByte();
+			m_registers.programCounter++;
+			return;
+		case 3:
+			m_w = readByte();
+			m_registers.programCounter++;
+			return;
+		case 4:
+			if (ccStatus(p_cc)) m_registers.programCounter = m_wz;
+			else m_executingInstruction = false;
+			return;
+		case 5:
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+	}
+
+	void CPU::JR_N8() 
+	{
+		switch (m_mCycle)
+		{
+		case 2:
+			m_z = readByte();
+			m_registers.programCounter++;
+			return;
+		case 3:
+		{
+			u8 b7 = m_z & 0x80;
+			bool isCarry = willCarry(m_z, m_registers.programCounter & 0xFF, true);
+			
+			m_z += m_registers.programCounter & 0xFF;
+			
+			if (isCarry && !b7) m_w = (m_registers.programCounter >> 8) + 1;
+			else if (!isCarry && b7) m_w = (m_registers.programCounter >> 8) - 1;
+			else m_w = (m_registers.programCounter >> 8);
+
+			return;
+		}
+		case 4:
+			m_registers.programCounter = m_wz;
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+	}
+
+	void CPU::JR_CC_N8(ConditionCode p_cc) 
+	{
+		switch (m_mCycle)
+		{
+		case 2:
+			m_z = readByte();
+			m_registers.programCounter++;
+			return;
+		case 3:
+		{
+			if (ccStatus(p_cc))
+			{
+				u8 b7 = m_z & 0x80;
+				bool isCarry = willCarry(m_z, m_registers.programCounter & 0xFF, true);
+
+				m_z += m_registers.programCounter & 0xFF;
+
+				if (isCarry && !b7) m_w = (m_registers.programCounter >> 8) + 1;
+				else if (!isCarry && b7) m_w = (m_registers.programCounter >> 8) - 1;
+				else m_w = (m_registers.programCounter >> 8);
+			}
+			else m_executingInstruction = false;
+			return;
+		}
+		case 4:
+			m_registers.programCounter = m_wz;
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+	}
+
+	void CPU::CALL_N16() 
+	{
+		switch (m_mCycle)
+		{
+		case 2:
+			m_z = readByte();
+			m_registers.programCounter++;
+			return;
+		case 3:
+			m_w = readByte();
+			m_registers.programCounter++;
+			return;
+		case 4:
+			m_registers.stackPointer--;
+			return;
+		case 5:
+			writeByte(m_registers.stackPointer, m_registers.programCounter >> 8);
+			m_registers.stackPointer--;
+			return;
+		case 6:
+			writeByte(m_registers.stackPointer, m_registers.programCounter & 0xFF);
+			m_registers.programCounter = m_wz;
+			return;
+		case 7:
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+	}
+
+	void CPU::CALL_CC_N16(ConditionCode p_cc) 
+	{
+		switch (m_mCycle)
+		{
+		case 2:
+			m_z = readByte();
+			m_registers.programCounter++;
+			return;
+		case 3:
+			m_w = readByte();
+			m_registers.programCounter++;
+			return;
+		case 4:
+			if (ccStatus(p_cc)) m_registers.stackPointer--;
+			else m_executingInstruction = false;
+			return;
+		case 5:
+			writeByte(m_registers.stackPointer, m_registers.programCounter >> 8);
+			m_registers.stackPointer--;
+			return;
+		case 6:
+			writeByte(m_registers.stackPointer, m_registers.programCounter & 0xFF);
+			m_registers.programCounter = m_wz;
+			return;
+		case 7:
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+	}
+
+	void CPU::RET() 
+	{
+		switch (m_mCycle)
+		{
+		case 2:
+			m_z = readByte(m_registers.stackPointer);
+			m_registers.programCounter++;
+			return;
+		case 3:
+			m_w = readByte(m_registers.stackPointer);
+			m_registers.programCounter++;
+			return;
+		case 4:
+			m_registers.programCounter = m_wz;
+			return;
+		case 5:
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+	}
+
+	void CPU::RET_CC(ConditionCode p_cc) 
+	{
+		switch (m_mCycle)
+		{
+		case 2:
+			return;
+		case 3:
+			if (ccStatus(p_cc))
+			{
+				m_z = readByte(m_registers.stackPointer);
+				m_registers.programCounter++;
+			}
+			return;
+		case 4:
+			if (ccStatus(p_cc))
+			{
+				m_w = readByte(m_registers.stackPointer);
+				m_registers.programCounter++;
+			}
+			else m_executingInstruction = false;
+			return;
+		case 5:
+			m_registers.programCounter = m_wz;
+			return;
+		case 6:
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+	}
+
+	void CPU::RETI() 
+	{
+		switch (m_mCycle)
+		{
+		case 2:
+			m_z = readByte(m_registers.stackPointer);
+			m_registers.stackPointer++;
+			return;
+		case 3:
+			m_w = readByte(m_registers.stackPointer);
+			m_registers.stackPointer++;
+			return;
+		case 4:
+			m_registers.programCounter = m_wz;
+			setIME(1);
+			return;
+		case 5:
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+	}
+
+	void CPU::RST_VEC(RSTVec p_vec) 
+	{
+		switch (m_mCycle)
+		{
+		case 2:
+			m_registers.stackPointer--;
+			return;
+		case 3:
+			writeByte(m_registers.stackPointer, m_registers.programCounter >> 8);
+			m_registers.stackPointer--;
+			return;
+		case 4:
+			writeByte(m_registers.stackPointer, m_registers.programCounter & 0xFF);
+			m_registers.programCounter = p_vec;
+			return;
+		case 5:
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+	}
+
+	void CPU::HALT() 
+	{ 
+		/* TODO: https://rgbds.gbdev.io/docs/v0.9.4/gbz80.7#HALT */ 
+	}
+
+	void CPU::STOP() 
+	{ 
+		/* TODO: https://rgbds.gbdev.io/docs/v0.9.4/gbz80.7#STOP */ 
+	}
+
+	void CPU::DI() 
+	{
+		switch (m_mCycle)
+		{
+		case 2:
+			setIME(0);
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		} 
+	}
+
+	void CPU::EI() 
+	{
+		switch (m_mCycle)
+		{
+		case 2:
+			setIMENextCycle = true;
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+	}
+
+	void CPU::NOP() 
+	{
+		switch (m_mCycle)
+		{
+		case 2:
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+	}
+
 
 	// Operator Codes
 	void CPU::op_00() { /* does nothing */ }
-	void CPU::op_01() { LD_R16_N16(m_registers.bc, getBytePair()); }
+	void CPU::op_01() { LD_R16_N16(m_registers.bc); }
 	void CPU::op_02() { LD_R16_A(m_registers.bc); }
 	void CPU::op_03() { INC_R16(m_registers.bc); }
 	void CPU::op_04() { INC_R8(m_registers.b); }
 	void CPU::op_05() { DEC_R8(m_registers.b); }
-	void CPU::op_06() { LD_R8_N8(m_registers.b, getByte()); }
+	void CPU::op_06() { LD_R8_N8(m_registers.b); }
 	void CPU::op_07() { RL_C_A(); }
-	void CPU::op_08() { LD_N16_SP(getBytePair()); }
+	void CPU::op_08() { LD_N16_SP(); }
 	void CPU::op_09() { ADD_HL_R16(m_registers.bc); }
 	void CPU::op_0A() { LD_A_R16(m_registers.bc); }
 	void CPU::op_0B() { DEC_R16(m_registers.bc); }
 	void CPU::op_0C() { INC_R8(m_registers.c); }
 	void CPU::op_0D() { DEC_R8(m_registers.c); }
-	void CPU::op_0E() { LD_R8_N8(m_registers.c, getByte()); }
+	void CPU::op_0E() { LD_R8_N8(m_registers.c); }
 	void CPU::op_0F() { RR_C_A(); }
 
 	void CPU::op_10() { STOP(); }
-	void CPU::op_11() { LD_R16_N16(m_registers.de, getBytePair());; }
+	void CPU::op_11() { LD_R16_N16(m_registers.de); }
 	void CPU::op_12() { LD_R16_A(m_registers.de); }
 	void CPU::op_13() { INC_R16(m_registers.de); }
 	void CPU::op_14() { INC_R8(m_registers.d); }
 	void CPU::op_15() { DEC_R8(m_registers.d); }
-	void CPU::op_16() { LD_R8_N8(m_registers.d, getByte()); }
+	void CPU::op_16() { LD_R8_N8(m_registers.d); }
 	void CPU::op_17() { RL_A(); }
-	void CPU::op_18() { JR_N8(getByte()); } 
+	void CPU::op_18() { JR_N8(); } 
 	void CPU::op_19() { ADD_HL_R16(m_registers.de); }
 	void CPU::op_1A() { LD_A_R16(m_registers.de); }
 	void CPU::op_1B() { DEC_R16(m_registers.de); }
 	void CPU::op_1C() { INC_R8(m_registers.e); }
 	void CPU::op_1D() { DEC_R8(m_registers.e); }
-	void CPU::op_1E() { LD_R8_N8(m_registers.e, getByte()); }
+	void CPU::op_1E() { LD_R8_N8(m_registers.e); }
 	void CPU::op_1F() { RR_A(); }
 
-	void CPU::op_20() { JR_CC_N8(NZ, getByte()); }
-	void CPU::op_21() { LD_R16_N16(m_registers.hl, getBytePair());; }
+	void CPU::op_20() { JR_CC_N8(NZ); }
+	void CPU::op_21() { LD_R16_N16(m_registers.hl); }
 	void CPU::op_22() { LD_HLI_A(); }
 	void CPU::op_23() { INC_R16(m_registers.hl); }
 	void CPU::op_24() { INC_R8(m_registers.h); }
 	void CPU::op_25() { DEC_R8(m_registers.h); }
-	void CPU::op_26() { LD_R8_N8(m_registers.h, getByte()); }
+	void CPU::op_26() { LD_R8_N8(m_registers.h); }
 	void CPU::op_27() { DAA(); }
-	void CPU::op_28() { JR_CC_N8(Z, getByte()); }
+	void CPU::op_28() { JR_CC_N8(Z); }
 	void CPU::op_29() { ADD_HL_R16(m_registers.hl); }
 	void CPU::op_2A() { LD_A_HLI(); }
-	void CPU::op_2B() { DEC_R16(m_registers.hl);; }
+	void CPU::op_2B() { DEC_R16(m_registers.hl); }
 	void CPU::op_2C() { INC_R8(m_registers.l); }
 	void CPU::op_2D() { DEC_R8(m_registers.l); }
-	void CPU::op_2E() { LD_R8_N8(m_registers.l, getByte()); }
+	void CPU::op_2E() { LD_R8_N8(m_registers.l); }
 	void CPU::op_2F() { CPL(); }
 
-	void CPU::op_30() { JR_CC_N8(NC, getByte()); }
-	void CPU::op_31() { LD_R16_N16(m_registers.stackPointer, getBytePair());; }
+	void CPU::op_30() { JR_CC_N8(NC); }
+	void CPU::op_31() { LD_R16_N16(m_registers.stackPointer); }
 	void CPU::op_32() { LD_HLD_A(); }
 	void CPU::op_33() { INC_R16(m_registers.stackPointer); }
 	void CPU::op_34() { INC_HL(); }
 	void CPU::op_35() { DEC_HL(); }
-	void CPU::op_36() { LD_HL_N8(getByte()); }
+	void CPU::op_36() { LD_HL_N8(); }
 	void CPU::op_37() { SCF(); }
-	void CPU::op_38() { JR_CC_N8(C, getByte()); }
+	void CPU::op_38() { JR_CC_N8(C); }
 	void CPU::op_39() { ADD_HL_R16(m_registers.stackPointer); }
 	void CPU::op_3A() { LD_A_HLD(); }
-	void CPU::op_3B() { DEC_R16(m_registers.stackPointer);; }
+	void CPU::op_3B() { DEC_R16(m_registers.stackPointer); }
 	void CPU::op_3C() { INC_R8(m_registers.a); }
 	void CPU::op_3D() { DEC_R8(m_registers.a); }
-	void CPU::op_3E() { LD_R8_N8(m_registers.a, getByte()); }
+	void CPU::op_3E() { LD_R8_N8(m_registers.a); }
 	void CPU::op_3F() { CCF(); }
 
 	void CPU::op_40() { LD_R8_R8(m_registers.b, m_registers.b); }
@@ -747,70 +2500,70 @@ namespace rose_core {
 
 	void CPU::op_C0() { RET_CC(NZ); }
 	void CPU::op_C1() { POP_R16(m_registers.bc); }
-	void CPU::op_C2() { JP_CC_N16(NZ, getBytePair()); }
-	void CPU::op_C3() { JP_N16(getBytePair()); }
-	void CPU::op_C4() { CALL_CC_N16(NZ, getBytePair()); }
+	void CPU::op_C2() { JP_CC_N16(NZ); }
+	void CPU::op_C3() { JP_N16(); }
+	void CPU::op_C4() { CALL_CC_N16(NZ); }
 	void CPU::op_C5() { PUSH_R16(m_registers.bc); }
-	void CPU::op_C6() { ADD_A_N8(getByte()); }
+	void CPU::op_C6() { ADD_A_N8(); }
 	void CPU::op_C7() { RST_VEC(x00); }
 	void CPU::op_C8() { RET_CC(Z); }
 	void CPU::op_C9() { RET(); }
-	void CPU::op_CA() { JP_CC_N16(Z, getBytePair()); }
+	void CPU::op_CA() { JP_CC_N16(Z); }
 	void CPU::op_CB() { executeCBInstruction(); } // Switch to CB opcodes
-	void CPU::op_CC() { CALL_CC_N16(Z, getBytePair()); }
-	void CPU::op_CD() { CALL_N16(getBytePair()); }
-	void CPU::op_CE() { ADC_A_N8(getByte()); }
+	void CPU::op_CC() { CALL_CC_N16(Z); }
+	void CPU::op_CD() { CALL_N16(); }
+	void CPU::op_CE() { ADC_A_N8(); }
 	void CPU::op_CF() { RST_VEC(x08); }
 
 	void CPU::op_D0() { RET_CC(NC); }
 	void CPU::op_D1() { POP_R16(m_registers.de); }
-	void CPU::op_D2() { JP_CC_N16(NC, getBytePair()); }
+	void CPU::op_D2() { JP_CC_N16(NC); }
 	void CPU::op_D3() { throw; }
-	void CPU::op_D4() { CALL_CC_N16(NC, getBytePair()); }
+	void CPU::op_D4() { CALL_CC_N16(NC); }
 	void CPU::op_D5() { PUSH_R16(m_registers.de); }
-	void CPU::op_D6() { SUB_A_N8(getByte()); }
+	void CPU::op_D6() { SUB_A_N8(); }
 	void CPU::op_D7() { RST_VEC(x10); }
 	void CPU::op_D8() { RET_CC(C); }
 	void CPU::op_D9() { RETI(); }
-	void CPU::op_DA() { JP_CC_N16(C, getBytePair()); }
+	void CPU::op_DA() { JP_CC_N16(C); }
 	void CPU::op_DB() { throw; }
-	void CPU::op_DC() { CALL_CC_N16(C, getBytePair()); }
+	void CPU::op_DC() { CALL_CC_N16(C); }
 	void CPU::op_DD() { throw; }
-	void CPU::op_DE() { SBC_A_N8(getByte()); }
+	void CPU::op_DE() { SBC_A_N8(); }
 	void CPU::op_DF() { RST_VEC(x18); }
 
-	void CPU::op_E0() { LDH_N16_A(getByte()); }
+	void CPU::op_E0() { LDH_N16_A(); }
 	void CPU::op_E1() { POP_R16(m_registers.hl); }
 	void CPU::op_E2() { LDH_C_A(); }
 	void CPU::op_E3() { throw; }
 	void CPU::op_E4() { throw; }
 	void CPU::op_E5() { PUSH_R16(m_registers.hl); }
-	void CPU::op_E6() { AND_A_N8(getByte()); }
+	void CPU::op_E6() { AND_A_N8(); }
 	void CPU::op_E7() { RST_VEC(x20); }
-	void CPU::op_E8() { ADD_SP_S8(getByte()); }
+	void CPU::op_E8() { ADD_SP_S8(); }
 	void CPU::op_E9() { JP_HL(); }
-	void CPU::op_EA() { LD_N16_A(getBytePair()); }
+	void CPU::op_EA() { LD_N16_A(); }
 	void CPU::op_EB() { throw; }
 	void CPU::op_EC() { throw; }
 	void CPU::op_ED() { throw; }
-	void CPU::op_EE() { XOR_A_N8(getByte()); }
+	void CPU::op_EE() { XOR_A_N8(); }
 	void CPU::op_EF() { RST_VEC(x28); }
 
-	void CPU::op_F0() { LDH_A_N16(getByte()); }
+	void CPU::op_F0() { LDH_A_N16(); }
 	void CPU::op_F1() { POP_AF(); }
 	void CPU::op_F2() { LDH_A_C(); }
 	void CPU::op_F3() { DI(); }
 	void CPU::op_F4() { throw; }
 	void CPU::op_F5() { PUSH_AF(); }
-	void CPU::op_F6() { OR_A_N8(getByte()); }
+	void CPU::op_F6() { OR_A_N8(); }
 	void CPU::op_F7() { RST_VEC(x30); }
-	void CPU::op_F8() { LD_HL_SP_S8(getByte()); }
+	void CPU::op_F8() { LD_HL_SP_S8(); }
 	void CPU::op_F9() { LD_SP_HL(); }
-	void CPU::op_FA() { LD_A_N16(getBytePair()); }
+	void CPU::op_FA() { LD_A_N16(); }
 	void CPU::op_FB() { EI(); }
 	void CPU::op_FC() { throw; }
 	void CPU::op_FD() { throw; }
-	void CPU::op_FE() { CP_A_N8(getByte()); }
+	void CPU::op_FE() { CP_A_N8(); }
 	void CPU::op_FF() { RST_VEC(x38); }
 
 	void CPU::op_cb_00() { RL_C_R8(m_registers.b); }
