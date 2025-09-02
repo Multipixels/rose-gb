@@ -15,6 +15,9 @@ namespace rose_core {
 		m_registers.programCounter = p_programCounterStart;
 	}
 
+	void CPU::tick()
+	{
+		if (m_executingInstruction)
 	void CPU::executeInstruction()
 	{
 		if (m_registers.programCounter > 0xFFFF) throw;
@@ -145,58 +148,90 @@ namespace rose_core {
 		case 0x50: op_cb_50(); break; case 0x51: op_cb_51(); break; case 0x52: op_cb_52(); break; case 0x53: op_cb_53(); break;
 		case 0x54: op_cb_54(); break; case 0x55: op_cb_55(); break; case 0x56: op_cb_56(); break; case 0x57: op_cb_57(); break;
 		case 0x58: op_cb_58(); break; case 0x59: op_cb_59(); break; case 0x5A: op_cb_5A(); break; case 0x5B: op_cb_5B(); break;
-		case 0x5C: op_cb_5C(); break; case 0x5D: op_cb_5D(); break; case 0x5E: op_cb_5E(); break; case 0x5F: op_cb_5F(); break;
+		if(m_mCycle == 2)
+			m_cbMode = true;
+		else if(m_mCycle > 2)
+			switch (m_currentOperationCB) {
+			case 0x00: op_cb_00(); break; case 0x01: op_cb_01(); break; case 0x02: op_cb_02(); break; case 0x03: op_cb_03(); break;
+			case 0x04: op_cb_04(); break; case 0x05: op_cb_05(); break; case 0x06: op_cb_06(); break; case 0x07: op_cb_07(); break;
+			case 0x08: op_cb_08(); break; case 0x09: op_cb_09(); break; case 0x0A: op_cb_0A(); break; case 0x0B: op_cb_0B(); break;
+			case 0x0C: op_cb_0C(); break; case 0x0D: op_cb_0D(); break; case 0x0E: op_cb_0E(); break; case 0x0F: op_cb_0F(); break;
 
-		case 0x60: op_cb_60(); break; case 0x61: op_cb_61(); break; case 0x62: op_cb_62(); break; case 0x63: op_cb_63(); break;
-		case 0x64: op_cb_64(); break; case 0x65: op_cb_65(); break; case 0x66: op_cb_66(); break; case 0x67: op_cb_67(); break;
-		case 0x68: op_cb_68(); break; case 0x69: op_cb_69(); break; case 0x6A: op_cb_6A(); break; case 0x6B: op_cb_6B(); break;
-		case 0x6C: op_cb_6C(); break; case 0x6D: op_cb_6D(); break; case 0x6E: op_cb_6E(); break; case 0x6F: op_cb_6F(); break;
+			case 0x10: op_cb_10(); break; case 0x11: op_cb_11(); break; case 0x12: op_cb_12(); break; case 0x13: op_cb_13(); break;
+			case 0x14: op_cb_14(); break; case 0x15: op_cb_15(); break; case 0x16: op_cb_16(); break; case 0x17: op_cb_17(); break;
+			case 0x18: op_cb_18(); break; case 0x19: op_cb_19(); break; case 0x1A: op_cb_1A(); break; case 0x1B: op_cb_1B(); break;
+			case 0x1C: op_cb_1C(); break; case 0x1D: op_cb_1D(); break; case 0x1E: op_cb_1E(); break; case 0x1F: op_cb_1F(); break;
 
-		case 0x70: op_cb_70(); break; case 0x71: op_cb_71(); break; case 0x72: op_cb_72(); break; case 0x73: op_cb_73(); break;
-		case 0x74: op_cb_74(); break; case 0x75: op_cb_75(); break; case 0x76: op_cb_76(); break; case 0x77: op_cb_77(); break;
-		case 0x78: op_cb_78(); break; case 0x79: op_cb_79(); break; case 0x7A: op_cb_7A(); break; case 0x7B: op_cb_7B(); break;
-		case 0x7C: op_cb_7C(); break; case 0x7D: op_cb_7D(); break; case 0x7E: op_cb_7E(); break; case 0x7F: op_cb_7F(); break;
+			case 0x20: op_cb_20(); break; case 0x21: op_cb_21(); break; case 0x22: op_cb_22(); break; case 0x23: op_cb_23(); break;
+			case 0x24: op_cb_24(); break; case 0x25: op_cb_25(); break; case 0x26: op_cb_26(); break; case 0x27: op_cb_27(); break;
+			case 0x28: op_cb_28(); break; case 0x29: op_cb_29(); break; case 0x2A: op_cb_2A(); break; case 0x2B: op_cb_2B(); break;
+			case 0x2C: op_cb_2C(); break; case 0x2D: op_cb_2D(); break; case 0x2E: op_cb_2E(); break; case 0x2F: op_cb_2F(); break;
 
-		case 0x80: op_cb_80(); break; case 0x81: op_cb_81(); break; case 0x82: op_cb_82(); break; case 0x83: op_cb_83(); break;
-		case 0x84: op_cb_84(); break; case 0x85: op_cb_85(); break; case 0x86: op_cb_86(); break; case 0x87: op_cb_87(); break;
-		case 0x88: op_cb_88(); break; case 0x89: op_cb_89(); break; case 0x8A: op_cb_8A(); break; case 0x8B: op_cb_8B(); break;
-		case 0x8C: op_cb_8C(); break; case 0x8D: op_cb_8D(); break; case 0x8E: op_cb_8E(); break; case 0x8F: op_cb_8F(); break;
+			case 0x30: op_cb_30(); break; case 0x31: op_cb_31(); break; case 0x32: op_cb_32(); break; case 0x33: op_cb_33(); break;
+			case 0x34: op_cb_34(); break; case 0x35: op_cb_35(); break; case 0x36: op_cb_36(); break; case 0x37: op_cb_37(); break;
+			case 0x38: op_cb_38(); break; case 0x39: op_cb_39(); break; case 0x3A: op_cb_3A(); break; case 0x3B: op_cb_3B(); break;
+			case 0x3C: op_cb_3C(); break; case 0x3D: op_cb_3D(); break; case 0x3E: op_cb_3E(); break; case 0x3F: op_cb_3F(); break;
 
-		case 0x90: op_cb_90(); break; case 0x91: op_cb_91(); break; case 0x92: op_cb_92(); break; case 0x93: op_cb_93(); break;
-		case 0x94: op_cb_94(); break; case 0x95: op_cb_95(); break; case 0x96: op_cb_96(); break; case 0x97: op_cb_97(); break;
-		case 0x98: op_cb_98(); break; case 0x99: op_cb_99(); break; case 0x9A: op_cb_9A(); break; case 0x9B: op_cb_9B(); break;
-		case 0x9C: op_cb_9C(); break; case 0x9D: op_cb_9D(); break; case 0x9E: op_cb_9E(); break; case 0x9F: op_cb_9F(); break;
+			case 0x40: op_cb_40(); break; case 0x41: op_cb_41(); break; case 0x42: op_cb_42(); break; case 0x43: op_cb_43(); break;
+			case 0x44: op_cb_44(); break; case 0x45: op_cb_45(); break; case 0x46: op_cb_46(); break; case 0x47: op_cb_47(); break;
+			case 0x48: op_cb_48(); break; case 0x49: op_cb_49(); break; case 0x4A: op_cb_4A(); break; case 0x4B: op_cb_4B(); break;
+			case 0x4C: op_cb_4C(); break; case 0x4D: op_cb_4D(); break; case 0x4E: op_cb_4E(); break; case 0x4F: op_cb_4F(); break;
 
-		case 0xA0: op_cb_A0(); break; case 0xA1: op_cb_A1(); break; case 0xA2: op_cb_A2(); break; case 0xA3: op_cb_A3(); break;
-		case 0xA4: op_cb_A4(); break; case 0xA5: op_cb_A5(); break; case 0xA6: op_cb_A6(); break; case 0xA7: op_cb_A7(); break;
-		case 0xA8: op_cb_A8(); break; case 0xA9: op_cb_A9(); break; case 0xAA: op_cb_AA(); break; case 0xAB: op_cb_AB(); break;
-		case 0xAC: op_cb_AC(); break; case 0xAD: op_cb_AD(); break; case 0xAE: op_cb_AE(); break; case 0xAF: op_cb_AF(); break;
+			case 0x50: op_cb_50(); break; case 0x51: op_cb_51(); break; case 0x52: op_cb_52(); break; case 0x53: op_cb_53(); break;
+			case 0x54: op_cb_54(); break; case 0x55: op_cb_55(); break; case 0x56: op_cb_56(); break; case 0x57: op_cb_57(); break;
+			case 0x58: op_cb_58(); break; case 0x59: op_cb_59(); break; case 0x5A: op_cb_5A(); break; case 0x5B: op_cb_5B(); break;
+			case 0x5C: op_cb_5C(); break; case 0x5D: op_cb_5D(); break; case 0x5E: op_cb_5E(); break; case 0x5F: op_cb_5F(); break;
 
-		case 0xB0: op_cb_B0(); break; case 0xB1: op_cb_B1(); break; case 0xB2: op_cb_B2(); break; case 0xB3: op_cb_B3(); break;
-		case 0xB4: op_cb_B4(); break; case 0xB5: op_cb_B5(); break; case 0xB6: op_cb_B6(); break; case 0xB7: op_cb_B7(); break;
-		case 0xB8: op_cb_B8(); break; case 0xB9: op_cb_B9(); break; case 0xBA: op_cb_BA(); break; case 0xBB: op_cb_BB(); break;
-		case 0xBC: op_cb_BC(); break; case 0xBD: op_cb_BD(); break; case 0xBE: op_cb_BE(); break; case 0xBF: op_cb_BF(); break;
+			case 0x60: op_cb_60(); break; case 0x61: op_cb_61(); break; case 0x62: op_cb_62(); break; case 0x63: op_cb_63(); break;
+			case 0x64: op_cb_64(); break; case 0x65: op_cb_65(); break; case 0x66: op_cb_66(); break; case 0x67: op_cb_67(); break;
+			case 0x68: op_cb_68(); break; case 0x69: op_cb_69(); break; case 0x6A: op_cb_6A(); break; case 0x6B: op_cb_6B(); break;
+			case 0x6C: op_cb_6C(); break; case 0x6D: op_cb_6D(); break; case 0x6E: op_cb_6E(); break; case 0x6F: op_cb_6F(); break;
 
-		case 0xC0: op_cb_C0(); break; case 0xC1: op_cb_C1(); break; case 0xC2: op_cb_C2(); break; case 0xC3: op_cb_C3(); break;
-		case 0xC4: op_cb_C4(); break; case 0xC5: op_cb_C5(); break; case 0xC6: op_cb_C6(); break; case 0xC7: op_cb_C7(); break;
-		case 0xC8: op_cb_C8(); break; case 0xC9: op_cb_C9(); break; case 0xCA: op_cb_CA(); break; case 0xCB: op_cb_CB(); break;
-		case 0xCC: op_cb_CC(); break; case 0xCD: op_cb_CD(); break; case 0xCE: op_cb_CE(); break; case 0xCF: op_cb_CF(); break;
+			case 0x70: op_cb_70(); break; case 0x71: op_cb_71(); break; case 0x72: op_cb_72(); break; case 0x73: op_cb_73(); break;
+			case 0x74: op_cb_74(); break; case 0x75: op_cb_75(); break; case 0x76: op_cb_76(); break; case 0x77: op_cb_77(); break;
+			case 0x78: op_cb_78(); break; case 0x79: op_cb_79(); break; case 0x7A: op_cb_7A(); break; case 0x7B: op_cb_7B(); break;
+			case 0x7C: op_cb_7C(); break; case 0x7D: op_cb_7D(); break; case 0x7E: op_cb_7E(); break; case 0x7F: op_cb_7F(); break;
 
-		case 0xD0: op_cb_D0(); break; case 0xD1: op_cb_D1(); break; case 0xD2: op_cb_D2(); break; case 0xD3: op_cb_D3(); break;
-		case 0xD4: op_cb_D4(); break; case 0xD5: op_cb_D5(); break; case 0xD6: op_cb_D6(); break; case 0xD7: op_cb_D7(); break;
-		case 0xD8: op_cb_D8(); break; case 0xD9: op_cb_D9(); break; case 0xDA: op_cb_DA(); break; case 0xDB: op_cb_DB(); break;
-		case 0xDC: op_cb_DC(); break; case 0xDD: op_cb_DD(); break; case 0xDE: op_cb_DE(); break; case 0xDF: op_cb_DF(); break;
+			case 0x80: op_cb_80(); break; case 0x81: op_cb_81(); break; case 0x82: op_cb_82(); break; case 0x83: op_cb_83(); break;
+			case 0x84: op_cb_84(); break; case 0x85: op_cb_85(); break; case 0x86: op_cb_86(); break; case 0x87: op_cb_87(); break;
+			case 0x88: op_cb_88(); break; case 0x89: op_cb_89(); break; case 0x8A: op_cb_8A(); break; case 0x8B: op_cb_8B(); break;
+			case 0x8C: op_cb_8C(); break; case 0x8D: op_cb_8D(); break; case 0x8E: op_cb_8E(); break; case 0x8F: op_cb_8F(); break;
 
-		case 0xE0: op_cb_E0(); break; case 0xE1: op_cb_E1(); break; case 0xE2: op_cb_E2(); break; case 0xE3: op_cb_E3(); break;
-		case 0xE4: op_cb_E4(); break; case 0xE5: op_cb_E5(); break; case 0xE6: op_cb_E6(); break; case 0xE7: op_cb_E7(); break;
-		case 0xE8: op_cb_E8(); break; case 0xE9: op_cb_E9(); break; case 0xEA: op_cb_EA(); break; case 0xEB: op_cb_EB(); break;
-		case 0xEC: op_cb_EC(); break; case 0xED: op_cb_ED(); break; case 0xEE: op_cb_EE(); break; case 0xEF: op_cb_EF(); break;
+			case 0x90: op_cb_90(); break; case 0x91: op_cb_91(); break; case 0x92: op_cb_92(); break; case 0x93: op_cb_93(); break;
+			case 0x94: op_cb_94(); break; case 0x95: op_cb_95(); break; case 0x96: op_cb_96(); break; case 0x97: op_cb_97(); break;
+			case 0x98: op_cb_98(); break; case 0x99: op_cb_99(); break; case 0x9A: op_cb_9A(); break; case 0x9B: op_cb_9B(); break;
+			case 0x9C: op_cb_9C(); break; case 0x9D: op_cb_9D(); break; case 0x9E: op_cb_9E(); break; case 0x9F: op_cb_9F(); break;
 
-		case 0xF0: op_cb_F0(); break; case 0xF1: op_cb_F1(); break; case 0xF2: op_cb_F2(); break; case 0xF3: op_cb_F3(); break;
-		case 0xF4: op_cb_F4(); break; case 0xF5: op_cb_F5(); break; case 0xF6: op_cb_F6(); break; case 0xF7: op_cb_F7(); break;
-		case 0xF8: op_cb_F8(); break; case 0xF9: op_cb_F9(); break; case 0xFA: op_cb_FA(); break; case 0xFB: op_cb_FB(); break;
-		case 0xFC: op_cb_FC(); break; case 0xFD: op_cb_FD(); break; case 0xFE: op_cb_FE(); break; case 0xFF: op_cb_FF(); break;
-		}
+			case 0xA0: op_cb_A0(); break; case 0xA1: op_cb_A1(); break; case 0xA2: op_cb_A2(); break; case 0xA3: op_cb_A3(); break;
+			case 0xA4: op_cb_A4(); break; case 0xA5: op_cb_A5(); break; case 0xA6: op_cb_A6(); break; case 0xA7: op_cb_A7(); break;
+			case 0xA8: op_cb_A8(); break; case 0xA9: op_cb_A9(); break; case 0xAA: op_cb_AA(); break; case 0xAB: op_cb_AB(); break;
+			case 0xAC: op_cb_AC(); break; case 0xAD: op_cb_AD(); break; case 0xAE: op_cb_AE(); break; case 0xAF: op_cb_AF(); break;
+
+			case 0xB0: op_cb_B0(); break; case 0xB1: op_cb_B1(); break; case 0xB2: op_cb_B2(); break; case 0xB3: op_cb_B3(); break;
+			case 0xB4: op_cb_B4(); break; case 0xB5: op_cb_B5(); break; case 0xB6: op_cb_B6(); break; case 0xB7: op_cb_B7(); break;
+			case 0xB8: op_cb_B8(); break; case 0xB9: op_cb_B9(); break; case 0xBA: op_cb_BA(); break; case 0xBB: op_cb_BB(); break;
+			case 0xBC: op_cb_BC(); break; case 0xBD: op_cb_BD(); break; case 0xBE: op_cb_BE(); break; case 0xBF: op_cb_BF(); break;
+
+			case 0xC0: op_cb_C0(); break; case 0xC1: op_cb_C1(); break; case 0xC2: op_cb_C2(); break; case 0xC3: op_cb_C3(); break;
+			case 0xC4: op_cb_C4(); break; case 0xC5: op_cb_C5(); break; case 0xC6: op_cb_C6(); break; case 0xC7: op_cb_C7(); break;
+			case 0xC8: op_cb_C8(); break; case 0xC9: op_cb_C9(); break; case 0xCA: op_cb_CA(); break; case 0xCB: op_cb_CB(); break;
+			case 0xCC: op_cb_CC(); break; case 0xCD: op_cb_CD(); break; case 0xCE: op_cb_CE(); break; case 0xCF: op_cb_CF(); break;
+
+			case 0xD0: op_cb_D0(); break; case 0xD1: op_cb_D1(); break; case 0xD2: op_cb_D2(); break; case 0xD3: op_cb_D3(); break;
+			case 0xD4: op_cb_D4(); break; case 0xD5: op_cb_D5(); break; case 0xD6: op_cb_D6(); break; case 0xD7: op_cb_D7(); break;
+			case 0xD8: op_cb_D8(); break; case 0xD9: op_cb_D9(); break; case 0xDA: op_cb_DA(); break; case 0xDB: op_cb_DB(); break;
+			case 0xDC: op_cb_DC(); break; case 0xDD: op_cb_DD(); break; case 0xDE: op_cb_DE(); break; case 0xDF: op_cb_DF(); break;
+
+			case 0xE0: op_cb_E0(); break; case 0xE1: op_cb_E1(); break; case 0xE2: op_cb_E2(); break; case 0xE3: op_cb_E3(); break;
+			case 0xE4: op_cb_E4(); break; case 0xE5: op_cb_E5(); break; case 0xE6: op_cb_E6(); break; case 0xE7: op_cb_E7(); break;
+			case 0xE8: op_cb_E8(); break; case 0xE9: op_cb_E9(); break; case 0xEA: op_cb_EA(); break; case 0xEB: op_cb_EB(); break;
+			case 0xEC: op_cb_EC(); break; case 0xED: op_cb_ED(); break; case 0xEE: op_cb_EE(); break; case 0xEF: op_cb_EF(); break;
+
+			case 0xF0: op_cb_F0(); break; case 0xF1: op_cb_F1(); break; case 0xF2: op_cb_F2(); break; case 0xF3: op_cb_F3(); break;
+			case 0xF4: op_cb_F4(); break; case 0xF5: op_cb_F5(); break; case 0xF6: op_cb_F6(); break; case 0xF7: op_cb_F7(); break;
+			case 0xF8: op_cb_F8(); break; case 0xF9: op_cb_F9(); break; case 0xFA: op_cb_FA(); break; case 0xFB: op_cb_FB(); break;
+			case 0xFC: op_cb_FC(); break; case 0xFD: op_cb_FD(); break; case 0xFE: op_cb_FE(); break; case 0xFF: op_cb_FF(); break;
+			}
 	}
 
 	u8 CPU::getByte()

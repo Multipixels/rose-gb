@@ -1,6 +1,7 @@
 #pragma once
 
 #include <array>
+#include <functional>
 #include <string_view>
 
 #include "../utility/definitions.h"
@@ -17,10 +18,8 @@ namespace rose_core
 		CPU(MMU& mmu);
 		CPU(MMU& mmu, u16 programCounterStart);
 
-		void executeInstruction();
-		void executeCBInstruction();
-		u8 getByte();
-		u16 getBytePair();
+		// Simulates a single m-cycle.
+		void tick();
 
 		const Registers& viewRegisters() const;
 
@@ -30,7 +29,7 @@ namespace rose_core
 			u8 opcode;
 			u8 bytes;
 			u8 cycles;
-			std::string human_readable;
+			std::string humanReadable;
 		};
 
 		// Opcode to Human Readable Instructions, https://meganesu.github.io/generate-gb-opcodes/
@@ -210,6 +209,16 @@ namespace rose_core
 	private:
 		// Reference to MMU
 		MMU& m_mmu;
+
+		bool m_executingInstruction = false;
+		bool m_cbMode = false;
+		int m_mCycle = 1;
+
+		u8 m_currentOperation = 0x00;
+		u8 m_currentOperationCB = 0x00; // Used when currentOp is CB
+
+		void executeInstruction();
+		void executeCBInstruction();
 
 		// Typedefs and Enums
 		typedef u16 Register16;
@@ -463,6 +472,5 @@ namespace rose_core
 		void op_cb_D0(); void op_cb_D1(); void op_cb_D2(); void op_cb_D3(); void op_cb_D4(); void op_cb_D5(); void op_cb_D6(); void op_cb_D7(); void op_cb_D8(); void op_cb_D9(); void op_cb_DA(); void op_cb_DB(); void op_cb_DC(); void op_cb_DD(); void op_cb_DE(); void op_cb_DF();
 		void op_cb_E0(); void op_cb_E1(); void op_cb_E2(); void op_cb_E3(); void op_cb_E4(); void op_cb_E5(); void op_cb_E6(); void op_cb_E7(); void op_cb_E8(); void op_cb_E9(); void op_cb_EA(); void op_cb_EB(); void op_cb_EC(); void op_cb_ED(); void op_cb_EE(); void op_cb_EF();
 		void op_cb_F0(); void op_cb_F1(); void op_cb_F2(); void op_cb_F3(); void op_cb_F4(); void op_cb_F5(); void op_cb_F6(); void op_cb_F7(); void op_cb_F8(); void op_cb_F9(); void op_cb_FA(); void op_cb_FB(); void op_cb_FC(); void op_cb_FD(); void op_cb_FE(); void op_cb_FF();
-
 	};
 }
