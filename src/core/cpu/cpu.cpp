@@ -18,6 +18,7 @@ namespace rose_core {
 	void CPU::tick()
 	{
 		if (m_executingInstruction)
+
 		{
 			executeInstruction();
 			m_mCycle++;
