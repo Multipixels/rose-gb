@@ -18,5 +18,9 @@ namespace rose_core
 
     using s8 = std::int8_t;
     using s16 = std::int16_t;
+
+    using Register16 = u16;
+    using Register8 = u8;
+    using Flag = bool;
 }
 

@@ -18,17 +18,18 @@ set(ImGuiSource ../../vendor/ImGui/imgui.cpp
 
 add_library("RoseCore" STATIC
     ${ImGuiSource}
+    "cartridge/cartridge.cpp" 
+    "cartridge/cartridge.h" 
     "cpu/cpu.cpp"
     "cpu/cpu.h"
     "mmu/mmu.cpp"
     "mmu/mmu.h"
+    "timer/timer.cpp"
+    "timer/timer.h"
+    "utility/definitions.h" 
     "rose.cpp" 
     "rose.h"
-    "cartridge/cartridge.cpp" 
-    "cartridge/cartridge.h" 
-    "utility/definitions.h" 
-     
-    )
+)
 
 set_property(TARGET "RoseCore" PROPERTY CXX_STANDARD 23)
 target_link_libraries(RoseCore PRIVATE vendor glad)

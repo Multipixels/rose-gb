@@ -6,6 +6,7 @@
 #include "cartridge/cartridge.h"
 #include "cpu/cpu.h"
 #include "mmu/mmu.h"
+#include "timer/timer.h"
 
 namespace rose_core
 {
@@ -16,6 +17,7 @@ namespace rose_core
 
 		int loadGame();
 		int runGame();
+		int tick();
 		int stepForward();
 		int togglePause();
 		int loadCartridge(std::string path);
@@ -31,6 +33,7 @@ namespace rose_core
 		Cartridge m_cart;
 		CPU m_cpu;
 		MMU m_mmu;
+		Timer m_timer;
 
 		bool m_paused = true;
 

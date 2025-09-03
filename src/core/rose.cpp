@@ -7,7 +7,8 @@ namespace rose_core
 {
 	Rose::Rose() 
 		: m_cart(Cartridge())
-		, m_mmu(MMU())
+		, m_timer(Timer())
+		, m_mmu(MMU(m_timer))
 		, m_cpu(CPU(m_mmu))
 	{
 		m_tempInstrHistory[m_tempInstrHistoryHead] = m_cpu.viewRegisters().programCounter;
@@ -38,7 +39,14 @@ namespace rose_core
 		return 0;
 	}
 
-	// Executes a single instruction
+	int Rose::tick()
+	{
+		m_cpu.tick();
+		for(int i = 0; i < 4; i++) m_timer.tick();
+		return 0;
+	}
+
+	// Executes a single instruction TODO: Fix with timer
 	int Rose::stepForward()
 	{
 		m_cpu.tickUntilNextInstruction();

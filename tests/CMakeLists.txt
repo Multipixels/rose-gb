@@ -35,16 +35,6 @@ add_executable("RoseTests"
     "cpu/cpu-test.h"
     "mmu/mmu-test.cpp"
     "mmu/mmu-test.h"
-
-    #"../src/core/cpu/cpu.cpp"
-    #"../src/core/cpu/cpu.h"
-    #"../src/core/mmu/mmu.cpp"
-    #"../src/core/mmu/mmu.h"
-    #"../src/core/rose.cpp" 
-    #"../src/core/rose.h"
-    #"../src/core/cartridge/cartridge.cpp" 
-    #"../src/core/cartridge/cartridge.h" 
-    #"../src/core/utility/definitions.h"
 )
 
 target_link_libraries(
@@ -60,6 +50,7 @@ target_include_directories(RoseTests PUBLIC
     "../src/core/cartridge"
     "../src/core/cpu"
     "../src/core/mmu"
+    "../src/core/timer"
     "../src/core/utility"
 )
 

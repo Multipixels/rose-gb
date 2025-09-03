@@ -2,7 +2,8 @@
 
 namespace rose_core
 {
-	MMU::MMU()
+	MMU::MMU(Timer& timer)
+		: m_timer(timer)
 	{
 		m_memory = std::vector<u8>(0x10000, 0);
 	}
@@ -13,45 +14,46 @@ namespace rose_core
 		return 0;
 	}
 
-	u16 MMU::getU16(u16 p_address)
-	{
-		if (p_address > 0xFFFE)
-		{
-			throw;
-		}
-
-		return (m_memory.at(p_address + 1) << 8) | m_memory.at(p_address);
-	}
-
-	int MMU::setU16(u16 p_address, u16 p_value)
-	{
-		if (p_address > 0xFFFE)
-		{
-			throw;
-		}
-		m_memory[p_address] = p_value >> 8;
-		m_memory[p_address + 1] = p_value & 0x00FF;
-		return 0;
-	}
-
 	u8 MMU::getU8(u16 p_address)
 	{
-		if (p_address > 0xFFFF)
+		// Special addresses
+		switch (p_address)
 		{
-			throw;
+		case 0xFF04: // DIV: Divider Register
+			return m_timer.readDIV();
+		case 0xFF05: // TIMA: Time counter
+			return m_timer.readTIMA();
+		case 0xFF06: // TMA: Time counter
+			return m_timer.readTMA();
+		case 0xFF07: // TAC: Timer control
+			return m_timer.readTAC();
+		default:
+			return m_memory.at(p_address);
 		}
-
-		return m_memory.at(p_address);
 	}
 
 	int MMU::setU8(u16 p_address, u8 p_value)
 	{ 
-		if (p_address > 0xFFFF)
+		// Special addresses
+		switch (p_address)
 		{
-			throw; // TODO: replace with actual error checking
+		case 0xFF04: // DIV: Divider Register
+			m_timer.resetDIV();
+			break;
+		case 0xFF05: // TIMA: Time counter
+			m_timer.setTIMA(p_value);
+			break;
+		case 0xFF06: // TMA: Time counter
+			m_timer.setTMA(p_value);
+			break;
+		case 0xFF07: // TAC: Timer control
+			m_timer.setTAC(p_value);
+			break;
+		default:
+			m_memory[p_address] = p_value;
+			break;
 		}
-		
-		m_memory[p_address] = p_value;
+
 		return 0;
 	}
 

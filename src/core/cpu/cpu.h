@@ -228,11 +228,6 @@ namespace rose_core
 		u8 readByte(u16 addr);
 		void writeByte(u16 addr, u8 value);
 
-		// Typedefs and Enums
-		typedef u16 Register16;
-		typedef u8 Register8;
-		typedef bool Flag;
-
 		typedef enum ConditionCode {
 			Z,  // Execute if Z is set
 			NZ, // Execute if Z is not set
@@ -342,32 +337,32 @@ namespace rose_core
 		void LD_HL_SP_S8();
 
 			// 8-bit Arithmetic and Logic
-		void ADD_A_R8(CPU::Register8& r);
+		void ADD_A_R8(Register8& r);
 		void ADD_A_HL();
 		void ADD_A_N8();
-		void ADC_A_R8(CPU::Register8& r);
+		void ADC_A_R8(Register8& r);
 		void ADC_A_HL();
 		void ADC_A_N8();
-		void SUB_A_R8(CPU::Register8& r);
+		void SUB_A_R8(Register8& r);
 		void SUB_A_HL();
 		void SUB_A_N8();
-		void SBC_A_R8(CPU::Register8& r);
+		void SBC_A_R8(Register8& r);
 		void SBC_A_HL();
 		void SBC_A_N8();
-		void CP_A_R8(CPU::Register8&);
+		void CP_A_R8(Register8&);
 		void CP_A_HL();
 		void CP_A_N8();
-		void INC_R8(CPU::Register8& r);
+		void INC_R8(Register8& r);
 		void INC_HL();
-		void DEC_R8(CPU::Register8& r);
+		void DEC_R8(Register8& r);
 		void DEC_HL();
-		void AND_A_R8(CPU::Register8& r);
+		void AND_A_R8(Register8& r);
 		void AND_A_HL();
 		void AND_A_N8();
-		void OR_A_R8(CPU::Register8& r);
+		void OR_A_R8(Register8& r);
 		void OR_A_HL();
 		void OR_A_N8();
-		void XOR_A_R8(CPU::Register8& r);
+		void XOR_A_R8(Register8& r);
 		void XOR_A_HL();
 		void XOR_A_N8();
 		void CCF();
@@ -376,9 +371,9 @@ namespace rose_core
 		void CPL();
 
 			// 16-bit Arithmetic and Logic
-		void INC_R16(CPU::Register16& r);
-		void DEC_R16(CPU::Register16& r);
-		void ADD_HL_R16(CPU::Register16& r);
+		void INC_R16(Register16& r);
+		void DEC_R16(Register16& r);
+		void ADD_HL_R16(Register16& r);
 		void ADD_SP_S8();
 
 			// Rotate, Shift, Bit Operations
@@ -386,27 +381,27 @@ namespace rose_core
 		void RR_C_A();
 		void RL_A();
 		void RR_A();
-		void RL_C_R8(CPU::Register8& r);
+		void RL_C_R8(Register8& r);
 		void RL_C_HL();
-		void RR_C_R8(CPU::Register8& r);
+		void RR_C_R8(Register8& r);
 		void RR_C_HL();
-		void RL_R8(CPU::Register8& r);
+		void RL_R8(Register8& r);
 		void RL_HL();
-		void RR_R8(CPU::Register8& r);
+		void RR_R8(Register8& r);
 		void RR_HL();
-		void SLA_R8(CPU::Register8& r);
+		void SLA_R8(Register8& r);
 		void SLA_HL();
-		void SRA_R8(CPU::Register8& r);
+		void SRA_R8(Register8& r);
 		void SRA_HL();
-		void SWAP_R8(CPU::Register8& r);
+		void SWAP_R8(Register8& r);
 		void SWAP_HL();
-		void SRL_R8(CPU::Register8& r);
+		void SRL_R8(Register8& r);
 		void SRL_HL();
-		void BIT_U3_R8(u3 u, CPU::Register8& r);
+		void BIT_U3_R8(u3 u, Register8& r);
 		void BIT_U3_HL(u3 u);
-		void RES_U3_R8(u3 u, CPU::Register8& r);
+		void RES_U3_R8(u3 u, Register8& r);
 		void RES_U3_HL(u3 u);
-		void SET_U3_R8(u3 u, CPU::Register8& r);
+		void SET_U3_R8(u3 u, Register8& r);
 		void SET_U3_HL(u3 u);
 
 			// Control Flow

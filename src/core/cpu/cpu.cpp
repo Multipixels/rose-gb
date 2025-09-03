@@ -278,10 +278,10 @@ namespace rose_core {
 		}
 	}
 
-	CPU::Flag CPU::getFlagZ() { return (m_registers.f & 0b10000000) >> 7; }
-	CPU::Flag CPU::getFlagN() { return (m_registers.f & 0b01000000) >> 6; }
-	CPU::Flag CPU::getFlagH() { return (m_registers.f & 0b00100000) >> 5; }
-	CPU::Flag CPU::getFlagC() { return (m_registers.f & 0b00010000) >> 4; }
+	Flag CPU::getFlagZ() { return (m_registers.f & 0b10000000) >> 7; }
+	Flag CPU::getFlagN() { return (m_registers.f & 0b01000000) >> 6; }
+	Flag CPU::getFlagH() { return (m_registers.f & 0b00100000) >> 5; }
+	Flag CPU::getFlagC() { return (m_registers.f & 0b00010000) >> 4; }
 
 	// https://stackoverflow.com/questions/47981/how-to-set-clear-and-toggle-a-single-bit
 	void CPU::setFlagZ(bool p_value) { m_registers.f = (m_registers.f & ~(1 << 7)) | (p_value << 7); }

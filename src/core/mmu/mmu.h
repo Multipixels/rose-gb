@@ -3,6 +3,7 @@
 #include <fstream>
 #include <vector>
 
+#include "../timer/timer.h"
 #include "../utility/definitions.h"
 
 namespace rose_core
@@ -10,7 +11,7 @@ namespace rose_core
 	class MMU 
 	{
 	public:
-		MMU();
+		MMU(Timer& timer);
 
 		int loadCartridgeData(std::filebuf* cartData);
 
@@ -22,6 +23,8 @@ namespace rose_core
 
 		const std::vector<u8>& getMemory() const;
 	private:
+		Timer& m_timer;
+
 		std::vector<u8> m_memory; // 0-65535
 		
 		/*u16* bankZero = &memory;
