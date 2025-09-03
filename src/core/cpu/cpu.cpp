@@ -381,12 +381,12 @@ namespace rose_core {
 			return (p_a & 0xF) < (p_b & 0xF);
 	}
 
-	bool CPU::willHalfCarry(u16 p_a, u16 p_b, bool p_add)
+	bool CPU::willHalfCarry(u8 p_a, u8 p_b, u8 p_c, bool p_add)
 	{
 		if (p_add)
-			return ((p_a & 0xFFF) + (p_b & 0xFFF)) >= 0x1000;
+			return (p_a & 0xF) + (p_b & 0xF) + p_c >= 0x10;
 		else
-			return p_a < p_b;
+			return (p_a & 0xF) < (p_b & 0xF) + p_c;
 	}
 
 	bool CPU::willCarry(u8 p_a, u8 p_b, bool p_add)
@@ -397,12 +397,12 @@ namespace rose_core {
 			return p_a < p_b;
 	}
 
-	bool CPU::willCarry(u16 p_a, u16 p_b, bool p_add)
+	bool CPU::willCarry(u8 p_a, u8 p_b, u8 p_c, bool p_add)
 	{
 		if (p_add)
-			return ((u32)p_a + (u32)p_b) >= 0x10000;
+			return ((u16)p_a + (u16)p_b + (u16)p_c) >= 0x100;
 		else
-			return p_a < p_b;
+			return (u16)p_a < (u16)(p_b + p_c);
 	}
 
 	u8 CPU::signedToPositiveUnsigned(s8 n)
@@ -434,7 +434,6 @@ namespace rose_core {
 		switch (m_mCycle)
 		{
 		case 2:
-			m_registers.programCounter++;
 			p_ra = p_rb;
 			m_executingInstruction = false;
 			return;
@@ -800,7 +799,7 @@ namespace rose_core {
 			m_registers.stackPointer--;
 			return;
 		case 4:
-			writeByte(m_registers.stackPointer, p_r && 0xFF);
+			writeByte(m_registers.stackPointer, p_r & 0xFF);
 			return;
 		case 5:
 			m_executingInstruction = false;
@@ -1141,10 +1140,10 @@ namespace rose_core {
 			m_z = readByte(m_registers.hl);
 			return;
 		case 3:
-			setFlagH((m_z & 0xF) == 0xF);
 			writeByte(m_registers.hl, m_z + 1);
+			setFlagZ((u8)(m_z + 1) == 0);
 			setFlagN(0);
-			setFlagZ(m_z + 1 == 0);
+			setFlagH((m_z & 0xF) == 0xF);
 			return;
 		case 4:
 			m_executingInstruction = false;
@@ -1484,9 +1483,10 @@ namespace rose_core {
 		case 3:
 		{
 			Flag isCarry = getFlagC();
-			setFlagH(willHalfCarry(m_registers.h, (p_r >> 8) + isCarry, true));
-			setFlagC(willCarry(m_registers.h, (p_r >> 8) + isCarry, true));
+			setFlagH(willHalfCarry(m_registers.h, (p_r >> 8), isCarry, true));
+			setFlagC(willCarry(m_registers.h, (p_r >> 8), isCarry, true));
 			m_registers.h += (p_r >> 8) + isCarry;
+			setFlagN(0);
 			m_executingInstruction = false;
 			return;
 		}
@@ -1618,7 +1618,7 @@ namespace rose_core {
 		{
 			u8 b7 = m_z & 0x80;
 			writeByte(m_registers.hl, (m_z << 1) | (b7 >> 7));
-			setFlags(readByte(m_registers.hl), 0, 0, b7);
+			setFlags(!readByte(m_registers.hl), 0, 0, b7);
 			return;
 		}
 		case 5:
@@ -1657,7 +1657,7 @@ namespace rose_core {
 		{
 			u8 b0 = m_z & 0x01;
 			writeByte(m_registers.hl, (m_z >> 1) | (b0 << 7));
-			setFlags(readByte(m_registers.hl), 0, 0, b0);
+			setFlags(!readByte(m_registers.hl), 0, 0, b0);
 			return;
 		}
 		case 5:
@@ -1696,7 +1696,7 @@ namespace rose_core {
 		{
 			u8 b7 = m_z & 0x80;
 			writeByte(m_registers.hl, (m_z << 1) | (int)getFlagC());
-			setFlags(readByte(m_registers.hl), 0, 0, b7);
+			setFlags(!readByte(m_registers.hl), 0, 0, b7);
 			return;
 		}
 		case 5:
@@ -1735,7 +1735,7 @@ namespace rose_core {
 		{
 			u8 b0 = m_z & 0x01;
 			writeByte(m_registers.hl, (m_z >> 1) | (getFlagC() << 7));
-			setFlags(readByte(m_registers.hl), 0, 0, b0);
+			setFlags(!readByte(m_registers.hl), 0, 0, b0);
 			return;
 		}
 		case 5:
@@ -2179,11 +2179,11 @@ namespace rose_core {
 		{
 		case 2:
 			m_z = readByte(m_registers.stackPointer);
-			m_registers.programCounter++;
+			m_registers.stackPointer++;
 			return;
 		case 3:
 			m_w = readByte(m_registers.stackPointer);
-			m_registers.programCounter++;
+			m_registers.stackPointer++;
 			return;
 		case 4:
 			m_registers.programCounter = m_wz;
@@ -2206,14 +2206,14 @@ namespace rose_core {
 			if (ccStatus(p_cc))
 			{
 				m_z = readByte(m_registers.stackPointer);
-				m_registers.programCounter++;
+				m_registers.stackPointer++;
 			}
 			return;
 		case 4:
 			if (ccStatus(p_cc))
 			{
 				m_w = readByte(m_registers.stackPointer);
-				m_registers.programCounter++;
+				m_registers.stackPointer++;
 			}
 			else m_executingInstruction = false;
 			return;
@@ -2265,7 +2265,7 @@ namespace rose_core {
 			return;
 		case 4:
 			writeByte(m_registers.stackPointer, m_registers.programCounter & 0xFF);
-			m_registers.programCounter = p_vec;
+			m_registers.programCounter = convertRSTVec(p_vec);
 			return;
 		case 5:
 			m_executingInstruction = false;
@@ -2325,7 +2325,7 @@ namespace rose_core {
 
 
 	// Operator Codes
-	void CPU::op_00() { /* does nothing */ }
+	void CPU::op_00() { NOP(); }
 	void CPU::op_01() { LD_R16_N16(m_registers.bc); }
 	void CPU::op_02() { LD_R16_A(m_registers.bc); }
 	void CPU::op_03() { INC_R16(m_registers.bc); }

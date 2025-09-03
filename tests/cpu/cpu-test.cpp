@@ -564,12 +564,12 @@ TEST(CPUTest, RotateRegisters)
 		{ { 0x3E, 0b10101010, 0xCB, 0x07, 0xCB, 0x07 }, F, 0b00000000}, // Set A to 0b10101010 and then rotate left twice. Flag check.
 
 		{ { 0x3E, 0b10000000, 0xCB, 0x17 }, A, 0b00000000}, // Set A to 0b10101010 and then rotate left w/ carry.
-			{ { 0x3E, 0b10000000, 0xCB, 0x17 }, F, 0b10010000}, // Set A to 0b10101010 and then rotate left w/ carry. Flag check.
+		{ { 0x3E, 0b10000000, 0xCB, 0x17 }, F, 0b10010000}, // Set A to 0b10101010 and then rotate left w/ carry. Flag check.
 
 		{ { 0x3E, 0b10101010, 0xCB, 0x17 }, A, 0b01010100}, // Set A to 0b10101010 and then rotate left w/ carry.
 		{ { 0x3E, 0b10101010, 0xCB, 0x17 }, F, 0b00010000}, // Set A to 0b10101010 and then rotate left w/ carry. Flag check.
 
-					{ { 0x3E, 0b10101010, 0xCB, 0x17, 0xCB, 0x17 }, A, 0b10101001}, // Set A to 0b10101010 and then rotate left w/ carry twice.
+		{ { 0x3E, 0b10101010, 0xCB, 0x17, 0xCB, 0x17 }, A, 0b10101001}, // Set A to 0b10101010 and then rotate left w/ carry twice.
 		{ { 0x3E, 0b10101010, 0xCB, 0x17, 0xCB, 0x17 }, F, 0b00000000}, // Set A to 0b10101010 and then rotate left w/ carry twice. Flag check.
 
 
@@ -587,7 +587,7 @@ TEST(CPUTest, RotateRegisters)
 
 
 		{ { 0x21, 0x00, 0x00, 0xCB, 0x06, 0xFA, 0x00, 0x00 }, A, 0b01000010 }, // Load 0x0000 into HL. Rotate contents of address 0x00 left. Copy contents of 0x0000 to A.
-		{ { 0x21, 0x00, 0x00, 0xCB, 0x06 }, F, 0x00 }, // Load 0x0000 into HL. Rotate contents of address 0x00 left. Copy contents of 0x0000 to A. sFlag check.
+		{ { 0x21, 0x00, 0x00, 0xCB, 0x06 }, F, 0x00 }, // Load 0x0000 into HL. Rotate contents of address 0x00 left. Copy contents of 0x0000 to A. Flag check.
 		// Assuming 0x16, 0x0E, and 0x1E will also work.  
 	};
 
@@ -756,18 +756,20 @@ TEST(CPUTest, Jumps)
 	} TestCase;
 
 	std::vector<TestCase> testCases{
-		{ { 0x18, 0x10 }, PC, 0x12}, // Jump forward 10
-		{ { 0x18, 0x02, 0x18, 0x02, 0x18, 0xFC }, PC, 0x06}, // Jump forward 2, then jump back 4, then jump forward 4
+		// All jump values have 1 added to it, due to how M1 increases program counter at the same time as MX finishes the previous instr
 
-		{ { 0x20, 0x10 }, PC, 0x12}, // Jump forward 10 if Z is 0
-		{ { 0x28, 0x10 }, PC, 0x02}, // Jump forward 10 if Z is 1
+		{ { 0x18, 0x10 }, PC, 0x13}, // Jump forward 10
+		{ { 0x18, 0x02, 0x18, 0x02, 0x18, 0xFC }, PC, 0x07}, // Jump forward 2, then jump back 4, then jump forward 4
+
+		{ { 0x20, 0x10 }, PC, 0x13}, // Jump forward 10 if Z is 0
+		{ { 0x28, 0x10 }, PC, 0x03}, // Jump forward 10 if Z is 1
 
 
-		{ { 0xC3, 0xCD, 0xAB }, PC, 0xABCD}, // Jump to 0xABCD
-		{ { 0xC2, 0xCD, 0xAB }, PC, 0xABCD}, // Jump to 0xABCD if Z is 0
-		{ { 0xCA, 0xCD, 0xAB }, PC, 0x3},    // Jump to 0xABCD if Z is 1
+		{ { 0xC3, 0xCD, 0xAB }, PC, 0xABCE}, // Jump to 0xABCD
+		{ { 0xC2, 0xCD, 0xAB }, PC, 0xABCE}, // Jump to 0xABCD if Z is 0
+		{ { 0xCA, 0xCD, 0xAB }, PC, 0x4},    // Jump to 0xABCD if Z is 1
 
-		{ { 0x21, 0xCD, 0xAB, 0xE9 }, PC, 0xABCD},    // Set HL to 0xABCD and then jump to the value of HL.
+		{ { 0x21, 0xCD, 0xAB, 0xE9 }, PC, 0xABCE},    // Set HL to 0xABCD and then jump to the value of HL.
 		
 	};
 
@@ -878,7 +880,7 @@ TEST(CPUTest, EdgeCases)
 
 	std::vector<TestCase> testCases {
 		// POP AF should not affect lower 4 bits. This is from 01-special of BLARGG.
-		{ { 0x01, 0x00, 0x12,   0xC5, 0xF1, 0xF5, 0xD1,    0x79,   0xE6,   0xF0,    0xBB,   0xC2, 0xF0, 0xFF,   0x04, 0x0C, 0x20, 0xF1 }, PC, 0x12},
+		{ { 0x01, 0x00, 0x12,   0xC5, 0xF1, 0xF5, 0xD1,    0x79,   0xE6,   0xF0,    0xBB,   0xC2, 0xF0, 0xFF,   0x04, 0x0C, 0x20, 0xF1 }, PC, 0x13},
 	};
 
 	for (TestCase test : testCases)
@@ -907,17 +909,17 @@ TEST(CPUTest, BlarggTests)
 
 	std::vector<TestCase> testCases {
 		// { "../resources/blargg/cpu_instrs/01-special.gb", 2000000 }, // passed
-		// {"../resources/blargg/cpu_instrs/02-interrupts.gb", 1000000}, // requires timer set up
+		// { "../resources/blargg/cpu_instrs/02-interrupts.gb", 1000000}, // requires timer set up
 		// { "../resources/blargg/cpu_instrs/03-op sp,hl.gb", 2000000 }, // passed
 		// { "../resources/blargg/cpu_instrs/04-op r,imm.gb", 2000000 }, // passed
-		// {"../resources/blargg/cpu_instrs/05-op rp.gb", 2000000}, // passed
-		// {"../resources/blargg/cpu_instrs/06-ld r,r.gb", 1000000}, // passed
+		// { "../resources/blargg/cpu_instrs/05-op rp.gb", 2000000}, // passed
+		// { "../resources/blargg/cpu_instrs/06-ld r,r.gb", 1000000}, // passed
 		// { "../resources/blargg/cpu_instrs/07-jr,jp,call,ret,rst.gb", 1000000 }, // passed
 		// { "../resources/blargg/cpu_instrs/08-misc instrs.gb", 1000000 },// passed
 		// { "../resources/blargg/cpu_instrs/09-op r,r.gb", 10000000 }, // passed
 		// { "../resources/blargg/cpu_instrs/10-bit ops.gb", 7500000 }, // passed
-		// { "../resources/blargg/cpu_instrs/11-op a,(hl).gb", 7500000 }, //passed
-		//  { "../resources/blargg/cpu_instrs.gb", 20000000 }, // weird infinite loop
+		// { "../resources/blargg/cpu_instrs/11-op a,(hl).gb", 7500000 }, // passed
+		// { "../resources/blargg/cpu_instrs.gb", 20000000 }, // weird infinite loop
 	};
 
 	for (TestCase test : testCases)
