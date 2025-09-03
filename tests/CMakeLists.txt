@@ -49,6 +49,7 @@ target_include_directories(RoseTests PUBLIC
     "../src/core"
     "../src/core/cartridge"
     "../src/core/cpu"
+    "../src/core/interruptHandler"
     "../src/core/mmu"
     "../src/core/timer"
     "../src/core/utility"

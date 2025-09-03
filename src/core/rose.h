@@ -32,6 +32,7 @@ namespace rose_core
 	private:
 		Cartridge m_cart;
 		CPU m_cpu;
+		InterruptHandler m_ih;
 		MMU m_mmu;
 		Timer m_timer;
 

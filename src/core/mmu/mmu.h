@@ -3,6 +3,7 @@
 #include <fstream>
 #include <vector>
 
+#include "../interruptHandler/interruptHandler.h"
 #include "../timer/timer.h"
 #include "../utility/definitions.h"
 
@@ -11,7 +12,7 @@ namespace rose_core
 	class MMU 
 	{
 	public:
-		MMU(Timer& timer);
+		MMU(InterruptHandler& ih, Timer& timer);
 
 		int loadCartridgeData(std::filebuf* cartData);
 
@@ -23,20 +24,9 @@ namespace rose_core
 
 		const std::vector<u8>& getMemory() const;
 	private:
+		InterruptHandler& m_ih;
 		Timer& m_timer;
 
-		std::vector<u8> m_memory; // 0-65535
-		
-		/*u16* bankZero = &memory;
-		u16* bankOne = &memory[16384];
-		u16* vRAM = &memory[32768];
-		u16* externalRAM = &memory[40960];
-		u16* wRAMZero = &memory[49152];
-		u16* wRAMOne = &memory[53248];
-		u16* echoRAM = &memory[57344];
-		u16* oam = &memory[65024];
-		u16* ioRegisters = &memory[65280];
-		u16* hRAM = &memory[65408];
-		u16* ieRegister = &memory[65535];*/
+		std::vector<u8> m_memory;
 	};
 }

@@ -4,13 +4,13 @@
 
 namespace rose_core {
 
-	CPU::CPU(MMU& p_mmu)
-		: m_mmu(p_mmu)
+	CPU::CPU(InterruptHandler& p_ih, MMU& p_mmu)
+		: m_ih(p_ih), m_mmu(p_mmu)
 	{
 	}
 
-	CPU::CPU(MMU& p_mmu, u16 p_programCounterStart)
-		: m_mmu(p_mmu)
+	CPU::CPU(InterruptHandler& p_ih, MMU& p_mmu, u16 p_programCounterStart)
+		: m_ih(p_ih), m_mmu(p_mmu)
 	{
 		m_registers.programCounter = p_programCounterStart;
 	}
@@ -33,7 +33,7 @@ namespace rose_core {
 			m_mCycle = 2;
 
 			// IME control
-			if (setIMENextCycle) setIME(true);
+			m_ih.setIMEIfNextCycle();
 
 			return true;
 		}
@@ -267,15 +267,6 @@ namespace rose_core {
 		case x38: return 0x38;
 		}
 		return 0x00;
-	}
-
-	void CPU::setIME(bool p_value) 
-	{ 
-		ime = p_value;
-		if (!p_value)
-		{
-			setIMENextCycle = false;
-		}
 	}
 
 	Flag CPU::getFlagZ() { return (m_registers.f & 0b10000000) >> 7; }
@@ -2242,7 +2233,7 @@ namespace rose_core {
 			return;
 		case 4:
 			m_registers.programCounter = m_wz;
-			setIME(1);
+			m_ih.setIME(1);
 			return;
 		case 5:
 			m_executingInstruction = false;
@@ -2290,7 +2281,7 @@ namespace rose_core {
 		switch (m_mCycle)
 		{
 		case 2:
-			setIME(0);
+			m_ih.setIME(0);
 			m_executingInstruction = false;
 			return;
 		default:
@@ -2303,7 +2294,7 @@ namespace rose_core {
 		switch (m_mCycle)
 		{
 		case 2:
-			setIMENextCycle = true;
+			m_ih.setIMENextCycle();
 			m_executingInstruction = false;
 			return;
 		default:

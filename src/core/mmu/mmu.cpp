@@ -2,8 +2,8 @@
 
 namespace rose_core
 {
-	MMU::MMU(Timer& timer)
-		: m_timer(timer)
+	MMU::MMU(InterruptHandler& p_ih, Timer& p_timer)
+		: m_ih(p_ih), m_timer(p_timer)
 	{
 		m_memory = std::vector<u8>(0x10000, 0);
 	}
@@ -27,6 +27,10 @@ namespace rose_core
 			return m_timer.readTMA();
 		case 0xFF07: // TAC: Timer control
 			return m_timer.readTAC();
+		case 0xFF0F: // IF: Interrupt Flag
+			return m_ih.readIF();
+		case 0xFFFF: // IE: Interrupt Enable
+			return m_ih.readIE();
 		default:
 			return m_memory.at(p_address);
 		}
@@ -48,6 +52,12 @@ namespace rose_core
 			break;
 		case 0xFF07: // TAC: Timer control
 			m_timer.setTAC(p_value);
+			break;
+		case 0xFF0F: // IF: Interrupt Flag
+			m_ih.setIF(p_value);
+			break;
+		case 0xFFFF: // IE: Interrupt Enable
+			m_ih.setIE(p_value);
 			break;
 		default:
 			m_memory[p_address] = p_value;

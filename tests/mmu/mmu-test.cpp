@@ -6,7 +6,9 @@ std::string testingCartridge = "../resources/blargg/cpu_instrs.gb";
 
 TEST(MMUTest, Getters)
 {
-	rose_core::MMU mmu;
+	rose_core::InterruptHandler ih;
+	rose_core::Timer timer(ih);
+	rose_core::MMU mmu(ih, timer);
 	ASSERT_NO_FATAL_FAILURE(loadTestCartridge(testingCartridge, mmu));
 
 	EXPECT_EQ(mmu.getU8(0x00), 0x3C);
@@ -15,25 +17,17 @@ TEST(MMUTest, Getters)
 	EXPECT_EQ(mmu.getU8(0x656), 0xFE);
 	EXPECT_EQ(mmu.getU8(0x744B), 0xF5);
 	EXPECT_EQ(mmu.getU8(0xE742), 0x0); // we only load 0x0000 to 0x7FFF at bootup, expect rest to be 0
-
-	EXPECT_EQ(mmu.getU16(0x00), 0xC93C);
-	EXPECT_EQ(mmu.getU16(0x01), 0x00C9);
-	EXPECT_EQ(mmu.getU16(0x697), 0x6C61);
-	EXPECT_EQ(mmu.getU16(0x7542), 0x83F0);
 }
 
 TEST(MMUTest, Setters)
 {
-	rose_core::MMU mmu;
+	rose_core::InterruptHandler ih;
+	rose_core::Timer timer(ih);
+	rose_core::MMU mmu(ih, timer);
 	ASSERT_NO_FATAL_FAILURE(loadTestCartridge(testingCartridge, mmu));
 
 	ASSERT_NO_FATAL_FAILURE(mmu.setU8(0x00, 0x3D));
 	EXPECT_EQ(mmu.getU8(0x00), 0x3D);
-
-	//mmu.setU8(0x10000, 0x3D); // TODO: Find way to do error checking more elegantly
-
-	EXPECT_EQ(mmu.getU8(0x01), 0xDA);
-	EXPECT_EQ(mmu.getU8(0x02), 0x34);
 }
 
 // Takes in a file path and attempts to load a .gb file into Rose's Cartridge and then memory

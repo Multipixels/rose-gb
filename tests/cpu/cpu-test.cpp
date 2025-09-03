@@ -23,8 +23,10 @@ Untested Instructions:
 
 TEST(CPUTest, TestingTests)
 {
-	rose_core::MMU mmu;
-	rose_core::CPU cpu(mmu);
+	rose_core::InterruptHandler ih;
+	rose_core::Timer timer(ih);
+	rose_core::MMU mmu(ih, timer);
+	rose_core::CPU cpu(ih, mmu);
 
 	ASSERT_NO_FATAL_FAILURE(loadTestCartridge(test_1, mmu));
 
@@ -57,8 +59,10 @@ TEST(CPUTest, LoadConstsIntoRegisters)
 
 	for (TestCase test : testCases)
 	{
-		rose_core::MMU mmu;
-		rose_core::CPU cpu(mmu, 0x0);
+		rose_core::InterruptHandler ih;
+		rose_core::Timer timer(ih);
+		rose_core::MMU mmu(ih, timer);
+		rose_core::CPU cpu(ih, mmu, 0x0);
 
 		loadVectorToMemory(test.instructions, mmu);
 
@@ -96,8 +100,10 @@ TEST(CPUTest, LoadRegistersIntoRegisters)
 
 	for (TestCase test : testCases)
 	{
-		rose_core::MMU mmu;
-		rose_core::CPU cpu(mmu, 0x0);
+		rose_core::InterruptHandler ih;
+		rose_core::Timer timer(ih);
+		rose_core::MMU mmu(ih, timer);
+		rose_core::CPU cpu(ih, mmu, 0x0);
 
 		loadVectorToMemory(test.instructions, mmu);
 
@@ -141,8 +147,10 @@ TEST(CPUTest, LoadRegistersIntoAddress)
 
 	for (TestCase test : testCases)
 	{
-		rose_core::MMU mmu;
-		rose_core::CPU cpu(mmu, 0x0);
+		rose_core::InterruptHandler ih;
+		rose_core::Timer timer(ih);
+		rose_core::MMU mmu(ih, timer);
+		rose_core::CPU cpu(ih, mmu, 0x0);
 
 		loadVectorToMemory(test.instructions, mmu);
 
@@ -182,8 +190,10 @@ TEST(CPUTest, LoadAddressIntoRegister)
 
 	for (TestCase test : testCases)
 	{
-		rose_core::MMU mmu;
-		rose_core::CPU cpu(mmu, 0x0);
+		rose_core::InterruptHandler ih;
+		rose_core::Timer timer(ih);
+		rose_core::MMU mmu(ih, timer);
+		rose_core::CPU cpu(ih, mmu, 0x0);
 
 		loadVectorToMemory(test.instructions, mmu);
 
@@ -222,8 +232,10 @@ TEST(CPUTest, IncrementDecrement)
 
 	for (TestCase test : testCases)
 	{
-		rose_core::MMU mmu;
-		rose_core::CPU cpu(mmu, 0x0);
+		rose_core::InterruptHandler ih;
+		rose_core::Timer timer(ih);
+		rose_core::MMU mmu(ih, timer);
+		rose_core::CPU cpu(ih, mmu, 0x0);
 
 		loadVectorToMemory(test.instructions, mmu);
 
@@ -289,8 +301,10 @@ TEST(CPUTest, AddingAndFlags)
 
 	for (TestCase test : testCases)
 	{
-		rose_core::MMU mmu;
-		rose_core::CPU cpu(mmu, 0x0);
+		rose_core::InterruptHandler ih;
+		rose_core::Timer timer(ih);
+		rose_core::MMU mmu(ih, timer);
+		rose_core::CPU cpu(ih, mmu, 0x0);
 
 		loadVectorToMemory(test.instructions, mmu);
 
@@ -342,8 +356,10 @@ TEST(CPUTest, SubtractingAndFlags)
 
 	for (TestCase test : testCases)
 	{
-		rose_core::MMU mmu;
-		rose_core::CPU cpu(mmu, 0x0);
+		rose_core::InterruptHandler ih;
+		rose_core::Timer timer(ih);
+		rose_core::MMU mmu(ih, timer);
+		rose_core::CPU cpu(ih, mmu, 0x0);
 
 		loadVectorToMemory(test.instructions, mmu);
 
@@ -383,8 +399,10 @@ TEST(CPUTest, LogicalAndWithFlags)
 
 	for (TestCase test : testCases)
 	{
-		rose_core::MMU mmu;
-		rose_core::CPU cpu(mmu, 0x0);
+		rose_core::InterruptHandler ih;
+		rose_core::Timer timer(ih);
+		rose_core::MMU mmu(ih, timer);
+		rose_core::CPU cpu(ih, mmu, 0x0);
 
 		loadVectorToMemory(test.instructions, mmu);
 
@@ -424,8 +442,10 @@ TEST(CPUTest, LogicalExclusiveOrWithFlags)
 
 	for (TestCase test : testCases)
 	{
-		rose_core::MMU mmu;
-		rose_core::CPU cpu(mmu, 0x0);
+		rose_core::InterruptHandler ih;
+		rose_core::Timer timer(ih);
+		rose_core::MMU mmu(ih, timer);
+		rose_core::CPU cpu(ih, mmu, 0x0);
 
 		loadVectorToMemory(test.instructions, mmu);
 
@@ -466,8 +486,10 @@ TEST(CPUTest, LogicalOrWithFlags)
 
 	for (TestCase test : testCases)
 	{
-		rose_core::MMU mmu;
-		rose_core::CPU cpu(mmu, 0x0);
+		rose_core::InterruptHandler ih;
+		rose_core::Timer timer(ih);
+		rose_core::MMU mmu(ih, timer);
+		rose_core::CPU cpu(ih, mmu, 0x0);
 
 		loadVectorToMemory(test.instructions, mmu);
 
@@ -507,8 +529,10 @@ TEST(CPUTest, LogicalCmpWithFlags)
 
 	for (TestCase test : testCases)
 	{
-		rose_core::MMU mmu;
-		rose_core::CPU cpu(mmu, 0x0);
+		rose_core::InterruptHandler ih;
+		rose_core::Timer timer(ih);
+		rose_core::MMU mmu(ih, timer);
+		rose_core::CPU cpu(ih, mmu, 0x0);
 
 		loadVectorToMemory(test.instructions, mmu);
 
@@ -593,8 +617,10 @@ TEST(CPUTest, RotateRegisters)
 
 	for (TestCase test : testCases)
 	{
-		rose_core::MMU mmu;
-		rose_core::CPU cpu(mmu, 0x0);
+		rose_core::InterruptHandler ih;
+		rose_core::Timer timer(ih);
+		rose_core::MMU mmu(ih, timer);
+		rose_core::CPU cpu(ih, mmu, 0x0);
 
 		loadVectorToMemory(test.instructions, mmu);
 
@@ -639,8 +665,10 @@ TEST(CPUTest, ShiftRegisters)
 
 	for (TestCase test : testCases)
 	{
-		rose_core::MMU mmu;
-		rose_core::CPU cpu(mmu, 0x0);
+		rose_core::InterruptHandler ih;
+		rose_core::Timer timer(ih);
+		rose_core::MMU mmu(ih, timer);
+		rose_core::CPU cpu(ih, mmu, 0x0);
 
 		loadVectorToMemory(test.instructions, mmu);
 
@@ -673,8 +701,10 @@ TEST(CPUTest, SwapRegisters)
 
 	for (TestCase test : testCases)
 	{
-		rose_core::MMU mmu;
-		rose_core::CPU cpu(mmu, 0x0);
+		rose_core::InterruptHandler ih;
+		rose_core::Timer timer(ih);
+		rose_core::MMU mmu(ih, timer);
+		rose_core::CPU cpu(ih, mmu, 0x0);
 
 		loadVectorToMemory(test.instructions, mmu);
 
@@ -703,8 +733,10 @@ TEST(CPUTest, StackControl)
 
 	for (TestCaseAddress test : testCasesAddress)
 	{
-		rose_core::MMU mmu;
-		rose_core::CPU cpu(mmu, 0x0);
+		rose_core::InterruptHandler ih;
+		rose_core::Timer timer(ih);
+		rose_core::MMU mmu(ih, timer);
+		rose_core::CPU cpu(ih, mmu, 0x0);
 
 		loadVectorToMemory(test.instructions, mmu);
 
@@ -731,8 +763,10 @@ TEST(CPUTest, StackControl)
 
 	for (TestCaseRegister test : testCasesRegister)
 	{
-		rose_core::MMU mmu;
-		rose_core::CPU cpu(mmu, 0x0);
+		rose_core::InterruptHandler ih;
+		rose_core::Timer timer(ih);
+		rose_core::MMU mmu(ih, timer);
+		rose_core::CPU cpu(ih, mmu, 0x0);
 
 		loadVectorToMemory(test.instructions, mmu);
 
@@ -775,8 +809,10 @@ TEST(CPUTest, Jumps)
 
 	for (TestCase test : testCases)
 	{
-		rose_core::MMU mmu;
-		rose_core::CPU cpu(mmu, 0x0);
+		rose_core::InterruptHandler ih;
+		rose_core::Timer timer(ih);
+		rose_core::MMU mmu(ih, timer);
+		rose_core::CPU cpu(ih, mmu, 0x0);
 
 		loadVectorToMemory(test.instructions, mmu);
 
@@ -817,8 +853,10 @@ TEST(CPUTest, BitResSet)
 
 	for (TestCase test : testCases)
 	{
-		rose_core::MMU mmu;
-		rose_core::CPU cpu(mmu, 0x0);
+		rose_core::InterruptHandler ih;
+		rose_core::Timer timer(ih);
+		rose_core::MMU mmu(ih, timer);
+		rose_core::CPU cpu(ih, mmu, 0x0);
 
 		loadVectorToMemory(test.instructions, mmu);
 
@@ -854,8 +892,10 @@ TEST(CPUTest, Miscellaneous)
 
 	for (TestCase test : testCases)
 	{
-		rose_core::MMU mmu;
-		rose_core::CPU cpu(mmu, 0x0);
+		rose_core::InterruptHandler ih;
+		rose_core::Timer timer(ih);
+		rose_core::MMU mmu(ih, timer);
+		rose_core::CPU cpu(ih, mmu, 0x0);
 
 		loadVectorToMemory(test.instructions, mmu);
 
@@ -885,8 +925,10 @@ TEST(CPUTest, EdgeCases)
 
 	for (TestCase test : testCases)
 	{
-		rose_core::MMU mmu;
-		rose_core::CPU cpu(mmu, 0x0);
+		rose_core::InterruptHandler ih;
+		rose_core::Timer timer(ih);
+		rose_core::MMU mmu(ih, timer);
+		rose_core::CPU cpu(ih, mmu, 0x0);
 
 		loadVectorToMemory(test.instructions, mmu);
 
@@ -924,8 +966,10 @@ TEST(CPUTest, BlarggTests)
 
 	for (TestCase test : testCases)
 	{
-		rose_core::MMU mmu;
-		rose_core::CPU cpu(mmu);
+		rose_core::InterruptHandler ih;
+		rose_core::Timer timer(ih);
+		rose_core::MMU mmu(ih, timer);
+		rose_core::CPU cpu(ih, mmu, 0x0);
 		ASSERT_NO_FATAL_FAILURE(loadTestCartridge(test.romFile, mmu));
 
 		int instructionsRan = 0;

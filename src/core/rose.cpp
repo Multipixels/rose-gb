@@ -6,10 +6,11 @@
 namespace rose_core
 {
 	Rose::Rose() 
-		: m_cart(Cartridge())
-		, m_timer(Timer())
-		, m_mmu(MMU(m_timer))
-		, m_cpu(CPU(m_mmu))
+		: m_ih(InterruptHandler())
+		, m_cart(Cartridge())
+		, m_timer(Timer(m_ih))
+		, m_mmu(MMU(m_ih, m_timer))
+		, m_cpu(CPU(m_ih, m_mmu))
 	{
 		m_tempInstrHistory[m_tempInstrHistoryHead] = m_cpu.viewRegisters().programCounter;
 		m_tempInstrHistoryHead = (m_tempInstrHistoryHead + 1) % 10;

@@ -22,6 +22,8 @@ add_library("RoseCore" STATIC
     "cartridge/cartridge.h" 
     "cpu/cpu.cpp"
     "cpu/cpu.h"
+    "interruptHandler/interruptHandler.cpp"
+    "interruptHandler/interruptHandler.h"
     "mmu/mmu.cpp"
     "mmu/mmu.h"
     "timer/timer.cpp"

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../mmu/mmu.h"
+#include "../interruptHandler/interruptHandler.h"
 #include "../utility/definitions.h"
 
 namespace rose_core
@@ -20,7 +20,7 @@ namespace rose_core
 	class Timer
 	{
 	public:
-		Timer();
+		Timer(InterruptHandler& ih);
 
 		void tick();
 
@@ -36,6 +36,8 @@ namespace rose_core
 		u8 readTAC();
 		void setTAC(u8 value);
 	private:
+		InterruptHandler& m_ih;
+
 		Register16 m_systemCounter = 0xAB00;
 
 		Register8& m_div = *((Register8*)(&m_systemCounter) + 1);

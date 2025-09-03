@@ -2,7 +2,8 @@
 
 namespace rose_core
 {
-	Timer::Timer()
+	Timer::Timer(InterruptHandler& p_ih)
+		: m_ih(p_ih)
 	{
 	}
 
@@ -100,8 +101,9 @@ namespace rose_core
 
 		if (m_tima == 0)
 		{
+			// TODO
 			m_tima = m_tma; // TODO: This update happens next m-cycle.
-			// TODO: Request interrupt next M-Cycle
+			// m_cpu.requestInterrupt(TIMER);
 		}
 	}
 }

@@ -22,5 +22,14 @@ namespace rose_core
     using Register16 = u16;
     using Register8 = u8;
     using Flag = bool;
+
+    typedef enum InterruptType
+    {
+        VBLANK,
+        LCD,
+        TIMER,
+        SERIAL,
+        JOYPAD,
+    } InterruptType;
 }
 

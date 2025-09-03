@@ -15,8 +15,8 @@ namespace rose_core
 	public:
 		struct Registers;
 
-		CPU(MMU& mmu);
-		CPU(MMU& mmu, u16 programCounterStart);
+		CPU(InterruptHandler& ih, MMU& mmu);
+		CPU(InterruptHandler& ih, MMU& mmu, u16 programCounterStart);
 
 		// Simulates a single m-cycle.
 		bool tick();
@@ -208,7 +208,7 @@ namespace rose_core
 		} };
 		
 	private:
-		// Reference to MMU
+		InterruptHandler& m_ih;
 		MMU& m_mmu;
 
 		bool m_executingInstruction = false;
@@ -264,14 +264,11 @@ namespace rose_core
 			Register8& h = *((Register8*)(&hl) + 1);
 			Register8& l = *(Register8*)(&hl);
 		} Registers;
+
+		void requestInterrupt(InterruptType it);
+
 	private:
 		Registers m_registers;
-
-		// Can only be set, not read. When set, set with a delay of 1 instruction.
-		Flag ime = false;
-		bool setIMENextCycle = false; // Set in EI
-
-		void setIME(bool value);
 
 		// Flags
 			// bit 7 "z": zero flag. used for conditional jumps, set if result of operation is 0
