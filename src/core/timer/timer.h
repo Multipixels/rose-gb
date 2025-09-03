@@ -45,6 +45,9 @@ namespace rose_core
 		Register8 m_tma = 0x00;
 		Register8 m_tac = 0xF8;
 
+		u8 m_requestInterruptDelayTimer = 0;
+
 		void incrementTIMA();
+		void requestInterrupt();
 	};
 }

@@ -9,6 +9,13 @@ namespace rose_core
 
 	void Timer::tick()
 	{
+		if (m_requestInterruptDelayTimer == 1)
+		{
+			m_requestInterruptDelayTimer--;
+			requestInterrupt();
+		}
+		else if (m_requestInterruptDelayTimer > 1) m_requestInterruptDelayTimer--;
+
 		m_systemCounter++;
 
 		// Check for falling edge at TAC designated bit due to reset and increment TIMA.
@@ -100,10 +107,13 @@ namespace rose_core
 		m_tima++;
 
 		if (m_tima == 0)
-		{
-			// TODO
-			m_tima = m_tma; // TODO: This update happens next m-cycle.
-			// m_cpu.requestInterrupt(TIMER);
-		}
+			m_requestInterruptDelayTimer = 4;
 	}
+	
+	void Timer::requestInterrupt()
+	{
+		m_tima = m_tma;
+		m_ih.requestInterrupt(TIMER);
+	}
+
 }
