@@ -214,6 +214,8 @@ namespace rose_core
 		bool m_executingInstruction = false;
 		bool m_cbMode = false;
 		int m_mCycle = 1;
+		bool m_handlingInterrupt = false;
+		InterruptType m_currentInterrupt = VBLANK;
 
 		u8 m_currentOperation = 0x00;
 		u8 m_currentOperationCB = 0x00; // Used when currentOp is CB
@@ -421,6 +423,7 @@ namespace rose_core
 		void EI();
 		void NOP();
 
+		void handleInterrupt();
 
 		// OP Codes
 			// 8 bit opcodes

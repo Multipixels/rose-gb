@@ -17,14 +17,34 @@ namespace rose_core {
 
 	bool CPU::tick()
 	{
-		if (m_executingInstruction)
+		if (m_handlingInterrupt)
+		{
+			handleInterrupt();
+			m_mCycle++;
+		}
+		else if (m_executingInstruction)
 		{
 			executeInstruction();
 			m_mCycle++;
 		}
 
+		// Interrupt Checking
+		if (!m_executingInstruction && m_ih.readIME() && (m_ih.readIE() & m_ih.readIF()) != 0)
+		{
+			m_handlingInterrupt = true;
+			m_ih.setIME(false);
+			m_mCycle = 2;
+
+			u8 activeBit = 0;
+			while ((((m_ih.readIE() >> activeBit) & 1) & ((m_ih.readIF() >> activeBit) & 1)) == 0) activeBit++;
+
+			m_currentInterrupt = (InterruptType)activeBit;
+
+			return false;
+		}
+
 		// Run M1 as the previous instruction finishes
-		if (!m_executingInstruction)
+		if (!m_executingInstruction && !m_handlingInterrupt)
 		{
 			m_currentOperation = readByte();
 			m_registers.programCounter++;
@@ -2314,6 +2334,28 @@ namespace rose_core {
 		}
 	}
 
+	void CPU::handleInterrupt()
+	{
+		switch (m_mCycle)
+		{
+		case 2:
+			return;
+		case 3:
+			m_registers.stackPointer--;
+			return;
+		case 4:
+			writeByte(m_registers.stackPointer, m_registers.programCounter >> 8);
+			m_registers.stackPointer--;
+			return;
+		case 5:
+			writeByte(m_registers.stackPointer, m_registers.programCounter && 0xFF);
+			m_registers.programCounter = 0x40 + (0x08 * m_currentInterrupt);
+			m_executingInstruction = false;
+			return;
+		default:
+			return;
+		}
+	}
 
 	// Operator Codes
 	void CPU::op_00() { NOP(); }
