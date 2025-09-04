@@ -15,7 +15,7 @@ namespace rose_core
 	public:
 		Rose();
 
-		int loadGame();
+		int loadGame(std::string p_str);
 		int runGame();
 		int tick();
 		int stepForward();
@@ -28,6 +28,7 @@ namespace rose_core
 		const std::array<u16, 10>& tempViewInstrHistory() const;
 		int tempViewInstrHistoryHead();
 		int tempViewInstrRan();
+		u8 tempReadConsole();
 
 	private:
 		Cartridge m_cart;

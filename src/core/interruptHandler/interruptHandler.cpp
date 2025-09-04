@@ -2,9 +2,9 @@
 
 namespace rose_core
 {
-	void InterruptHandler::requestInterrupt(InterruptType it)
+	void InterruptHandler::requestInterrupt(InterruptType p_it)
 	{
-		m_if |= 0b1 << (u8)it;
+		m_if |= 0b1 << (u8)p_it;
 	}
 
 	void InterruptHandler::setIME(bool p_value)
@@ -49,6 +49,11 @@ namespace rose_core
 	void InterruptHandler::setIF(u8 p_value)
 	{
 		m_if = p_value | 0xE0;
+	}
+
+	void InterruptHandler::resetIFBit(InterruptType p_it)
+	{
+		m_if &= ~(0xFF & (0b1 << p_it));
 	}
 
 }

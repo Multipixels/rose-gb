@@ -20,6 +20,7 @@ namespace rose_core
 
 		u8 readIF();
 		void setIF(u8 value);
+		void resetIFBit(InterruptType it);
 	private:
 		// Can only be set, not read. When set, set with a delay of 1 instruction.
 		Flag m_ime = false;

@@ -39,6 +39,7 @@ namespace rose_core {
 			while ((((m_ih.readIE() >> activeBit) & 1) & ((m_ih.readIF() >> activeBit) & 1)) == 0) activeBit++;
 
 			m_currentInterrupt = (InterruptType)activeBit;
+			m_ih.resetIFBit((InterruptType)activeBit);
 
 			return false;
 		}
@@ -449,7 +450,7 @@ namespace rose_core {
 			m_executingInstruction = false;
 			return;
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -466,7 +467,7 @@ namespace rose_core {
 			m_executingInstruction = false;
 			return;
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -482,7 +483,7 @@ namespace rose_core {
 			m_executingInstruction = false;
 			return;
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -497,7 +498,7 @@ namespace rose_core {
 			m_executingInstruction = false;
 			return;
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -516,7 +517,7 @@ namespace rose_core {
 			m_executingInstruction = false;
 			return;
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -532,7 +533,7 @@ namespace rose_core {
 			m_executingInstruction = false;
 			return;
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -547,7 +548,7 @@ namespace rose_core {
 			m_executingInstruction = false;
 			return;
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -571,7 +572,7 @@ namespace rose_core {
 			m_executingInstruction = false;
 			return;
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -594,7 +595,7 @@ namespace rose_core {
 			m_executingInstruction = false;
 			return;
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -610,7 +611,7 @@ namespace rose_core {
 			m_executingInstruction = false;
 			return;
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -625,7 +626,7 @@ namespace rose_core {
 			m_executingInstruction = false;
 			return;
 		default:
-			return;
+			throw;
 		}
 		m_mmu.setU8(0xFF00 + m_registers.c, m_registers.a); 
 	}
@@ -646,7 +647,7 @@ namespace rose_core {
 			m_executingInstruction = false;
 			return;
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -665,7 +666,7 @@ namespace rose_core {
 			m_executingInstruction = false;
 			return;
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -682,7 +683,7 @@ namespace rose_core {
 			m_executingInstruction = false;
 			return;
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -698,7 +699,7 @@ namespace rose_core {
 			m_executingInstruction = false;
 			return;
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -715,7 +716,7 @@ namespace rose_core {
 			m_executingInstruction = false;
 			return;
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -731,7 +732,7 @@ namespace rose_core {
 			m_executingInstruction = false;
 			return;
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -752,7 +753,7 @@ namespace rose_core {
 			m_executingInstruction = false;
 			return;
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -779,7 +780,7 @@ namespace rose_core {
 			m_executingInstruction = false;
 			return;
 		default:
-			return;
+			throw;
 		}
 	}
 	
@@ -794,7 +795,7 @@ namespace rose_core {
 			m_executingInstruction = false;
 			return;
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -816,7 +817,7 @@ namespace rose_core {
 			m_executingInstruction = false;
 			return;
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -839,7 +840,7 @@ namespace rose_core {
 			m_executingInstruction = false;
 			return;
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -863,7 +864,7 @@ namespace rose_core {
 			m_executingInstruction = false;
 			return;
 		default:
-			return;
+			throw;
 		}
 	} 
 
@@ -877,7 +878,7 @@ namespace rose_core {
 			m_executingInstruction = false;
 			return;
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -894,7 +895,7 @@ namespace rose_core {
 			m_executingInstruction = false;
 			return;
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -912,7 +913,7 @@ namespace rose_core {
 			m_executingInstruction = false;
 			return;
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -929,7 +930,7 @@ namespace rose_core {
 			return;
 		}
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -949,7 +950,7 @@ namespace rose_core {
 			return;
 		}
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -970,7 +971,7 @@ namespace rose_core {
 			return;
 		}
 		default:
-			return;
+			throw;
 		} 
 	}
 
@@ -984,7 +985,7 @@ namespace rose_core {
 			m_executingInstruction = false;
 			return;
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -1001,7 +1002,7 @@ namespace rose_core {
 			m_executingInstruction = false;
 			return;
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -1019,7 +1020,7 @@ namespace rose_core {
 			m_executingInstruction = false;
 			return;
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -1036,7 +1037,7 @@ namespace rose_core {
 			return;
 		}
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -1056,7 +1057,7 @@ namespace rose_core {
 			return;
 		}
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -1077,7 +1078,7 @@ namespace rose_core {
 			return;
 		}
 		default:
-			return;
+			throw;
 		} 
 	}
 
@@ -1090,7 +1091,7 @@ namespace rose_core {
 			m_executingInstruction = false;
 			return;
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -1106,7 +1107,7 @@ namespace rose_core {
 			m_executingInstruction = false;
 			return;
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -1123,7 +1124,7 @@ namespace rose_core {
 			m_executingInstruction = false;
 			return;
 		default:
-			return;
+			throw;
 		}
 	}
 	
@@ -1139,7 +1140,7 @@ namespace rose_core {
 			m_executingInstruction = false;
 			return;
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -1160,7 +1161,7 @@ namespace rose_core {
 			m_executingInstruction = false;
 			return;
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -1176,7 +1177,7 @@ namespace rose_core {
 			m_executingInstruction = false;
 			return;
 		default:
-			return;
+			throw;
 		}
 	}
 	void CPU::DEC_HL() 
@@ -1196,7 +1197,7 @@ namespace rose_core {
 			m_executingInstruction = false;
 			return;
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -1213,7 +1214,7 @@ namespace rose_core {
 			m_executingInstruction = false;
 			return;
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -1233,7 +1234,7 @@ namespace rose_core {
 			m_executingInstruction = false;
 			return;
 		default:
-			return;
+			throw;
 		} 
 	}
 
@@ -1254,7 +1255,7 @@ namespace rose_core {
 			m_executingInstruction = false;
 			return;
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -1271,7 +1272,7 @@ namespace rose_core {
 			m_executingInstruction = false;
 			return;
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -1291,7 +1292,7 @@ namespace rose_core {
 			m_executingInstruction = false;
 			return;
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -1312,7 +1313,7 @@ namespace rose_core {
 			m_executingInstruction = false;
 			return;
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -1329,7 +1330,7 @@ namespace rose_core {
 			m_executingInstruction = false;
 			return;
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -1348,7 +1349,7 @@ namespace rose_core {
 			m_executingInstruction = false;
 			return;
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -1369,7 +1370,7 @@ namespace rose_core {
 			m_executingInstruction = false;
 			return;
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -1384,7 +1385,7 @@ namespace rose_core {
 			m_executingInstruction = false;
 			return;
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -1399,7 +1400,7 @@ namespace rose_core {
 			m_executingInstruction = false;
 			return;
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -1432,7 +1433,7 @@ namespace rose_core {
 			return;
 		}
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -1447,7 +1448,7 @@ namespace rose_core {
 			m_executingInstruction = false;
 			return;
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -1462,7 +1463,7 @@ namespace rose_core {
 			m_executingInstruction = false;
 			return;
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -1477,7 +1478,7 @@ namespace rose_core {
 			m_executingInstruction = false;
 			return;
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -1502,7 +1503,7 @@ namespace rose_core {
 			return;
 		}
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -1529,7 +1530,7 @@ namespace rose_core {
 			m_executingInstruction = false;
 			return;
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -1546,7 +1547,7 @@ namespace rose_core {
 			return;
 		}
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -1563,7 +1564,7 @@ namespace rose_core {
 			return;
 		}
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -1580,7 +1581,7 @@ namespace rose_core {
 			return;
 		}
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -1597,7 +1598,7 @@ namespace rose_core {
 			return;
 		}
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -1614,7 +1615,7 @@ namespace rose_core {
 			return;
 		}
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -1636,7 +1637,7 @@ namespace rose_core {
 			m_executingInstruction = false;
 			return;
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -1653,7 +1654,7 @@ namespace rose_core {
 			return;
 		}
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -1675,7 +1676,7 @@ namespace rose_core {
 			m_executingInstruction = false;
 			return;
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -1692,7 +1693,7 @@ namespace rose_core {
 			return;
 		}
 		default:
-			return;
+			throw;
 		} 
 	}
 
@@ -1714,7 +1715,7 @@ namespace rose_core {
 			m_executingInstruction = false;
 			return;
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -1731,7 +1732,7 @@ namespace rose_core {
 			return;
 		}
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -1753,7 +1754,7 @@ namespace rose_core {
 			m_executingInstruction = false;
 			return;
 		default:
-			return;
+			throw;
 		}
 	}
 	
@@ -1770,7 +1771,7 @@ namespace rose_core {
 			return;
 		}
 		default:
-			return;
+			throw;
 		}
 		
 	}
@@ -1792,7 +1793,7 @@ namespace rose_core {
 			m_executingInstruction = false;
 			return;
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -1809,7 +1810,7 @@ namespace rose_core {
 			return;
 		}
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -1831,7 +1832,7 @@ namespace rose_core {
 			m_executingInstruction = false;
 			return;
 		default:
-			return;
+			throw;
 		} 
 	}
 
@@ -1845,7 +1846,7 @@ namespace rose_core {
 			m_executingInstruction = false;
 			return;
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -1864,7 +1865,7 @@ namespace rose_core {
 			m_executingInstruction = false;
 			return;
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -1881,7 +1882,7 @@ namespace rose_core {
 			return;
 		}
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -1903,7 +1904,7 @@ namespace rose_core {
 			m_executingInstruction = false;
 			return;
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -1916,7 +1917,7 @@ namespace rose_core {
 			m_executingInstruction = false;
 			return;
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -1932,7 +1933,7 @@ namespace rose_core {
 			m_executingInstruction = false;
 			return;
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -1945,7 +1946,7 @@ namespace rose_core {
 			m_executingInstruction = false;
 			return;
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -1963,7 +1964,7 @@ namespace rose_core {
 			m_executingInstruction = false;
 			return;
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -1976,7 +1977,7 @@ namespace rose_core {
 			m_executingInstruction = false;
 			return;
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -1994,7 +1995,7 @@ namespace rose_core {
 			m_executingInstruction = false;
 			return;
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -2017,7 +2018,7 @@ namespace rose_core {
 			m_executingInstruction = false;
 			return;
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -2030,7 +2031,7 @@ namespace rose_core {
 			m_executingInstruction = false;
 			return;
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -2054,7 +2055,7 @@ namespace rose_core {
 			m_executingInstruction = false;
 			return;
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -2084,7 +2085,7 @@ namespace rose_core {
 			m_executingInstruction = false;
 			return;
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -2117,7 +2118,7 @@ namespace rose_core {
 			m_executingInstruction = false;
 			return;
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -2148,7 +2149,7 @@ namespace rose_core {
 			m_executingInstruction = false;
 			return;
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -2180,7 +2181,7 @@ namespace rose_core {
 			m_executingInstruction = false;
 			return;
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -2203,7 +2204,7 @@ namespace rose_core {
 			m_executingInstruction = false;
 			return;
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -2235,7 +2236,7 @@ namespace rose_core {
 			m_executingInstruction = false;
 			return;
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -2259,7 +2260,7 @@ namespace rose_core {
 			m_executingInstruction = false;
 			return;
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -2282,18 +2283,24 @@ namespace rose_core {
 			m_executingInstruction = false;
 			return;
 		default:
-			return;
+			throw;
 		}
 	}
 
 	void CPU::HALT() 
 	{ 
-		/* TODO: https://rgbds.gbdev.io/docs/v0.9.4/gbz80.7#HALT */ 
+		if ((m_ih.readIE() & m_ih.readIF()) != 0)
+		{
+			m_executingInstruction = false;
+			return;
+		}
+		m_mCycle--;
+		return;
 	}
 
 	void CPU::STOP() 
 	{ 
-		/* TODO: https://rgbds.gbdev.io/docs/v0.9.4/gbz80.7#STOP */ 
+		throw; /* TODO: https://rgbds.gbdev.io/docs/v0.9.4/gbz80.7#STOP */
 	}
 
 	void CPU::DI() 
@@ -2305,7 +2312,7 @@ namespace rose_core {
 			m_executingInstruction = false;
 			return;
 		default:
-			return;
+			throw;
 		} 
 	}
 
@@ -2318,7 +2325,7 @@ namespace rose_core {
 			m_executingInstruction = false;
 			return;
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -2330,7 +2337,7 @@ namespace rose_core {
 			m_executingInstruction = false;
 			return;
 		default:
-			return;
+			throw;
 		}
 	}
 
@@ -2348,12 +2355,13 @@ namespace rose_core {
 			m_registers.stackPointer--;
 			return;
 		case 5:
-			writeByte(m_registers.stackPointer, m_registers.programCounter && 0xFF);
+			writeByte(m_registers.stackPointer, m_registers.programCounter & 0xFF);
 			m_registers.programCounter = 0x40 + (0x08 * m_currentInterrupt);
 			m_executingInstruction = false;
+			m_handlingInterrupt = false;
 			return;
 		default:
-			return;
+			throw;
 		}
 	}
 

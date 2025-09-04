@@ -951,7 +951,7 @@ TEST(CPUTest, BlarggTests)
 
 	std::vector<TestCase> testCases {
 		// { "../resources/blargg/cpu_instrs/01-special.gb", 2000000 }, // passed
-		// { "../resources/blargg/cpu_instrs/02-interrupts.gb", 1000000}, // requires timer set up
+		// { "../resources/blargg/cpu_instrs/02-interrupts.gb", 1000000}, // passed
 		// { "../resources/blargg/cpu_instrs/03-op sp,hl.gb", 2000000 }, // passed
 		// { "../resources/blargg/cpu_instrs/04-op r,imm.gb", 2000000 }, // passed
 		// { "../resources/blargg/cpu_instrs/05-op rp.gb", 2000000}, // passed
@@ -966,23 +966,20 @@ TEST(CPUTest, BlarggTests)
 
 	for (TestCase test : testCases)
 	{
-		rose_core::InterruptHandler ih;
-		rose_core::Timer timer(ih);
-		rose_core::MMU mmu(ih, timer);
-		rose_core::CPU cpu(ih, mmu, 0x0);
-		ASSERT_NO_FATAL_FAILURE(loadTestCartridge(test.romFile, mmu));
+		rose_core::Rose rose;
+		rose.loadGame(test.romFile);
 
 		int instructionsRan = 0;
-		rose_core::u8 console = mmu.getU8(0xFF01);
+		rose_core::u8 console = rose.tempReadConsole();
 		while (instructionsRan < test.maxInstructions)
 		{
-			if (mmu.getU8(0xFF01) != console)
+			if (rose.tempReadConsole() != console)
 			{
-				console = mmu.getU8(0xFF01);
+				console = rose.tempReadConsole();
 				std::cout << console;
 			}
 
-			ASSERT_NO_FATAL_FAILURE(cpu.tickUntilNextInstruction());
+			ASSERT_NO_FATAL_FAILURE(rose.stepForward());
 			instructionsRan++;
 		}
 

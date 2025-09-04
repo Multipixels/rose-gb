@@ -17,9 +17,10 @@ namespace rose_core
 		m_tempInstrRan++;
 	}
 
-	int Rose::loadGame()
+	int Rose::loadGame(std::string p_str)
 	{
-		if (loadCartridge("../resources/blargg/cpu_instrs/01-special.gb") == 1)
+		//if (loadCartridge("../resources/blargg/cpu_instrs/01-special.gb") == 1)
+		if (loadCartridge(p_str) == 1)
 		{
 			return 1;
 		};
@@ -47,11 +48,14 @@ namespace rose_core
 		return 0;
 	}
 
-	// Executes a single instruction TODO: Fix with timer
+	// Executes a single instruction
 	int Rose::stepForward()
 	{
-		m_cpu.tickUntilNextInstruction();
-		m_tempInstrHistory[m_tempInstrHistoryHead] = m_cpu.viewRegisters().programCounter;
+		while (!m_cpu.tick())
+		{
+			for(int i = 0; i < 4; i++) m_timer.tick();
+		}
+		m_tempInstrHistory[m_tempInstrHistoryHead] = m_cpu.viewRegisters().programCounter - 1;
 		m_tempInstrHistoryHead = (m_tempInstrHistoryHead + 1) % 10;
 		m_tempInstrRan++;
 		return 0;
@@ -121,5 +125,10 @@ namespace rose_core
 	int Rose::tempViewInstrRan()
 	{
 		return m_tempInstrRan;
+	}
+
+	u8 Rose::tempReadConsole()
+	{
+		return m_mmu.getU8(0xFF01);
 	}
 }
