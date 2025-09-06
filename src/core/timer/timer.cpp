@@ -12,6 +12,7 @@ namespace rose_core
 		if (m_requestInterruptDelayTimer == 1)
 		{
 			m_requestInterruptDelayTimer--;
+			setTIMA(m_tma);
 			requestInterrupt();
 		}
 		else if (m_requestInterruptDelayTimer > 1) m_requestInterruptDelayTimer--;
@@ -25,7 +26,7 @@ namespace rose_core
 			if ((m_tac & 0b11) != 0) // Calculate bit shift for falling edge detection
 				bit_shift -= (4 - (m_tac & 0b11)) * 2;
 
-			if ((m_systemCounter & (0x1FF >> (9 - bit_shift))) == 0) // Falling edge detector
+			if ((m_systemCounter & (0x3FF >> (9 - bit_shift))) == 0) // Falling edge detector
 				incrementTIMA();
 		}
 	}
@@ -44,7 +45,7 @@ namespace rose_core
 			if ((m_tac & 0b11) != 0) // Calculate bit shift for falling edge detection
 				bit_shift -= (4 - (m_tac & 0b11)) * 2;
 
-			if ((m_systemCounter & (0b1 << (bit_shift - 1))) == 1)
+			if (m_systemCounter & (0b1 << (bit_shift - 1)))
 				incrementTIMA();
 		}
 		
@@ -59,6 +60,7 @@ namespace rose_core
 	void Timer::setTIMA(u8 p_value)
 	{
 		m_tima = p_value;
+		if (m_requestInterruptDelayTimer == 4) m_requestInterruptDelayTimer = 0;
 	}
 
 	u8 Timer::readTMA()
@@ -88,16 +90,27 @@ namespace rose_core
 			if ((old_tac & 0b11) != 0) // Calculate bit shift for falling edge detection
 				bit_shift_old -= (4 - (old_tac & 0b11)) * 2;
 
-			if ((m_systemCounter & (0b1 << (bit_shift_old - 1))) == 1)
+			if (m_systemCounter & (0b1 << (bit_shift_old - 1)))
 			{
 				int bit_shift_new = 9;
 				if ((m_tac & 0b11) != 0)
 					bit_shift_new -= (4 - (m_tac & 0b11)) * 2;
 
-				if ((m_systemCounter & (0b1 << (bit_shift_old - 1))) == 0) // Trigger TIMA increase if fall
+				if ((m_systemCounter & (0b1 << (bit_shift_new - 1))) == 0) // Trigger TIMA increase if fall
 				{
 					incrementTIMA();
 				}
+			}
+		}
+		else // If new TAC (timer control) is disabled
+		{
+			int bit_shift_old = 9;
+			if ((old_tac & 0b11) != 0) // Calculate bit shift for falling edge detection
+				bit_shift_old -= (4 - (old_tac & 0b11)) * 2;
+
+			if (m_systemCounter & (0b1 << (bit_shift_old - 1)))
+			{
+				incrementTIMA();
 			}
 		}
 	}

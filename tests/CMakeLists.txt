@@ -37,6 +37,8 @@ add_executable("RoseTests"
     "interruptHandler/interruptHandler-test.h"
     "mmu/mmu-test.cpp"
     "mmu/mmu-test.h"
+    "timer/timer-test.cpp"
+    "timer/timer-test.h"
 )
 
 target_link_libraries(
