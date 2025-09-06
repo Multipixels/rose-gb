@@ -7,6 +7,11 @@ namespace rose_core
 		m_if |= 0b1 << (u8)p_it;
 	}
 
+	Flag InterruptHandler::readIME()
+	{
+		return m_ime;
+	}
+
 	void InterruptHandler::setIME(bool p_value)
 	{ 
 		m_ime = p_value;
@@ -24,11 +29,6 @@ namespace rose_core
 	void InterruptHandler::setIMEIfNextCycle()
 	{
 		if(m_setIMENextCycle) setIME(true);
-	}
-
-	Flag InterruptHandler::readIME()
-	{
-		return m_ime;
 	}
 
 	u8 InterruptHandler::readIE()

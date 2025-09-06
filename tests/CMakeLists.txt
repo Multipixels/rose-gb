@@ -33,6 +33,8 @@ add_executable("RoseTests"
 
     "cpu/cpu-test.cpp"
     "cpu/cpu-test.h"
+    "interruptHandler/interruptHandler-test.cpp"
+    "interruptHandler/interruptHandler-test.h"
     "mmu/mmu-test.cpp"
     "mmu/mmu-test.h"
 )

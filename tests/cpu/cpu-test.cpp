@@ -5,19 +5,16 @@
 
 #include "rose.h"
 
-std::string test_1 = "../resources/blargg/cpu_instrs/01-special.gb";
-
 /*
-
 Untested Instructions:
-- 0x00 NOP
+- 0x00 NOP // Blargg tested
 - 0x10 STOP
-- 0x76 HALT
-- 0xF3 DI
-- 0xFB EI
-- All RET
-- All CALL
-- All RST
+- 0x76 HALT // Blargg tested
+- 0xF3 DI // Blargg tested
+- 0xFB EI // Blargg tested
+- All RET // Blargg tested
+- All CALL // Blargg tested
+- All RST // Blargg tested
 */
 
 
@@ -28,7 +25,7 @@ TEST(CPUTest, TestingTests)
 	rose_core::MMU mmu(ih, timer);
 	rose_core::CPU cpu(ih, mmu);
 
-	ASSERT_NO_FATAL_FAILURE(loadTestCartridge(test_1, mmu));
+	ASSERT_NO_FATAL_FAILURE(loadTestCartridge("../resources/blargg/cpu_instrs/01-special.gb", mmu));
 
 	EXPECT_TRUE(true);
 }

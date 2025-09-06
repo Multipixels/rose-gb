@@ -9,11 +9,10 @@ namespace rose_core
 	public:
 		void requestInterrupt(InterruptType it);
 
+		Flag readIME();
 		void setIME(bool value);
 		void setIMENextCycle();
 		void setIMEIfNextCycle();
-
-		Flag readIME();
 
 		u8 readIE();
 		void setIE(u8 value);
@@ -27,6 +26,6 @@ namespace rose_core
 		bool m_setIMENextCycle = false; // Set in EI
 
 		Register8 m_ie = 0x00;
-		Register8 m_if = 0xe0;
+		Register8 m_if = 0xE1;
 	};
 }
