@@ -122,3 +122,49 @@ TEST(Blargg, MemTiming)
 		std::cout << std::endl;
 	}
 }
+
+
+TEST(Blargg, MemTiming2)
+{
+	typedef struct TestCase
+	{
+		std::string romFile;
+		int maxInstructions;
+	} TestCase;
+
+	std::vector<TestCase> testCases{
+		// { "../resources/blargg/mem_timing-2/01-read_timing.gb", 1000000 }, // passed
+		// { "../resources/blargg/mem_timing-2/02-write_timing.gb", 1000000 }, // passed
+		// { "../resources/blargg/mem_timing-2/03-modify_timing.gb", 1000000 }, // passed
+		// { "../resources/blargg/mem_timing-2.gb", 1500000 }, // passed
+	};
+
+	for (TestCase test : testCases)
+	{
+		rose_core::Rose rose;
+		rose.loadGame(test.romFile);
+
+		int instructionsRan = 0;
+		bool finished = false;
+		while (instructionsRan < test.maxInstructions)
+		{
+			if (!finished && rose.tempReadConsole(0xA000) != 0x80)
+			{
+				rose_core::u8 console = rose.tempReadConsole(0xA004);
+				int i = 0;
+				while (console != 0x00)
+				{
+					finished = true;
+					std::cout << console;
+					i++;
+					console = rose.tempReadConsole(0xA004 + i);
+				}
+			}
+
+			ASSERT_NO_FATAL_FAILURE(rose.stepForward());
+			instructionsRan++;
+		}
+
+		std::cout << std::endl;
+	}
+}

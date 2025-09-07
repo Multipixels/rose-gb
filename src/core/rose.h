@@ -29,6 +29,7 @@ namespace rose_core
 		int tempViewInstrHistoryHead();
 		int tempViewInstrRan();
 		u8 tempReadConsole();
+		u8 tempReadConsole(u16 p_addr);
 
 	private:
 		Cartridge m_cart;

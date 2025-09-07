@@ -133,4 +133,9 @@ namespace rose_core
 	{
 		return m_mmu.getU8(0xFF01);
 	}
+
+	u8 Rose::tempReadConsole(u16 p_addr)
+	{
+		return m_mmu.getU8(p_addr);
+	}
 }
