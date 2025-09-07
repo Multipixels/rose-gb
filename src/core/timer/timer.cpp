@@ -12,7 +12,6 @@ namespace rose_core
 		if (m_requestInterruptDelayTimer == 1)
 		{
 			m_requestInterruptDelayTimer--;
-			setTIMA(m_tma);
 			requestInterrupt();
 		}
 		else if (m_requestInterruptDelayTimer > 1) m_requestInterruptDelayTimer--;

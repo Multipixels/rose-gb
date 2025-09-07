@@ -51,9 +51,11 @@ namespace rose_core
 	// Executes a single instruction
 	int Rose::stepForward()
 	{
-		while (!m_cpu.tick())
+		while (true)
 		{
-			for(int i = 0; i < 4; i++) m_timer.tick();
+			bool timeToEscape = m_cpu.tick();
+			for (int i = 0; i < 4; i++) m_timer.tick();
+			if (timeToEscape) break;
 		}
 		m_tempInstrHistory[m_tempInstrHistoryHead] = m_cpu.viewRegisters().programCounter - 1;
 		m_tempInstrHistoryHead = (m_tempInstrHistoryHead + 1) % 10;
