@@ -48,7 +48,9 @@ namespace rose_core {
 		if (!m_executingInstruction && !m_handlingInterrupt)
 		{
 			m_currentOperation = readByte();
-			m_registers.programCounter++;
+
+			if (m_haltBug) m_haltBug = false;
+			else m_registers.programCounter++;
 
 			m_executingInstruction = true;
 			m_mCycle = 2;
@@ -2289,11 +2291,21 @@ namespace rose_core {
 
 	void CPU::HALT() 
 	{ 
+		// Halt Bug
+		if (m_haltBugCanHappen && m_ih.readIME() == 0 && (m_ih.readIE() & m_ih.readIF()) != 0)
+		{
+			m_executingInstruction = false;
+			m_haltBug = true;
+			return;
+		}
+
 		if ((m_ih.readIE() & m_ih.readIF()) != 0)
 		{
 			m_executingInstruction = false;
+			m_haltBugCanHappen = true;
 			return;
 		}
+		m_haltBugCanHappen = false;
 		m_mCycle--;
 		return;
 	}

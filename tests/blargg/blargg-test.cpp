@@ -168,3 +168,41 @@ TEST(Blargg, MemTiming2)
 		std::cout << std::endl;
 	}
 }
+
+
+TEST(Blargg, HaltBug)
+{
+	typedef struct TestCase
+	{
+		std::string romFile;
+		int maxInstructions;
+	} TestCase;
+
+	std::vector<TestCase> testCases{
+		{ "../resources/blargg/halt_bug.gb", 5000000 }, // doesn't ever run halt?
+	};
+
+	for (TestCase test : testCases)
+	{
+		rose_core::Rose rose;
+		rose.loadGame(test.romFile);
+
+		int instructionsRan = 0;
+		while (instructionsRan < test.maxInstructions)
+		{
+			ASSERT_NO_FATAL_FAILURE(rose.stepForward());
+			instructionsRan++;
+		}
+
+		// https://discord.com/channels/465585922579103744/465586075830845475/718463525919522838
+		// Check VRAM for the word PASSED, thanks to @hpmandito
+		rose_core::u8 passedCode[6] = {0x50, 0x61, 0x73, 0x73, 0x65, 0x64};
+		for (int i = 0; i < 6; i++)
+		{
+			EXPECT_EQ(rose.tempReadConsole(0x99A0 + i), passedCode[i]);
+		}
+
+
+		std::cout << std::endl;
+	}
+}

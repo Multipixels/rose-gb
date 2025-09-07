@@ -216,6 +216,8 @@ namespace rose_core
 		int m_mCycle = 1;
 		bool m_handlingInterrupt = false;
 		InterruptType m_currentInterrupt = VBLANK;
+		bool m_haltBugCanHappen = true;
+		bool m_haltBug = false;
 
 		u8 m_currentOperation = 0x00;
 		u8 m_currentOperationCB = 0x00; // Used when currentOp is CB
