@@ -2220,6 +2220,7 @@ namespace rose_core {
 				m_z = readByte(m_registers.stackPointer);
 				m_registers.stackPointer++;
 			}
+			else m_executingInstruction = false;
 			return;
 		case 4:
 			if (ccStatus(p_cc))
@@ -2227,7 +2228,6 @@ namespace rose_core {
 				m_w = readByte(m_registers.stackPointer);
 				m_registers.stackPointer++;
 			}
-			else m_executingInstruction = false;
 			return;
 		case 5:
 			m_registers.programCounter = m_wz;

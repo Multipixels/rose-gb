@@ -30,7 +30,9 @@ enable_testing()
 
 add_executable("RoseTests" 
     ${ImGuiSource}
-
+    
+    "blargg/blargg-test.cpp"
+    "blargg/blargg-test.h"
     "cpu/cpu-test.cpp"
     "cpu/cpu-test.h"
     "interruptHandler/interruptHandler-test.cpp"

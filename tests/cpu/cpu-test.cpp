@@ -938,53 +938,6 @@ TEST(CPUTest, EdgeCases)
 }
 
 
-TEST(CPUTest, BlarggTests)
-{
-	typedef struct TestCase
-	{
-		std::string romFile;
-		int maxInstructions;
-	} TestCase;
-
-	std::vector<TestCase> testCases {
-		// { "../resources/blargg/cpu_instrs/01-special.gb", 2000000 }, // passed
-		// { "../resources/blargg/cpu_instrs/02-interrupts.gb", 1000000}, // passed
-		// { "../resources/blargg/cpu_instrs/03-op sp,hl.gb", 2000000 }, // passed
-		// { "../resources/blargg/cpu_instrs/04-op r,imm.gb", 2000000 }, // passed
-		// { "../resources/blargg/cpu_instrs/05-op rp.gb", 2000000}, // passed
-		// { "../resources/blargg/cpu_instrs/06-ld r,r.gb", 1000000}, // passed
-		// { "../resources/blargg/cpu_instrs/07-jr,jp,call,ret,rst.gb", 1000000 }, // passed
-		// { "../resources/blargg/cpu_instrs/08-misc instrs.gb", 1000000 },// passed
-		// { "../resources/blargg/cpu_instrs/09-op r,r.gb", 10000000 }, // passed
-		// { "../resources/blargg/cpu_instrs/10-bit ops.gb", 7500000 }, // passed
-		// { "../resources/blargg/cpu_instrs/11-op a,(hl).gb", 7500000 }, // passed
-		// { "../resources/blargg/cpu_instrs.gb", 20000000 }, // weird infinite loop
-	};
-
-	for (TestCase test : testCases)
-	{
-		rose_core::Rose rose;
-		rose.loadGame(test.romFile);
-
-		int instructionsRan = 0;
-		rose_core::u8 console = rose.tempReadConsole();
-		while (instructionsRan < test.maxInstructions)
-		{
-			if (rose.tempReadConsole() != console)
-			{
-				console = rose.tempReadConsole();
-				std::cout << console;
-			}
-
-			ASSERT_NO_FATAL_FAILURE(rose.stepForward());
-			instructionsRan++;
-		}
-
-		std::cout << std::endl;
-	}
-}
-
-
 rose_core::u16 getERegister(rose_core::CPU& p_cpu, ERegister p_eRegister)
 {
 	const rose_core::CPU::Registers& registers = p_cpu.viewRegisters();
