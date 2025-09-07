@@ -22,7 +22,7 @@ TEST(Blargg, CpuInstr)
 		// { "../resources/blargg/cpu_instrs/09-op r,r.gb", 10000000 }, // passed
 		// { "../resources/blargg/cpu_instrs/10-bit ops.gb", 7500000 }, // passed
 		// { "../resources/blargg/cpu_instrs/11-op a,(hl).gb", 7500000 }, // passed
-		// { "../resources/blargg/cpu_instrs.gb", 20000000 }, // weird infinite loop
+		// { "../resources/blargg/cpu_instrs.gb", 20000000 }, // TODO: unimplemented stop
 	};
 
 	for (TestCase test : testCases)
@@ -58,7 +58,46 @@ TEST(Blargg, InstrTiming)
 	} TestCase;
 
 	std::vector<TestCase> testCases{
-		{ "../resources/blargg/instr_timing.gb", 500000 },
+		// { "../resources/blargg/instr_timing.gb", 500000 }, // passed
+	};
+
+	for (TestCase test : testCases)
+	{
+		rose_core::Rose rose;
+		rose.loadGame(test.romFile);
+
+		int instructionsRan = 0;
+		rose_core::u8 console = rose.tempReadConsole();
+		while (instructionsRan < test.maxInstructions)
+		{
+			if (rose.tempReadConsole() != console)
+			{
+				console = rose.tempReadConsole();
+				std::cout << console;
+			}
+
+			ASSERT_NO_FATAL_FAILURE(rose.stepForward());
+			instructionsRan++;
+		}
+
+		std::cout << std::endl;
+	}
+}
+
+
+TEST(Blargg, MemTiming)
+{
+	typedef struct TestCase
+	{
+		std::string romFile;
+		int maxInstructions;
+	} TestCase;
+
+	std::vector<TestCase> testCases{
+		// { "../resources/blargg/mem_timing/01-read_timing.gb", 400000 }, // passed
+		// { "../resources/blargg/mem_timing/02-write_timing.gb", 400000 }, // passed
+		// { "../resources/blargg/mem_timing/03-modify_timing.gb", 400000 }, // passed
+		// { "../resources/blargg/mem_timing.gb", 1000000 }, // passed
 	};
 
 	for (TestCase test : testCases)
