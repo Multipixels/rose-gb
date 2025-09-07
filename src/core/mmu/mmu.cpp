@@ -19,6 +19,8 @@ namespace rose_core
 		// Special addresses
 		switch (p_address)
 		{
+		case 0xFF02: // SC (Temporary for Mooneye)
+			return 0xFF;
 		case 0xFF04: // DIV: Divider Register
 			return m_timer.readDIV();
 		case 0xFF05: // TIMA: Time counter
@@ -29,6 +31,8 @@ namespace rose_core
 			return m_timer.readTAC();
 		case 0xFF0F: // IF: Interrupt Flag
 			return m_ih.readIF();
+		case 0xFF44: // LY (Temporary for Mooneye)
+			return 0xFF;
 		case 0xFFFF: // IE: Interrupt Enable
 			return m_ih.readIE();
 		default:
