@@ -18,18 +18,18 @@ TEST(Mooneye, AcceptanceMiscell)
 		// { "../resources/mooneye/acceptance/call_cc_timing.gb",			1000000 }, // 0
 		// { "../resources/mooneye/acceptance/call_cc_timing2.gb",			1000000 }, // 0
 		// { "../resources/mooneye/acceptance/call_timing.gb",				1000000 }, // 0
-		// { "../resources/mooneye/acceptance/call_timing2.gb",			1000000 }, // 0
+		// { "../resources/mooneye/acceptance/call_timing2.gb",				1000000 }, // 0
 		// { "../resources/mooneye/acceptance/div_timing.gb",				1000000 }, // Passed
 		// { "../resources/mooneye/acceptance/di_timing-GS.gb",				500000 }, // 110
 		// { "../resources/mooneye/acceptance/ei_sequence.gb",				1000000 }, // Passed
 		// { "../resources/mooneye/acceptance/ei_timing.gb",				1000000 }, // Passed
-		// { "../resources/mooneye/acceptance/halt_ime0_ei.gb",			1000000 }, // 0
-		// { "../resources/mooneye/acceptance/halt_ime0_nointr_timing.gb", 1000000 }, // 0
-		// { "../resources/mooneye/acceptance/halt_ime1_timing.gb",		1000000 }, // Passed
-		// { "../resources/mooneye/acceptance/halt_ime1_timing2-GS.gb",	1000000 }, // 0
+		// { "../resources/mooneye/acceptance/halt_ime0_ei.gb",				1000000 }, // 0
+		// { "../resources/mooneye/acceptance/halt_ime0_nointr_timing.gb",	1000000 }, // 0
+		// { "../resources/mooneye/acceptance/halt_ime1_timing.gb",			1000000 }, // Passed
+		// { "../resources/mooneye/acceptance/halt_ime1_timing2-GS.gb",		1000000 }, // 0
 		// { "../resources/mooneye/acceptance/if_ie_registers.gb",			1000000 }, // Passed
 		// { "../resources/mooneye/acceptance/intr_timing.gb",				500000 }, // 396
-		// { "../resources/mooneye/acceptance/jp_cc_timing.gb",			1000000 }, // 0
+		// { "../resources/mooneye/acceptance/jp_cc_timing.gb",				1000000 }, // 0
 		// { "../resources/mooneye/acceptance/jp_timing.gb",				1000000 }, // 0
 		// { "../resources/mooneye/acceptance/ld_hl_sp_e_timing.gb",		1000000 }, // 0
 		// { "../resources/mooneye/acceptance/oam_dma_restart.gb",			1000000 }, // 0
@@ -64,6 +64,306 @@ TEST(Mooneye, AcceptanceMiscell)
 			instructionsRan++;
 		}
 		
+		auto reg = rose.viewCPU().viewRegisters();
+		EXPECT_EQ(reg.b + reg.c + reg.d + reg.e + reg.h + reg.l, 84)
+			<< "Failed: " << test.romFile;
+		std::cout << std::endl;
+	}
+}
+
+TEST(Mooneye, AcceptanceBits)
+{
+	typedef struct TestCase
+	{
+		std::string romFile;
+		int maxInstructions;
+	} TestCase;
+
+	std::vector<TestCase> testCases{
+		// { "../resources/mooneye/acceptance/bits/mem_oam.gb",			1000000 }, // untested
+		// { "../resources/mooneye/acceptance/bits/reg_f.gb",			1000000 }, // untested
+		// { "../resources/mooneye/acceptance/bits/unused_hwio-GS.gb",	1000000 }, // untested
+	};
+
+	for (TestCase test : testCases)
+	{
+		rose_core::Rose rose;
+		rose.loadGame(test.romFile);
+
+		int instructionsRan = 0;
+		rose_core::u8 console = rose.tempReadConsole();
+		while (instructionsRan < test.maxInstructions)
+		{
+			if (rose.tempReadConsole() != console)
+			{
+				console = rose.tempReadConsole();
+				std::cout << (int)console << " ";
+			}
+
+			ASSERT_NO_FATAL_FAILURE(rose.stepForward());
+			instructionsRan++;
+		}
+
+		auto reg = rose.viewCPU().viewRegisters();
+		EXPECT_EQ(reg.b + reg.c + reg.d + reg.e + reg.h + reg.l, 84)
+			<< "Failed: " << test.romFile;
+		std::cout << std::endl;
+	}
+}
+
+
+TEST(Mooneye, AcceptanceInstr)
+{
+	typedef struct TestCase
+	{
+		std::string romFile;
+		int maxInstructions;
+	} TestCase;
+
+	std::vector<TestCase> testCases{
+		// { "../resources/mooneye/acceptance/instr/daa.gb, 1000000 }, // untested
+	};
+
+	for (TestCase test : testCases)
+	{
+		rose_core::Rose rose;
+		rose.loadGame(test.romFile);
+
+		int instructionsRan = 0;
+		rose_core::u8 console = rose.tempReadConsole();
+		while (instructionsRan < test.maxInstructions)
+		{
+			if (rose.tempReadConsole() != console)
+			{
+				console = rose.tempReadConsole();
+				std::cout << (int)console << " ";
+			}
+
+			ASSERT_NO_FATAL_FAILURE(rose.stepForward());
+			instructionsRan++;
+		}
+
+		auto reg = rose.viewCPU().viewRegisters();
+		EXPECT_EQ(reg.b + reg.c + reg.d + reg.e + reg.h + reg.l, 84)
+			<< "Failed: " << test.romFile;
+		std::cout << std::endl;
+	}
+}
+
+TEST(Mooneye, AcceptanceInterrupts)
+{
+	typedef struct TestCase
+	{
+		std::string romFile;
+		int maxInstructions;
+	} TestCase;
+
+	std::vector<TestCase> testCases{
+		// { "../resources/mooneye/acceptance/interrupts/ie_push.gb, 1000000 }, // untested
+	};
+
+	for (TestCase test : testCases)
+	{
+		rose_core::Rose rose;
+		rose.loadGame(test.romFile);
+
+		int instructionsRan = 0;
+		rose_core::u8 console = rose.tempReadConsole();
+		while (instructionsRan < test.maxInstructions)
+		{
+			if (rose.tempReadConsole() != console)
+			{
+				console = rose.tempReadConsole();
+				std::cout << (int)console << " ";
+			}
+
+			ASSERT_NO_FATAL_FAILURE(rose.stepForward());
+			instructionsRan++;
+		}
+
+		auto reg = rose.viewCPU().viewRegisters();
+		EXPECT_EQ(reg.b + reg.c + reg.d + reg.e + reg.h + reg.l, 84)
+			<< "Failed: " << test.romFile;
+		std::cout << std::endl;
+	}
+}
+
+
+
+TEST(Mooneye, AcceptanceOamDma)
+{
+	typedef struct TestCase
+	{
+		std::string romFile;
+		int maxInstructions;
+	} TestCase;
+
+	std::vector<TestCase> testCases{
+		// { "../resources/mooneye/acceptance/oam_dma/basic.gb,			1000000 }, // untested
+		// { "../resources/mooneye/acceptance/oam_dma/reg_read.gb,		1000000 }, // untested
+		// { "../resources/mooneye/acceptance/oam_dma/sources-GS.gb,	1000000 }, // untested
+	};
+
+	for (TestCase test : testCases)
+	{
+		rose_core::Rose rose;
+		rose.loadGame(test.romFile);
+
+		int instructionsRan = 0;
+		rose_core::u8 console = rose.tempReadConsole();
+		while (instructionsRan < test.maxInstructions)
+		{
+			if (rose.tempReadConsole() != console)
+			{
+				console = rose.tempReadConsole();
+				std::cout << (int)console << " ";
+			}
+
+			ASSERT_NO_FATAL_FAILURE(rose.stepForward());
+			instructionsRan++;
+		}
+
+		auto reg = rose.viewCPU().viewRegisters();
+		EXPECT_EQ(reg.b + reg.c + reg.d + reg.e + reg.h + reg.l, 84)
+			<< "Failed: " << test.romFile;
+		std::cout << std::endl;
+	}
+}
+
+
+
+TEST(Mooneye, AcceptancePPU)
+{
+	typedef struct TestCase
+	{
+		std::string romFile;
+		int maxInstructions;
+	} TestCase;
+
+	std::vector<TestCase> testCases{
+		// { "../resources/mooneye/acceptance/ppu/hblank_ly_scx_timing-GS.gb,		1000000 }, // untested
+		// { "../resources/mooneye/acceptance/ppu/intr_1_2_timing-GS.gb,			1000000 }, // untested
+		// { "../resources/mooneye/acceptance/ppu/intr_2_0_timing.gb,				1000000 }, // untested
+		// { "../resources/mooneye/acceptance/ppu/intr_2_mode0_timing.gb,			1000000 }, // untested
+		// { "../resources/mooneye/acceptance/ppu/intr_2_mode0_timing_sprites.gb,	1000000 }, // untested
+		// { "../resources/mooneye/acceptance/ppu/intr_2_mode3_timing.gb,			1000000 }, // untested
+		// { "../resources/mooneye/acceptance/ppu/intr_2_oam_ok_timing.gb,			1000000 }, // untested
+		// { "../resources/mooneye/acceptance/ppu/lcdon_timing-GS.gb,				1000000 }, // untested
+		// { "../resources/mooneye/acceptance/ppu/lcdon_write_timing-GS.gb,			1000000 }, // untested
+		// { "../resources/mooneye/acceptance/ppu/stat_irq_blocking.gb,				1000000 }, // untested
+		// { "../resources/mooneye/acceptance/ppu/stat_lyc_onoff.gb,				1000000 }, // untested
+		// { "../resources/mooneye/acceptance/ppu/vblank_stat_intr-GS.gb,			1000000 }, // untested
+	};
+
+	for (TestCase test : testCases)
+	{
+		rose_core::Rose rose;
+		rose.loadGame(test.romFile);
+
+		int instructionsRan = 0;
+		rose_core::u8 console = rose.tempReadConsole();
+		while (instructionsRan < test.maxInstructions)
+		{
+			if (rose.tempReadConsole() != console)
+			{
+				console = rose.tempReadConsole();
+				std::cout << (int)console << " ";
+			}
+
+			ASSERT_NO_FATAL_FAILURE(rose.stepForward());
+			instructionsRan++;
+		}
+
+		auto reg = rose.viewCPU().viewRegisters();
+		EXPECT_EQ(reg.b + reg.c + reg.d + reg.e + reg.h + reg.l, 84)
+			<< "Failed: " << test.romFile;
+		std::cout << std::endl;
+	}
+}
+
+
+TEST(Mooneye, AcceptanceSerial)
+{
+	typedef struct TestCase
+	{
+		std::string romFile;
+		int maxInstructions;
+	} TestCase;
+
+	std::vector<TestCase> testCases{
+		// { "../resources/mooneye/acceptance/serial/boot_sclk_align-dmgABCmgb.gb,	1000000 }, // untested
+	};
+
+	for (TestCase test : testCases)
+	{
+		rose_core::Rose rose;
+		rose.loadGame(test.romFile);
+
+		int instructionsRan = 0;
+		rose_core::u8 console = rose.tempReadConsole();
+		while (instructionsRan < test.maxInstructions)
+		{
+			if (rose.tempReadConsole() != console)
+			{
+				console = rose.tempReadConsole();
+				std::cout << (int)console << " ";
+			}
+
+			ASSERT_NO_FATAL_FAILURE(rose.stepForward());
+			instructionsRan++;
+		}
+
+		auto reg = rose.viewCPU().viewRegisters();
+		EXPECT_EQ(reg.b + reg.c + reg.d + reg.e + reg.h + reg.l, 84)
+			<< "Failed: " << test.romFile;
+		std::cout << std::endl;
+	}
+}
+
+
+TEST(Mooneye, AcceptanceSerial)
+{
+	typedef struct TestCase
+	{
+		std::string romFile;
+		int maxInstructions;
+	} TestCase;
+
+	std::vector<TestCase> testCases{
+		// { "../resources/mooneye/acceptance/timer/div_write.gb,	1000000 }, // untested
+		// { "../resources/mooneye/acceptance/timer/rapid_toggle.gb,	1000000 }, // untested
+		// { "../resources/mooneye/acceptance/timer/tim00.gb,	1000000 }, // untested
+		// { "../resources/mooneye/acceptance/timer/tim00_div_trigger.gb,	1000000 }, // untested
+		// { "../resources/mooneye/acceptance/timer/tim01.gb,	1000000 }, // untested
+		// { "../resources/mooneye/acceptance/timer/tim01_div_trigger.gb,	1000000 }, // untested
+		// { "../resources/mooneye/acceptance/timer/tim10..gb,	1000000 }, // untested
+		// { "../resources/mooneye/acceptance/timer/tim10_div_trigger.gb,	1000000 }, // untested
+		// { "../resources/mooneye/acceptance/timer/tim11.gb,	1000000 }, // untested
+		// { "../resources/mooneye/acceptance/timer/tim11_div_trigger.gb,	1000000 }, // untested
+		// { "../resources/mooneye/acceptance/timer/tima_reload.gb,	1000000 }, // untested
+		// { "../resources/mooneye/acceptance/timer/tima_write_reloading.gb,	1000000 }, // untested
+		// { "../resources/mooneye/acceptance/timer/tma_write_reloading.gb,	1000000 }, // untested
+	};
+
+	for (TestCase test : testCases)
+	{
+		rose_core::Rose rose;
+		rose.loadGame(test.romFile);
+
+		int instructionsRan = 0;
+		rose_core::u8 console = rose.tempReadConsole();
+		while (instructionsRan < test.maxInstructions)
+		{
+			if (rose.tempReadConsole() != console)
+			{
+				console = rose.tempReadConsole();
+				std::cout << (int)console << " ";
+			}
+
+			ASSERT_NO_FATAL_FAILURE(rose.stepForward());
+			instructionsRan++;
+		}
+
 		auto reg = rose.viewCPU().viewRegisters();
 		EXPECT_EQ(reg.b + reg.c + reg.d + reg.e + reg.h + reg.l, 84)
 			<< "Failed: " << test.romFile;
