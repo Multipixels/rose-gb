@@ -321,7 +321,7 @@ TEST(Mooneye, AcceptanceSerial)
 }
 
 
-TEST(Mooneye, AcceptanceSerial)
+TEST(Mooneye, AcceptanceTimer)
 {
 	typedef struct TestCase
 	{
