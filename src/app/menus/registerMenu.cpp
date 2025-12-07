@@ -1,14 +1,14 @@
-#include "registerWindow.h"
+#include "registerMenu.h"
 
 #include "imgui.h"
 
-RegisterWindow::RegisterWindow(rose_core::Rose* roseInstance)
+RegisterMenu::RegisterMenu(rose_core::Rose* roseInstance)
     : roseInstance(roseInstance)
 {
 
 }
 
-void RegisterWindow::Draw()
+void RegisterMenu::Draw()
 {
     if (!ImGui::Begin("Registers"))
     {

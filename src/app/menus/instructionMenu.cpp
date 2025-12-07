@@ -1,14 +1,14 @@
-#include "instructionWindow.h"
+#include "instructionMenu.h"
 
 #include "imgui.h"
 
-InstructionWindow::InstructionWindow(rose_core::Rose* roseInstance)
+InstructionMenu::InstructionMenu(rose_core::Rose* roseInstance)
     : roseInstance(roseInstance)
 {
 
 }
 
-void InstructionWindow::Draw()
+void InstructionMenu::Draw()
 {
     if (!ImGui::Begin("Instruction History"))
     {

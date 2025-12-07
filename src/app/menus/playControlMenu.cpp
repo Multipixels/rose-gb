@@ -1,14 +1,14 @@
-#include "playControlWindow.h"
+#include "playControlMenu.h"
 
 #include "imgui.h"
 
-PlayControlWindow::PlayControlWindow(rose_core::Rose* roseInstance)
+PlayControlMenu::PlayControlMenu(rose_core::Rose* roseInstance)
     : roseInstance(roseInstance)
 {
 
 }
 
-void PlayControlWindow::Draw()
+void PlayControlMenu::Draw()
 {
     if (!ImGui::Begin("Play Controls"))
     {

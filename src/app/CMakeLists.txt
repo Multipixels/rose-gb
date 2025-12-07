@@ -19,15 +19,15 @@ set(ImGuiSource ../../vendor/ImGui/imgui.cpp
 add_executable("RoseApp" 
     ${ImGuiSource}
     "main.cpp"
-    "windows/instructionWindow.cpp"
-    "windows/instructionWindow.h"
-    "windows/memoryWindow.cpp"
-    "windows/memoryWindow.h"
-    "windows/playControlWindow.cpp"
-    "windows/playControlWindow.h"
-    "windows/registerWindow.cpp"
-    "windows/registerWindow.h"
-    "windows/windows.h"
+    "menus/instructionMenu.cpp"
+    "menus/instructionMenu.h"
+    "menus/memoryMenu.cpp"
+    "menus/memoryMenu.h"
+    "menus/playControlMenu.cpp"
+    "menus/playControlMenu.h"
+    "menus/registerMenu.cpp"
+    "menus/registerMenu.h"
+    "menus/menus.h"
 )
 
 find_package(OpenGL REQUIRED)

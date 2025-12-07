@@ -2,10 +2,10 @@
 
 #include "rose.h"
 
-class InstructionWindow
+class PlayControlMenu
 {
 public:
-	InstructionWindow(rose_core::Rose* roseInstance);
+	PlayControlMenu(rose_core::Rose* roseInstance);
 	void Draw();
 private:
 	rose_core::Rose* roseInstance;

@@ -2,10 +2,10 @@
 
 #include "rose.h"
 
-class RegisterWindow
+class MemoryMenu
 {
 public:
-	RegisterWindow(rose_core::Rose* roseInstance);
+	MemoryMenu(rose_core::Rose* roseInstance);
 	void Draw();
 private:
 	rose_core::Rose* roseInstance;

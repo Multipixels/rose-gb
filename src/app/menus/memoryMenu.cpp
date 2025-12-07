@@ -1,16 +1,16 @@
-#include "memoryWindow.h"
+#include "memoryMenu.h"
 
 #include "imgui.h"
 #include "imgui_internal.h"
 
 
-MemoryWindow::MemoryWindow(rose_core::Rose* roseInstance)
+MemoryMenu::MemoryMenu(rose_core::Rose* roseInstance)
     : roseInstance(roseInstance)
 {
     
 }
 
-void MemoryWindow::Draw()
+void MemoryMenu::Draw()
 {
     static float f = 0.0f;
 

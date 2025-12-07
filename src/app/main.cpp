@@ -12,17 +12,17 @@
 #include <SDL3/SDL_opengl.h>
 
 #include "rose.h"
-#include "windows/windows.h"
+#include "menus/menus.h"
 
 /* We will use this renderer to draw into this window every frame. */
 static SDL_Window* window = NULL;
 static SDL_Renderer* renderer = NULL;
 SDL_GLContext gl_context = NULL;
 
-static InstructionWindow* iw;
-static MemoryWindow* mw;
-static RegisterWindow* rw;
-static PlayControlWindow* pcw;
+static InstructionMenu* im;
+static MemoryMenu* mm;
+static RegisterMenu* rm;
+static PlayControlMenu* pcm;
 
 bool show_debug_window = true;
 bool show_demo_window = false;
@@ -128,12 +128,12 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
     //IM_ASSERT(font != nullptr);
 
     roseInstance = new rose_core::Rose();
-    roseInstance->loadGame();
+    roseInstance->loadGame("../resources/mooneye/acceptance/add_sp_e_timing.gb");
 
-    iw = new InstructionWindow(roseInstance);
-    mw = new MemoryWindow(roseInstance);
-    rw = new RegisterWindow(roseInstance);
-    pcw = new PlayControlWindow(roseInstance);
+    im = new InstructionMenu(roseInstance);
+    mm = new MemoryMenu(roseInstance);
+    rm = new RegisterMenu(roseInstance);
+    pcm = new PlayControlMenu(roseInstance);
 
     return SDL_APP_CONTINUE;  /* carry on with the program! */
 }
@@ -178,10 +178,10 @@ SDL_AppResult SDL_AppIterate(void* appstate)
 
     if (show_debug_window)
     {
-        iw->Draw();
-        mw->Draw();
-        rw->Draw();
-        pcw->Draw();
+        im->Draw();
+        mm->Draw();
+        rm->Draw();
+        pcm->Draw();
     }
 
     ImGui::Render();
