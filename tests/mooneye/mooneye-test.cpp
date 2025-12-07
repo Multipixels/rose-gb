@@ -59,7 +59,7 @@ TEST(Mooneye, AcceptanceMiscell)
 			if (rose.tempReadConsole() != console)
 			{
 				console = rose.tempReadConsole();
-				EXPECT_EQ(outputExpected[outputCounter], console)
+				EXPECT_EQ(mooneyeOutputExpected[outputCounter], console)
 					<< "Failed: " << test.romFile;
 				outputCounter++;
 			}
@@ -102,7 +102,7 @@ TEST(Mooneye, AcceptanceBits)
 			if (rose.tempReadConsole() != console)
 			{
 				console = rose.tempReadConsole();
-				EXPECT_EQ(outputExpected[outputCounter], console)
+				EXPECT_EQ(mooneyeOutputExpected[outputCounter], console)
 					<< "Failed: " << test.romFile;
 				outputCounter++;
 			}
@@ -144,7 +144,7 @@ TEST(Mooneye, AcceptanceInstr)
 			if (rose.tempReadConsole() != console)
 			{
 				console = rose.tempReadConsole();
-				EXPECT_EQ(outputExpected[outputCounter], console)
+				EXPECT_EQ(mooneyeOutputExpected[outputCounter], console)
 					<< "Failed: " << test.romFile;
 				outputCounter++;
 			}
@@ -185,7 +185,7 @@ TEST(Mooneye, AcceptanceInterrupts)
 			if (rose.tempReadConsole() != console)
 			{
 				console = rose.tempReadConsole();
-				EXPECT_EQ(outputExpected[outputCounter], console)
+				EXPECT_EQ(mooneyeOutputExpected[outputCounter], console)
 					<< "Failed: " << test.romFile;
 				outputCounter++;
 			}
@@ -230,7 +230,7 @@ TEST(Mooneye, AcceptanceOamDma)
 			if (rose.tempReadConsole() != console)
 			{
 				console = rose.tempReadConsole();
-				EXPECT_EQ(outputExpected[outputCounter], console)
+				EXPECT_EQ(mooneyeOutputExpected[outputCounter], console)
 					<< "Failed: " << test.romFile;
 				outputCounter++;
 			}
@@ -284,7 +284,7 @@ TEST(Mooneye, AcceptancePPU)
 			if (rose.tempReadConsole() != console)
 			{
 				console = rose.tempReadConsole();
-				EXPECT_EQ(outputExpected[outputCounter], console)
+				EXPECT_EQ(mooneyeOutputExpected[outputCounter], console)
 					<< "Failed: " << test.romFile;
 				outputCounter++;
 			}
@@ -326,7 +326,7 @@ TEST(Mooneye, AcceptanceSerial)
 			if (rose.tempReadConsole() != console)
 			{
 				console = rose.tempReadConsole();
-				EXPECT_EQ(outputExpected[outputCounter], console)
+				EXPECT_EQ(mooneyeOutputExpected[outputCounter], console)
 					<< "Failed: " << test.romFile;
 				outputCounter++;
 			}
@@ -380,7 +380,7 @@ TEST(Mooneye, AcceptanceTimer)
 			if (rose.tempReadConsole() != console)
 			{
 				console = rose.tempReadConsole();
-				EXPECT_EQ(outputExpected[outputCounter], console)
+				EXPECT_EQ(mooneyeOutputExpected[outputCounter], console)
 					<< "Failed: " << test.romFile;
 				outputCounter++;
 			}
