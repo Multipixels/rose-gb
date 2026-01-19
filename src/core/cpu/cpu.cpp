@@ -2312,8 +2312,11 @@ namespace rose_core {
 
 	void CPU::STOP() 
 	{ 
+		std::cout << "Encountered a STOP.";
+		NOP();
+		return;
 		// https://gbdev.io/pandocs/Reducing_Power_Consumption.html#the-bizarre-case-of-the-game-boy-stop-instruction-before-even-considering-timing
-		throw; /* TODO: https://rgbds.gbdev.io/docs/v0.9.4/gbz80.7#STOP */
+		/* TODO: https://rgbds.gbdev.io/docs/v0.9.4/gbz80.7#STOP */
 	}
 
 	void CPU::DI() 

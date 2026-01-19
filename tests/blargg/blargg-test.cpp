@@ -22,7 +22,7 @@ TEST(Blargg, CpuInstr)
 		// { "../resources/blargg/cpu_instrs/09-op r,r.gb", 10000000 }, // passed
 		// { "../resources/blargg/cpu_instrs/10-bit ops.gb", 7500000 }, // passed
 		// { "../resources/blargg/cpu_instrs/11-op a,(hl).gb", 7500000 }, // passed
-		// { "../resources/blargg/cpu_instrs.gb", 20000000 }, // TODO: unimplemented stop
+		// { "../resources/blargg/cpu_instrs.gb", 100000000 }, // just keeps going?
 	};
 
 	for (TestCase test : testCases)
