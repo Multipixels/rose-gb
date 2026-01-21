@@ -33,6 +33,7 @@ namespace rose_core
 			std::string humanReadable;
 		};
 
+		// TODO: Should this be public here? Look at naming of variable, should it have m_?
 		// Opcode to Human Readable Instructions, https://meganesu.github.io/generate-gb-opcodes/
 		const std::array<Instruction, 256> instr_data { {
 			{0x00, 1, 1, "NOP"}, {0x01, 3, 3, "LD BC, d16"}, {0x02, 1, 2, "LD (BC), A"}, {0x03, 1, 2, "INC BC"},

@@ -7,6 +7,7 @@
 #include "cpu/cpu.h"
 #include "mmu/mmu.h"
 #include "timer/timer.h"
+#include "utility/types/circular_buffer.h"
 
 namespace rose_core
 {
@@ -39,6 +40,8 @@ namespace rose_core
 		Timer m_timer;
 
 		bool m_paused = true;
+
+		CircularBuffer<u16, 100> m_instructionHistory;
 
 		// TODO: Figure out a better way/location to store instruction and game state history
 		std::array<u16, 10> m_tempInstrHistory{};

@@ -2,8 +2,8 @@
 
 #include "iostream"
 
-namespace rose_core {
-
+namespace rose_core 
+{
 	CPU::CPU(InterruptHandler& p_ih, MMU& p_mmu)
 		: m_ih(p_ih), m_mmu(p_mmu)
 	{
