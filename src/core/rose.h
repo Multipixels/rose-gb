@@ -7,6 +7,7 @@
 #include "cpu/cpu.h"
 #include "mmu/mmu.h"
 #include "timer/timer.h"
+#include "utility/types/circular_buffer.h"
 
 namespace rose_core
 {
@@ -17,32 +18,30 @@ namespace rose_core
 
 		int loadGame(std::string p_str);
 		int runGame();
-		int tick();
 		int stepForward();
 		int togglePause();
 		int loadCartridge(std::string path);
 
 		const MMU& viewMMU() const;
 		const CPU& viewCPU() const;
+		const CircularBuffer<u16, 16>& viewInstructionHistory() const;
 
-		const std::array<u16, 10>& tempViewInstrHistory() const;
-		int tempViewInstrHistoryHead();
-		int tempViewInstrRan();
-		u8 tempReadConsole();
-		u8 tempReadConsole(u16 p_addr);
+		const int viewInstructionsRan() const;
+
+		u8 readConsole();
+		u8 readConsole(u16 p_addr);
 
 	private:
+		int tick();
+
 		Cartridge m_cart;
 		CPU m_cpu;
 		InterruptHandler m_ih;
 		MMU m_mmu;
 		Timer m_timer;
 
+		CircularBuffer<u16, 16> m_instructionHistory;
+		unsigned int m_instructionsRan = 0;
 		bool m_paused = true;
-
-		// TODO: Figure out a better way/location to store instruction and game state history
-		std::array<u16, 10> m_tempInstrHistory{};
-		int m_tempInstrHistoryHead = 0;
-		int m_tempInstrRan = 0;
 	};
 }
