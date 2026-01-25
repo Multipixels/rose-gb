@@ -29,6 +29,7 @@ add_library("RoseCore" STATIC
     "timer/timer.cpp"
     "timer/timer.h"
     "utility/definitions.h" 
+    "utility/types/circular_buffer.h" 
     "rose.cpp" 
     "rose.h"
 )

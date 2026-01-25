@@ -31,12 +31,12 @@ TEST(Blargg, CpuInstr)
 		rose.loadGame(test.romFile);
 
 		int instructionsRan = 0;
-		rose_core::u8 console = rose.tempReadConsole();
+		rose_core::u8 console = rose.readConsole();
 		while (instructionsRan < test.maxInstructions)
 		{
-			if (rose.tempReadConsole() != console)
+			if (rose.readConsole() != console)
 			{
-				console = rose.tempReadConsole();
+				console = rose.readConsole();
 				std::cout << console;
 			}
 
@@ -67,12 +67,12 @@ TEST(Blargg, InstrTiming)
 		rose.loadGame(test.romFile);
 
 		int instructionsRan = 0;
-		rose_core::u8 console = rose.tempReadConsole();
+		rose_core::u8 console = rose.readConsole();
 		while (instructionsRan < test.maxInstructions)
 		{
-			if (rose.tempReadConsole() != console)
+			if (rose.readConsole() != console)
 			{
-				console = rose.tempReadConsole();
+				console = rose.readConsole();
 				std::cout << console;
 			}
 
@@ -106,12 +106,12 @@ TEST(Blargg, MemTiming)
 		rose.loadGame(test.romFile);
 
 		int instructionsRan = 0;
-		rose_core::u8 console = rose.tempReadConsole();
+		rose_core::u8 console = rose.readConsole();
 		while (instructionsRan < test.maxInstructions)
 		{
-			if (rose.tempReadConsole() != console)
+			if (rose.readConsole() != console)
 			{
-				console = rose.tempReadConsole();
+				console = rose.readConsole();
 				std::cout << console;
 			}
 
@@ -148,16 +148,16 @@ TEST(Blargg, MemTiming2)
 		bool finished = false;
 		while (instructionsRan < test.maxInstructions)
 		{
-			if (!finished && rose.tempReadConsole(0xA000) != 0x80)
+			if (!finished && rose.readConsole(0xA000) != 0x80)
 			{
-				rose_core::u8 console = rose.tempReadConsole(0xA004);
+				rose_core::u8 console = rose.readConsole(0xA004);
 				int i = 0;
 				while (console != 0x00)
 				{
 					finished = true;
 					std::cout << console;
 					i++;
-					console = rose.tempReadConsole(0xA004 + i);
+					console = rose.readConsole(0xA004 + i);
 				}
 			}
 
@@ -199,7 +199,7 @@ TEST(Blargg, HaltBug)
 		rose_core::u8 passedCode[6] = {0x50, 0x61, 0x73, 0x73, 0x65, 0x64};
 		for (int i = 0; i < 6; i++)
 		{
-			EXPECT_EQ(rose.tempReadConsole(0x99A0 + i), passedCode[i]);
+			EXPECT_EQ(rose.readConsole(0x99A0 + i), passedCode[i]);
 		}
 
 

@@ -12,9 +12,6 @@ namespace rose_core
 		, m_mmu(MMU(m_ih, m_timer))
 		, m_cpu(CPU(m_ih, m_mmu))
 	{
-		m_tempInstrHistory[m_tempInstrHistoryHead] = m_cpu.viewRegisters().programCounter;
-		m_tempInstrHistoryHead = (m_tempInstrHistoryHead + 1) % 10;
-		m_tempInstrRan++;
 	}
 
 	int Rose::loadGame(std::string p_str)
@@ -41,13 +38,6 @@ namespace rose_core
 		return 0;
 	}
 
-	int Rose::tick()
-	{
-		m_cpu.tick();
-		for(int i = 0; i < 4; i++) m_timer.tick();
-		return 0;
-	}
-
 	// Executes a single instruction
 	int Rose::stepForward()
 	{
@@ -57,13 +47,11 @@ namespace rose_core
 			for (int i = 0; i < 4; i++) m_timer.tick();
 			if (timeToEscape) break;
 		}
-		m_tempInstrHistory[m_tempInstrHistoryHead] = m_cpu.viewRegisters().programCounter - 1;
-		m_tempInstrHistoryHead = (m_tempInstrHistoryHead + 1) % 10;
-		m_tempInstrRan++;
+		m_instructionHistory.enqueue(m_cpu.viewRegisters().programCounter - 1);
+		m_instructionsRan++;
 		return 0;
 	}
 
-	// Executes a single instruction
 	int Rose::togglePause()
 	{
 		m_paused = !m_paused;
@@ -114,28 +102,30 @@ namespace rose_core
 		return m_cpu;
 	}
 
-	const std::array<u16, 10>& Rose::tempViewInstrHistory() const
+	const CircularBuffer<u16, 16>& Rose::viewInstructionHistory() const
 	{
-		return m_tempInstrHistory;
+		return m_instructionHistory;
 	}
 
-	int Rose::tempViewInstrHistoryHead()
+	const int Rose::viewInstructionsRan() const
 	{
-		return m_tempInstrHistoryHead;
+		return m_instructionsRan;
 	}
 
-	int Rose::tempViewInstrRan()
-	{
-		return m_tempInstrRan;
-	}
-
-	u8 Rose::tempReadConsole()
+	u8 Rose::readConsole()
 	{
 		return m_mmu.getU8(0xFF01);
 	}
 
-	u8 Rose::tempReadConsole(u16 p_addr)
+	u8 Rose::readConsole(u16 p_addr)
 	{
 		return m_mmu.getU8(p_addr);
+	}
+
+	int Rose::tick()
+	{
+		m_cpu.tick();
+		for (int i = 0; i < 4; i++) m_timer.tick();
+		return 0;
 	}
 }
