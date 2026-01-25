@@ -12,10 +12,10 @@ namespace rose_core
 	public:
 		CircularBuffer();
 
-		T& getFront(size_t index = 0);
+		const T& getFront(size_t index = 0) const;
 		void enqueue(T p_value);
 	private:
-		std::array<T, C> m_contents;
+		std::array<T, C> m_contents{};
 		
 		size_t m_head = -1;
 		size_t m_size = 0; // how many elements currently in the circQueue
@@ -27,7 +27,7 @@ namespace rose_core
 	}
 
 	template<typename T, size_t C>
-	T& CircularBuffer<T, C>::getFront(size_t p_index)
+	const T& CircularBuffer<T, C>::getFront(size_t p_index) const
 	{
 		if (p_index >= C)
 		{

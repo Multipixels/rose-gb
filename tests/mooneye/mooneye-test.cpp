@@ -51,14 +51,14 @@ TEST(Mooneye, AcceptanceMiscell)
 		rose.loadGame(test.romFile);
 
 		int instructionsRan = 0;
-		rose_core::u8 console = rose.tempReadConsole();
+		rose_core::u8 console = rose.readConsole();
 
 		int outputCounter = 0;
 		while (instructionsRan < 1000000)
 		{
-			if (rose.tempReadConsole() != console)
+			if (rose.readConsole() != console)
 			{
-				console = rose.tempReadConsole();
+				console = rose.readConsole();
 				EXPECT_EQ(mooneyeOutputExpected[outputCounter], console)
 					<< "Failed: " << test.romFile;
 				outputCounter++;
@@ -94,14 +94,14 @@ TEST(Mooneye, AcceptanceBits)
 		rose.loadGame(test.romFile);
 
 		int instructionsRan = 0;
-		rose_core::u8 console = rose.tempReadConsole();
+		rose_core::u8 console = rose.readConsole();
 
 		int outputCounter = 0;
 		while (instructionsRan < 1000000)
 		{
-			if (rose.tempReadConsole() != console)
+			if (rose.readConsole() != console)
 			{
-				console = rose.tempReadConsole();
+				console = rose.readConsole();
 				EXPECT_EQ(mooneyeOutputExpected[outputCounter], console)
 					<< "Failed: " << test.romFile;
 				outputCounter++;
@@ -136,14 +136,14 @@ TEST(Mooneye, AcceptanceInstr)
 		rose.loadGame(test.romFile);
 
 		int instructionsRan = 0;
-		rose_core::u8 console = rose.tempReadConsole();
+		rose_core::u8 console = rose.readConsole();
 
 		int outputCounter = 0;
 		while (instructionsRan < 1000000)
 		{
-			if (rose.tempReadConsole() != console)
+			if (rose.readConsole() != console)
 			{
-				console = rose.tempReadConsole();
+				console = rose.readConsole();
 				EXPECT_EQ(mooneyeOutputExpected[outputCounter], console)
 					<< "Failed: " << test.romFile;
 				outputCounter++;
@@ -177,14 +177,14 @@ TEST(Mooneye, AcceptanceInterrupts)
 		rose.loadGame(test.romFile);
 
 		int instructionsRan = 0;
-		rose_core::u8 console = rose.tempReadConsole();
+		rose_core::u8 console = rose.readConsole();
 
 		int outputCounter = 0;
 		while (instructionsRan < 1000000)
 		{
-			if (rose.tempReadConsole() != console)
+			if (rose.readConsole() != console)
 			{
-				console = rose.tempReadConsole();
+				console = rose.readConsole();
 				EXPECT_EQ(mooneyeOutputExpected[outputCounter], console)
 					<< "Failed: " << test.romFile;
 				outputCounter++;
@@ -222,14 +222,14 @@ TEST(Mooneye, AcceptanceOamDma)
 		rose.loadGame(test.romFile);
 
 		int instructionsRan = 0;
-		rose_core::u8 console = rose.tempReadConsole();
+		rose_core::u8 console = rose.readConsole();
 
 		int outputCounter = 0;
 		while (instructionsRan < 1000000)
 		{
-			if (rose.tempReadConsole() != console)
+			if (rose.readConsole() != console)
 			{
-				console = rose.tempReadConsole();
+				console = rose.readConsole();
 				EXPECT_EQ(mooneyeOutputExpected[outputCounter], console)
 					<< "Failed: " << test.romFile;
 				outputCounter++;
@@ -276,14 +276,14 @@ TEST(Mooneye, AcceptancePPU)
 		rose.loadGame(test.romFile);
 
 		int instructionsRan = 0;
-		rose_core::u8 console = rose.tempReadConsole();
+		rose_core::u8 console = rose.readConsole();
 
 		int outputCounter = 0;
 		while (instructionsRan < 1000000)
 		{
-			if (rose.tempReadConsole() != console)
+			if (rose.readConsole() != console)
 			{
-				console = rose.tempReadConsole();
+				console = rose.readConsole();
 				EXPECT_EQ(mooneyeOutputExpected[outputCounter], console)
 					<< "Failed: " << test.romFile;
 				outputCounter++;
@@ -318,14 +318,14 @@ TEST(Mooneye, AcceptanceSerial)
 		rose.loadGame(test.romFile);
 
 		int instructionsRan = 0;
-		rose_core::u8 console = rose.tempReadConsole();
+		rose_core::u8 console = rose.readConsole();
 
 		int outputCounter = 0;
 		while (instructionsRan < 1000000)
 		{
-			if (rose.tempReadConsole() != console)
+			if (rose.readConsole() != console)
 			{
-				console = rose.tempReadConsole();
+				console = rose.readConsole();
 				EXPECT_EQ(mooneyeOutputExpected[outputCounter], console)
 					<< "Failed: " << test.romFile;
 				outputCounter++;
@@ -372,14 +372,14 @@ TEST(Mooneye, AcceptanceTimer)
 		rose.loadGame(test.romFile);
 
 		int instructionsRan = 0;
-		rose_core::u8 console = rose.tempReadConsole();
+		rose_core::u8 console = rose.readConsole();
 
 		int outputCounter = 0;
 		while (instructionsRan < 1000000)
 		{
-			if (rose.tempReadConsole() != console)
+			if (rose.readConsole() != console)
 			{
-				console = rose.tempReadConsole();
+				console = rose.readConsole();
 				EXPECT_EQ(mooneyeOutputExpected[outputCounter], console)
 					<< "Failed: " << test.romFile;
 				outputCounter++;

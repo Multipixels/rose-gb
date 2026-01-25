@@ -18,7 +18,7 @@ void InstructionMenu::Draw()
 
     static const rose_core::CPU& cpu = roseInstance->viewCPU();
     static const std::vector<rose_core::u8>& memory = roseInstance->viewMMU().getMemory();
-    static const std::array<rose_core::u16, 10>& instrHistory = roseInstance->tempViewInstrHistory();
+    static const rose_core::CircularBuffer<rose_core::u16, 16>& instrHistory = roseInstance->viewInstructionHistory();
 
     static ImGuiTableFlags table_flags = ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_ScrollX | ImGuiTableFlags_ScrollY | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersInner | ImGuiTableFlags_HighlightHoveredColumn;
     static ImGuiTableColumnFlags column_flags = ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoHide | ImGuiTableColumnFlags_NoReorder;
@@ -31,12 +31,13 @@ void InstructionMenu::Draw()
         ImGui::TableSetupScrollFreeze(1, 1);
         ImGui::TableHeadersRow();
         
-        int index = roseInstance->tempViewInstrHistoryHead();
-        for (int i = 0; i < 10; i++)
+        for (int i = 0; i < 16; i++)
         {
-            int address = roseInstance->tempViewInstrHistory()[(index + i) % 10];
-            if ((index + i) % 10 >= roseInstance->tempViewInstrRan()) continue;
+            int instrs = roseInstance->viewInstructionsRan();
+            if (i >= instrs)
+                break;
 
+            rose_core::u16 address = instrHistory.getFront(i);
             ImGui::TableNextRow();
 
             ImGui::TableSetColumnIndex(0);
