@@ -6,6 +6,7 @@
 #include "cartridge/cartridge.h"
 #include "cpu/cpu.h"
 #include "mmu/mmu.h"
+#include "ppu/ppu.h"
 #include "timer/timer.h"
 #include "utility/types/circular_buffer.h"
 
@@ -38,6 +39,7 @@ namespace rose_core
 		CPU m_cpu;
 		InterruptHandler m_ih;
 		MMU m_mmu;
+		PPU m_ppu;
 		Timer m_timer;
 
 		CircularBuffer<u16, 16> m_instructionHistory;

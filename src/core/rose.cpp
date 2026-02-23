@@ -8,8 +8,9 @@ namespace rose_core
 	Rose::Rose() 
 		: m_ih(InterruptHandler())
 		, m_cart(Cartridge())
+		, m_ppu(PPU())
 		, m_timer(Timer(m_ih))
-		, m_mmu(MMU(m_ih, m_timer))
+		, m_mmu(MMU(m_ih, m_timer, m_ppu))
 		, m_cpu(CPU(m_ih, m_mmu))
 	{
 	}
@@ -45,6 +46,7 @@ namespace rose_core
 		{
 			bool timeToEscape = m_cpu.tick();
 			for (int i = 0; i < 4; i++) m_timer.tick();
+			for (int i = 0; i < 4; i++) m_ppu.tick();
 			if (timeToEscape) break;
 		}
 		m_instructionHistory.enqueue(m_cpu.viewRegisters().programCounter - 1);

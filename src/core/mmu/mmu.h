@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "../interruptHandler/interruptHandler.h"
+#include "../ppu/ppu.h"
 #include "../timer/timer.h"
 #include "../utility/definitions.h"
 
@@ -12,7 +13,7 @@ namespace rose_core
 	class MMU 
 	{
 	public:
-		MMU(InterruptHandler& ih, Timer& timer);
+		MMU(InterruptHandler& ih, Timer& timer, PPU& ppu);
 
 		int loadCartridgeData(std::filebuf* cartData);
 
@@ -25,6 +26,7 @@ namespace rose_core
 		const std::vector<u8>& getMemory() const;
 	private:
 		InterruptHandler& m_ih;
+		PPU& m_ppu;
 		Timer& m_timer;
 
 		std::vector<u8> m_memory;

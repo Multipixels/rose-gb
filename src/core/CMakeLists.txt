@@ -26,6 +26,8 @@ add_library("RoseCore" STATIC
     "interruptHandler/interruptHandler.h"
     "mmu/mmu.cpp"
     "mmu/mmu.h"
+    "ppu/ppu.cpp"
+    "ppu/ppu.h"
     "timer/timer.cpp"
     "timer/timer.h"
     "utility/definitions.h" 
