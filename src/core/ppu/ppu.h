@@ -2,6 +2,7 @@
 
 #include <array>
 
+#include "../interruptHandler/interruptHandler.h"
 #include "../utility/definitions.h"
 
 namespace rose_core
@@ -12,12 +13,14 @@ namespace rose_core
 		static constexpr int WIDTH = 160;
 		static constexpr int HEIGHT = 144;
 
-		PPU();
+		PPU(InterruptHandler& ih);
 
 		void tick();
 
 		const bool isFrameReady() const;
 		const std::array<u8, WIDTH * HEIGHT>& getFrameBuffer() const;
+
+		const bool isPPUEnabled() const;
 
 		const u8 readLCDC() const;
 		const u8 readSTAT() const;
@@ -42,19 +45,22 @@ namespace rose_core
 		void setOBP1(u8 value);
 		void setWY(u8 value);
 		void setWX(u8 value);
-	private:
-		// 4560 dots per line, 70224 per fram
-		unsigned int m_dot = 0;
 
+		void createMode3Penalty();
+	private:
+		InterruptHandler& m_ih;
+
+		// 4560 dots per line, 70224 per fram
+		unsigned int m_lineDot = 0;
+		unsigned int m_modeDot = 0;
 		/*
-		Mode 2: OAM Cycle (lines 0-79, 80 dots)
-		Mode 3: Drawing Pixels (lines 80 to lines 251-368, 172 to 289 dots)
-		Mode 0: HBlank (from line 252-369 to 455, 87 to 204 dots)
-		Mode 1: VBlank (from line 456 to 5015, 4560 dots)
+		Mode 2: OAM Cycle (dots 0-79, 80 dots)
+		Mode 3: Drawing Pixels (dots 80 to dots 251-368, 172 to 289 dots)
+		Mode 0: HBlank (from dots 252-369 to 455, 87 to 204 dots)
+		Mode 1: VBlank (from dots 456 to 5015, 4560 dots)
 		*/
 		unsigned int m_mode = 2;
-
-		unsigned int m_line = 0;
+		bool m_mode3Penalty = false;
 
 		bool m_frameReady = false;
 		std::array<u8, WIDTH * HEIGHT> m_frameBuffer;
@@ -71,5 +77,8 @@ namespace rose_core
 		u8 m_obp1 = 0;		// 0xFF49 - OBJ Palette 1 Data - Most often 0x00 or 0xFF but unreliable
 		u8 m_wy = 0x00;		// 0xFF4A - Window Y Position
 		u8 m_wx = 0x00;		// 0xFF4B - Window X Position + 7
+
+		bool m_lycPrevious = false;
+		void checkLYC();
 	};
 }

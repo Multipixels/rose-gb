@@ -128,7 +128,7 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
     //IM_ASSERT(font != nullptr);
 
     roseInstance = new rose_core::Rose();
-    roseInstance->loadGame("../resources/mooneye/acceptance/add_sp_e_timing.gb");
+    roseInstance->loadGame("../resources/mooneye/acceptance/ppu/stat_lyc_onoff.gb");
 
     im = new InstructionMenu(roseInstance);
     mm = new MemoryMenu(roseInstance);

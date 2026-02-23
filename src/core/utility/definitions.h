@@ -26,7 +26,7 @@ namespace rose_core
     typedef enum InterruptType
     {
         VBLANK,
-        LCD,
+        STAT,
         TIMER,
         SERIAL,
         JOYPAD,

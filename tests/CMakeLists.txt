@@ -41,6 +41,8 @@ add_executable("RoseTests"
     "mmu/mmu-test.h"
     "mooneye/mooneye-test.cpp"
     "mooneye/mooneye-test.h"
+    "ppu/ppu-test.cpp"
+    "ppu/ppu-test.h"
     "timer/timer-test.cpp"
     "timer/timer-test.h"
 )
@@ -59,6 +61,7 @@ target_include_directories(RoseTests PUBLIC
     "../src/core/cpu"
     "../src/core/interruptHandler"
     "../src/core/mmu"
+    "../src/core/ppu"
     "../src/core/timer"
     "../src/core/utility"
 )

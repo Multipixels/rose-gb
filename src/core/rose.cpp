@@ -8,7 +8,7 @@ namespace rose_core
 	Rose::Rose() 
 		: m_ih(InterruptHandler())
 		, m_cart(Cartridge())
-		, m_ppu(PPU())
+		, m_ppu(PPU(m_ih))
 		, m_timer(Timer(m_ih))
 		, m_mmu(MMU(m_ih, m_timer, m_ppu))
 		, m_cpu(CPU(m_ih, m_mmu))

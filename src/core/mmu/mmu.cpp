@@ -1,5 +1,7 @@
 #include "mmu.h"
 
+#include <iostream>
+
 namespace rose_core
 {
 	MMU::MMU(InterruptHandler& p_ih, Timer& p_timer, PPU& p_ppu)

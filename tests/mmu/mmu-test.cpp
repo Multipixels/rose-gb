@@ -8,7 +8,8 @@ TEST(MMUTest, Getters)
 {
 	rose_core::InterruptHandler ih;
 	rose_core::Timer timer(ih);
-	rose_core::MMU mmu(ih, timer);
+	rose_core::PPU ppu(ih);
+	rose_core::MMU mmu(ih, timer, ppu);
 	ASSERT_NO_FATAL_FAILURE(loadTestCartridge(testingCartridge, mmu));
 
 	EXPECT_EQ(mmu.getU8(0x00), 0x3C);
@@ -23,7 +24,8 @@ TEST(MMUTest, Setters)
 {
 	rose_core::InterruptHandler ih;
 	rose_core::Timer timer(ih);
-	rose_core::MMU mmu(ih, timer);
+	rose_core::PPU ppu(ih);
+	rose_core::MMU mmu(ih, timer, ppu);
 	ASSERT_NO_FATAL_FAILURE(loadTestCartridge(testingCartridge, mmu));
 
 	ASSERT_NO_FATAL_FAILURE(mmu.setU8(0x00, 0x3D));

@@ -18,7 +18,7 @@ TEST(InterruptHandlerTest, RequestingInterrupts)
 	// Test if each interrupt request enabled the right bit
 	ih.requestInterrupt(rose_core::VBLANK);
 	EXPECT_EQ(ih.readIF(), 0xE1);
-	ih.requestInterrupt(rose_core::LCD);
+	ih.requestInterrupt(rose_core::STAT);
 	EXPECT_EQ(ih.readIF(), 0xE3);
 	ih.requestInterrupt(rose_core::TIMER);
 	EXPECT_EQ(ih.readIF(), 0xE7);
@@ -29,7 +29,7 @@ TEST(InterruptHandlerTest, RequestingInterrupts)
 
 	// Making sure that requesting an interrupt again won't change it.
 	ih.requestInterrupt(rose_core::VBLANK);
-	ih.requestInterrupt(rose_core::LCD);
+	ih.requestInterrupt(rose_core::STAT);
 	ih.requestInterrupt(rose_core::TIMER);
 	ih.requestInterrupt(rose_core::SERIAL);
 	ih.requestInterrupt(rose_core::JOYPAD);
@@ -38,7 +38,7 @@ TEST(InterruptHandlerTest, RequestingInterrupts)
 	// Resetting specific flags of IF
 	ih.resetIFBit(rose_core::VBLANK);
 	EXPECT_EQ(ih.readIF(), 0xFE);
-	ih.resetIFBit(rose_core::LCD);
+	ih.resetIFBit(rose_core::STAT);
 	EXPECT_EQ(ih.readIF(), 0xFC);
 	ih.resetIFBit(rose_core::TIMER);
 	EXPECT_EQ(ih.readIF(), 0xF8);
