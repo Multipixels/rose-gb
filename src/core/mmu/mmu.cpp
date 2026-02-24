@@ -36,6 +36,11 @@ namespace rose_core
 		case 0xFF40: // LCDC: LCD Control
 			return m_ppu.readLCDC();
 		case 0xFF41: // STAT: LCD Status
+		{
+			u8 val = m_ppu.readSTAT();
+			std::cout << (int)val << std::endl;
+			return val;
+		}
 			return m_ppu.readSTAT();
 		case 0xFF42: // SCY: Viewport Y Position
 			return m_ppu.readSCY();

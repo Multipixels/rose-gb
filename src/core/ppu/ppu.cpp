@@ -12,98 +12,71 @@ namespace rose_core
 
 	void PPU::tick()
 	{
+		if (setMode2NextTick)
+		{
+			setMode(2);
+			setMode2NextTick = false;
+		}
+
 		if (!isPPUEnabled())
 		{
 			return;
 		}
 
-		switch (m_mode)
-		{ 
-		case 2: // Mode 2: OAM Cycle (dots 0-79, 80 dots)
-			if (m_modeDot >= 79)
+		m_lineDot++;
+		m_modeDot++;
+
+		if (m_ly < 144)
+		{
+			// Mode 2: OAM Cycle (dots 0-79, 80 dots)
+			if (m_lineDot == 80)
 			{
-				m_mode = 3;
-				m_modeDot = 0;
-			}
-			else
-			{
-				m_modeDot++;
-			}
-			m_lineDot++;
-			break;
-		case 3: // Mode 3: Drawing Pixels (dots 80 to dots 251-368, 172 to 289 dots)
-			if (m_modeDot >= 171 && !m_mode3Penalty)
-			{
-				m_mode = 0;
-				m_mode3Penalty = false;
+				setMode(3);
 				m_modeDot = 0;
 			}
 
-			// If we reach dot 368 (max we can stay in mode 3) and we haven't finished drawing pixels
-			else if (m_lineDot >= 368 && m_modeDot <= 171 && !m_mode3Penalty)
+			// Mode 3: Drawing Pixels (dots 80 to dots 251-368, 172 to 289 dots)
+			if (m_lineDot == 252)
 			{
-				m_mode = 0;
-				m_mode3Penalty = false;
+				setMode(0);
 				m_modeDot = 0;
 			}
 
-			else if (!m_mode3Penalty)
+			// Mode 0: HBlank (from dots 252-369 to 455, 87 to 204 dots)
+			if (m_lineDot == 456)
 			{
-				m_modeDot++;
-			}
-
-			m_lineDot++;
-			break;
-		case 0: // Mode 0: HBlank (from dots 252-369 to 455, 87 to 204 dots)
-			if (m_lineDot >= 455)
-			{
-				if (m_ly >= 143)
+				m_modeDot = 0;
+				m_lineDot = 0;
+				m_ly++;
+				if (m_ly == 144)
 				{
-					m_mode = 1;
-					m_modeDot = 0;
-					m_lineDot++;
-					m_ly++;
-					checkLYC();
-					m_frameReady = true;
+					setMode(1);
 					m_ih.requestInterrupt(VBLANK);
 				}
 				else
 				{
-					m_mode = 2;
-					m_modeDot = 0;
-					m_lineDot = 0;
-					m_ly++;
-					checkLYC();
-					break;
+					setMode(2);
 				}
+				checkLYC();
 			}
-			m_lineDot++;
-			break;
-		case 1: // Mode 1: VBlank (from lines 144-153, 456 dots each)
-			if (m_modeDot >= 455)
+		}
+		else
+		{
+			// Mode 1: VBlank (from lines 144-153, 456 dots each)
+			if (m_modeDot == 456)
 			{
-				if (m_ly >= 153)
+				m_ly++;
+				m_modeDot = 0;
+				m_lineDot = 0;
+
+				if (m_ly == 154)
 				{
-					m_mode = 2;
-					m_modeDot = 0;
-					m_lineDot = 0;
 					m_ly = 0;
-					checkLYC();
-					break;
+					setMode(2);
 				}
-				else
-				{
-					m_modeDot = 0;
-					m_lineDot++;
-					m_ly++;
-					checkLYC();
-					break;
-				}
+
+				checkLYC();
 			}
-			m_modeDot++;
-			break;
-		default:
-			throw;
 		}
 	}
 
@@ -119,8 +92,8 @@ namespace rose_core
 
 	const bool PPU::isPPUEnabled() const
 	{
-		return (bool)(m_lcdc & 0x10000000);
-	}
+		return (bool)(m_lcdc & 0b10000000);
+	}	
 
 	const u8 PPU::readLCDC() const
 	{
@@ -129,10 +102,8 @@ namespace rose_core
 
 	const u8 PPU::readSTAT() const
 	{
-		u8 stat = 0x80;							// bit 7: always 1
-		stat |= m_stat & 0b01111000;			// bit 3-6: store stat values
-		stat |= (u8)(m_lyc == m_ly) << 2;		// bit 2: LYC == LY
-		if(isPPUEnabled()) stat |= (u8)m_mode;	// bit 0-1: PPU mode
+		u8 stat = m_stat & 0b11111100;
+		if (isPPUEnabled()) stat |= m_mode;
 		return stat;
 	}
 
@@ -183,21 +154,38 @@ namespace rose_core
 
 	void PPU::setLCDC(u8 p_value)
 	{
+		bool ppuEnabled0 = m_lcdc & 0x80;
+		bool ppuEnabled1 = p_value & 0x80;
 		m_lcdc = p_value;
+
+		if (!ppuEnabled0 && ppuEnabled1)
+		{
+			checkLYC();
+		}
+
+		if (ppuEnabled0 && !ppuEnabled1)
+		{
+			m_ly = 0;
+			m_mode = 0;
+			m_lineDot = 0;
+			m_modeDot = 0;
+		}
 	}
 
 	void PPU::setSTAT(u8 p_value)
 	{
 		u8 prev_stat = m_stat;
 
-		m_stat = 0x80;					// bit 7: always 1
+		m_stat = 0x80;						// bit 7: always 1
 		m_stat |= p_value & 0b01111000;		// bit 3-6: store stat values
 		m_stat |= (u8)(m_lyc == m_ly) << 2;	// bit 2: LYC == LY
 		m_stat |= (u8)m_mode;				// bit 0-1: PPU mode
 
-		if (   ((prev_stat & (1 << 6)) == 0) && ((m_stat & (1 << 6)) == 1)   )
+		bool lycEnable0 = prev_stat & 0x40;
+		bool lycEnable1 = m_stat & 0x40;
+		if (!lycEnable0 && lycEnable1)
 		{
-			m_ih.requestInterrupt(STAT);
+			checkLYC();
 		}
 	}
 
@@ -255,6 +243,7 @@ namespace rose_core
 	void PPU::checkLYC()
 	{
 		bool lycCondition = (m_ly == m_lyc) && (m_stat & (1 << 6));
+		m_stat = (m_stat & 0b11111011) | ((m_lyc == m_ly) << 2);
 
 		if (lycCondition && !m_lycPrevious)
 		{
@@ -262,5 +251,20 @@ namespace rose_core
 		}
 
 		m_lycPrevious = lycCondition;
+	}
+
+	void PPU::setMode(int p_mode)
+	{
+		if (m_mode == p_mode) return;
+
+		m_mode = p_mode;
+		m_stat = (m_stat & 0b11111100) | m_mode;
+
+		if (p_mode == 3) return;
+
+		if (m_stat & (1 << (p_mode + 2)))
+		{
+			m_ih.requestInterrupt(STAT);
+		}
 	}
 }

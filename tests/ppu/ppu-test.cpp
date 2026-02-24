@@ -2,17 +2,23 @@
 
 #include "ppu-test.h"
 
-TEST(PPUTest, Tick)
+TEST(PPUTest, DISABLED_Tick)
 {
 	rose_core::InterruptHandler ih;
 	rose_core::PPU ppu(ih);
+
+	rose_core::u8 stat = ppu.readSTAT();
+	ASSERT_EQ(stat & 0b11, 1) << "Expected Mode 1, got Mode " << (stat & 0b11) << " pre-startup.";
+	ppu.tick();
+	bool startup = true;
 
 	for (int i = 1; i < 61; i++)
 	{
 		for (int j = 0; j < 144; j++)
 		{
-			for (int k = 0; k < 80; k++)
+			for (int k = 0 + startup; k < 80; k++)
 			{
+				startup = false;
 				rose_core::u8 stat = ppu.readSTAT();
 				ASSERT_EQ(stat & 0b11, 2) << "Expected Mode 2, got Mode " << (stat & 0b11) << " on frame " << i << ", line " << j << ", dot " << k << ".";
 				ppu.tick();

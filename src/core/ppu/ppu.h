@@ -66,7 +66,7 @@ namespace rose_core
 		std::array<u8, WIDTH * HEIGHT> m_frameBuffer;
 
 		// Registers
-		u8 m_lcdc = 0x91;	// 0xFF40 - 
+		u8 m_lcdc = 0x91;	// 0xFF40 - LCD Control
 		u8 m_stat = 0x85;	// 0xFF41 - LCD Status
 		u8 m_scy = 0x00;	// 0xFF42 - Viewport Y Position
 		u8 m_scx = 0x00;	// 0xFF43 - Viewport X Position
@@ -80,5 +80,8 @@ namespace rose_core
 
 		bool m_lycPrevious = false;
 		void checkLYC();
+
+		void setMode(int mode);
+		bool setMode2NextTick = true;
 	};
 }
