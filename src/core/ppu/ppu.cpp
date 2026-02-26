@@ -12,10 +12,10 @@ namespace rose_core
 
 	void PPU::tick()
 	{
-		if (setMode2NextTick)
+		if (m_setMode2NextTick)
 		{
 			setMode(2);
-			setMode2NextTick = false;
+			m_setMode2NextTick = false;
 		}
 
 		if (!isPPUEnabled())
@@ -187,6 +187,11 @@ namespace rose_core
 		{
 			checkLYC();
 		}
+		else
+		{
+			checkStatIrqLine();
+		}
+
 	}
 
 	void PPU::setSCY(u8 p_value)
@@ -242,15 +247,9 @@ namespace rose_core
 
 	void PPU::checkLYC()
 	{
-		bool lycCondition = (m_ly == m_lyc) && (m_stat & (1 << 6));
 		m_stat = (m_stat & 0b11111011) | ((m_lyc == m_ly) << 2);
 
-		if (lycCondition && !m_lycPrevious)
-		{
-			m_ih.requestInterrupt(STAT);
-		}
-
-		m_lycPrevious = lycCondition;
+		checkStatIrqLine();
 	}
 
 	void PPU::setMode(int p_mode)
@@ -260,11 +259,22 @@ namespace rose_core
 		m_mode = p_mode;
 		m_stat = (m_stat & 0b11111100) | m_mode;
 
-		if (p_mode == 3) return;
+		checkStatIrqLine();
+	}
 
-		if (m_stat & (1 << (p_mode + 2)))
+	void PPU::checkStatIrqLine()
+	{
+		bool currentStatIrqLine = 
+			( ((m_stat & 0b11) == 0) && (m_stat & 0b1000)   ) ||
+			( ((m_stat & 0b11) == 1) && (m_stat & 0b10000)  ) ||
+			( ((m_stat & 0b11) == 2) && (m_stat & 0b100000) ) ||
+			(  (m_stat & 0b100)      && (m_stat & 0b1000000));
+
+		if (!m_statIrqLine && currentStatIrqLine)
 		{
 			m_ih.requestInterrupt(STAT);
 		}
+
+		m_statIrqLine = currentStatIrqLine;
 	}
 }

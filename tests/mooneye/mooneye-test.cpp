@@ -267,12 +267,12 @@ TEST(Mooneye, AcceptancePPU)
 		// { "../resources/mooneye/acceptance/ppu/intr_2_mode0_timing.gb",			100000000 }, // failed
 		// { "../resources/mooneye/acceptance/ppu/intr_2_mode0_timing_sprites.gb",	100000000 }, // failed
 		// { "../resources/mooneye/acceptance/ppu/intr_2_mode3_timing.gb",			100000000 }, // failed
-		// { "../resources/mooneye/acceptance/ppu/intr_2_oam_ok_timing.gb",		100000000 }, // failed
-		// { "../resources/mooneye/acceptance/ppu/lcdon_timing-GS.gb",				100000000 }, // failed
+		// { "../resources/mooneye/acceptance/ppu/intr_2_oam_ok_timing.gb",			100000000 }, // failed
+		// { "../resources/mooneye/acceptance/ppu/lcdon_timing-GS.gb",					100000000 }, // failed
 		// { "../resources/mooneye/acceptance/ppu/lcdon_write_timing-GS.gb",		100000000 }, // failed
-		// { "../resources/mooneye/acceptance/ppu/stat_irq_blocking.gb",			100000000 }, // failed
+		{ "../resources/mooneye/acceptance/ppu/stat_irq_blocking.gb",					   -1 }, // passes
 		{ "../resources/mooneye/acceptance/ppu/stat_lyc_onoff.gb",						   -1 }, // passes
-		// { "../resources/mooneye/acceptance/ppu/vblank_stat_intr-GS.gb",			1000000 }, // infinite loop???
+		//{ "../resources/mooneye/acceptance/ppu/vblank_stat_intr-GS.gb",			1000000 }, // infinite loop???
 	};
 
 	for (TestCase test : testCases)

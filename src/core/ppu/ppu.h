@@ -78,10 +78,12 @@ namespace rose_core
 		u8 m_wy = 0x00;		// 0xFF4A - Window Y Position
 		u8 m_wx = 0x00;		// 0xFF4B - Window X Position + 7
 
-		bool m_lycPrevious = false;
 		void checkLYC();
 
 		void setMode(int mode);
-		bool setMode2NextTick = true;
+		bool m_setMode2NextTick = true;
+
+		void checkStatIrqLine();
+		bool m_statIrqLine = false;
 	};
 }
